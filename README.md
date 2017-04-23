@@ -18,7 +18,7 @@ let fs  = require("fs");
   let save = await smm.loadSave("path/to/your/cemu/save");
   save.writeCrc(); // writes crc checksum to 'save.dat'
 
-  let tnl = smm.tnl("path/to/your/tnl-or-jpeg-file");
+  let tnl = smm.loadImage("path/to/your/tnl-or-jpeg-file");
   let jpeg = await tnl.toJpeg();
   fs.writeFileSync("path/to/newly/created/jpeg", jpeg);
 })();
