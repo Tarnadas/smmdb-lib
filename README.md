@@ -1,5 +1,7 @@
 # cemu-smm
 
+This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu.
+
 ## Installation
 
 With [npm](https://www.npmjs.org/package/cemu-smm):
@@ -30,10 +32,6 @@ let fs  = require("fs");
   fs.writeFileSync("path/to/newly/created/tnl", tnl);
 })();
 ```
-
-## Motivation
-
-To be written
 
 ## License
 
