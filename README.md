@@ -5,7 +5,7 @@
 With [npm](https://www.npmjs.org/package/cemu-smm):
 
 ```bash
-$ npm install crc-32
+$ npm install --save cemu-smm
 ```
 
 ## Code Example
