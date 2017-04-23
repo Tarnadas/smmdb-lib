@@ -15,12 +15,19 @@ let smm = require("cemu-smm");
 let fs  = require("fs");
 
 (async () => {
+  // let us load our SMM save file to do cool stuff
   let save = await smm.loadSave("path/to/your/cemu/save");
   save.writeCrc(); // writes crc checksum to 'save.dat'
 
-  let tnl = smm.loadImage("path/to/your/tnl-or-jpeg-file");
+  // convert tnl to jpeg
+  let tnl = smm.loadImage("path/to/your/tnl/file");
   let jpeg = await tnl.toJpeg();
   fs.writeFileSync("path/to/newly/created/jpeg", jpeg);
+
+  // convert jpeg to tnl
+  jpeg = smm.loadImage("path/to/your/jpeg/file");
+  tnl = await jpeg.fromJpeg();
+  fs.writeFileSync("path/to/newly/created/tnl", tnl);
 })();
 ```
 
