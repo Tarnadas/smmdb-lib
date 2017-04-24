@@ -83,7 +83,7 @@ let tnl = smm.loadImage("path/to/your/tnl/file");
 ```
 Do the conversion with
 ```js
-let jpeg = await jpeg.fromJpeg([isWide, [doCrop = false]]);
+let jpeg = await jpeg.toJpeg();
 ```
 Save your file
 ```js
