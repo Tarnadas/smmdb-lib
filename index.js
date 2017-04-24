@@ -1,4 +1,5 @@
 const crc32 = require("buffer-crc32");
+const jimp  = require("jimp");
 
 const fs    = require("fs");
 const path  = require("path");
@@ -10,6 +11,15 @@ const SAVE_ORDER_EMPTY = 0xFF;
 
 const TNL_SIZE = 0xC800;
 const TNL_JPEG_MAX_SIZE = 0xC7F8;
+const TNL_DIMENSION = [
+    [ 720, 81 ],
+    [ 320, 240 ]
+];
+const TNL_ASPECT_RATIO = [
+    TNL_DIMENSION[0][0] / TNL_DIMENSION[0][1],
+    TNL_DIMENSION[1][0] / TNL_DIMENSION[1][1]
+];
+const TNL_ASPECT_RATIO_THRESHOLD = [ 3.5, 0.3 ];
 
 module.exports = {
     loadSave: loadSave,
@@ -145,7 +155,7 @@ Save.prototype = {
                         new Promise(async (resolve) => {
                             try {
                                 let tnl = new Tnl(coursePath + "/thumbnail0.tnl");
-                                let jpeg = await tnl.toJpeg();
+                                let jpeg = await tnl.toJpeg(true);
                                 fs.writeFile(coursePath + "/thumbnail0.jpg", jpeg, null, () => {
                                     resolve();
                                 })
@@ -156,7 +166,7 @@ Save.prototype = {
                         new Promise(async (resolve) => {
                             try {
                                 let tnl = new Tnl(coursePath + "/thumbnail1.tnl");
-                                let jpeg = await tnl.toJpeg();
+                                let jpeg = await tnl.toJpeg(false);
                                 fs.writeFile(coursePath + "/thumbnail1.jpg", jpeg, null, () => {
                                     resolve();
                                 });
@@ -195,27 +205,70 @@ Tnl.prototype = {
 
     },
 
-    fromJpeg: async function () {
+    fromJpeg: async function (isWide, doClip = false) {
 
-        return new Promise((resolve, reject) => {
-            fs.readFile(this.pathToFile, (err, data) => {
-                if (err) throw err;
-                if (data.length > TNL_JPEG_MAX_SIZE) {
-                    reject("File size too big. Maximum length is 0xC7F8 bytes.");
+        return new Promise(async (resolve, reject) => {
+
+            // image pre-processing
+            let image = await jimp.read(this.pathToFile);
+
+            if (isWide === null) {
+                let aspectRatio = image.bitmap.width / image.bitmap.height;
+                if (aspectRatio > TNL_ASPECT_RATIO[0] - TNL_ASPECT_RATIO_THRESHOLD[0] && aspectRatio < TNL_ASPECT_RATIO[0] + TNL_ASPECT_RATIO_THRESHOLD[0]) {
+                    isWide = true;
+                } else if (aspectRatio > TNL_ASPECT_RATIO[1] - TNL_ASPECT_RATIO_THRESHOLD[1] && aspectRatio < TNL_ASPECT_RATIO[1] + TNL_ASPECT_RATIO_THRESHOLD[1]) {
+                    isWide = false;
                 }
-                let length = Buffer.alloc(4);
-                length.writeUInt32BE(data.length, 0);
+                if (isWide === null) {
+                    isWide = TNL_ASPECT_RATIO[0] - TNL_ASPECT_RATIO_THRESHOLD[0] - aspectRatio <= TNL_ASPECT_RATIO[1] + TNL_ASPECT_RATIO_THRESHOLD[1] + aspectRatio;
+                }
+            }
 
-                let padding = Buffer.alloc(0xC800 - data.length - 8);
+            if (isWide) {
+                if (doClip) {
+                    image.cover(TNL_DIMENSION[0][0], TNL_DIMENSION[0][1]);
+                } else {
+                    image.contain(TNL_DIMENSION[0][0], TNL_DIMENSION[0][1]);
+                }
+            } else {
+                if (doClip) {
+                    image.cover(TNL_DIMENSION[1][0], TNL_DIMENSION[1][1]);
+                } else {
+                    image.contain(TNL_DIMENSION[1][0], TNL_DIMENSION[1][1]);
+                }
+            }
 
-                let fileWithoutCrc = Buffer.concat([length, data, padding], 0xC800 - 4);
+            // wrap tnl data around jpeg
+            let data = await new Promise((resolve) => {
+                image.getBuffer(jimp.MIME_JPEG, (err, buffer) => { resolve(buffer); });
+            });
 
-                let crcBuffer = Buffer.alloc(4);
-                crcBuffer.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
+            // lower quality until it fits
+            let quality = 100;
+            while (data.length > TNL_JPEG_MAX_SIZE) {
+                quality -= 5;
+                if (quality < 0) {
+                    reject("File could not be transformed into jpeg with lowest quality setting.");
+                }
+                data = await new Promise((resolve) => {
+                    image.quality(quality);
+                    image.getBuffer(jimp.MIME_JPEG, (err, buffer) => { resolve(buffer); });
+                });
+            }
 
-                let tnl = Buffer.concat([crcBuffer, fileWithoutCrc], TNL_SIZE);
-                resolve(tnl);
-            })
+            let length = Buffer.alloc(4);
+            length.writeUInt32BE(data.length, 0);
+
+            let padding = Buffer.alloc(0xC800 - data.length - 8);
+
+            let fileWithoutCrc = Buffer.concat([length, data, padding], 0xC800 - 4);
+
+            let crcBuffer = Buffer.alloc(4);
+            crcBuffer.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
+
+            let tnl = Buffer.concat([crcBuffer, fileWithoutCrc], TNL_SIZE);
+            resolve(tnl);
+
         });
 
     }

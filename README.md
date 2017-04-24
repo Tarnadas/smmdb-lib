@@ -36,11 +36,22 @@ let fs  = require("fs");
   let tnl = smm.loadImage("path/to/your/tnl/file");
   let jpeg = await tnl.toJpeg();
   fs.writeFileSync("path/to/newly/created/jpeg", jpeg);
-
+  
   // convert jpeg to tnl
   jpeg = smm.loadImage("path/to/your/jpeg/file");
+  
+  // default conversion
   tnl = await jpeg.fromJpeg();
   fs.writeFileSync("path/to/newly/created/tnl", tnl);
+    
+  // to wide
+  tnl = await jpeg.fromJpeg(true);
+  fs.writeFileSync("path/to/newly/created/tnl", tnl);
+    
+  // to 4:3
+  tnl = await jpeg.fromJpeg(false);
+  fs.writeFileSync("path/to/newly/created/tnl", tnl);
+  
 })();
 ```
 

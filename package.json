@@ -1,6 +1,6 @@
 {
   "name": "cemu-smm",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,8 @@
   "author": "Mario Reder",
   "license": "MIT",
   "dependencies": {
-    "buffer-crc32": "latest"
+    "buffer-crc32": "latest",
+    "jimp": "^0.2.27"
   },
   "repository": {
     "type": "git",
