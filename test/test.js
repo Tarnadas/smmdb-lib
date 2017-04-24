@@ -6,11 +6,13 @@ let path = require("path");
 
     let save = await smm.loadSave("C:/Users/Public/Games/Cemu/cemu_1.6.4/mlc01/emulatorSave/1358e99f");
 
-    save.reorder();
-    save.exportJpeg();
+    await save.reorder();
+    await save.exportJpeg();
+    let courses = await save.loadCourses();
+    console.log(JSON.stringify(courses));
 
     // internally done by reorder()
-    //save.writeCrc(); // writes crc checksum to 'save.dat'
+    save.writeCrc(); // writes crc checksum to 'save.dat'
 
     let jpeg = smm.loadImage(path.resolve(`${__dirname}/4k_test.jpg`));
 

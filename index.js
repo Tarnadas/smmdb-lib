@@ -9,6 +9,18 @@ const SAVE_ORDER_OFFSET = 0x4340;
 const SAVE_ORDER_SIZE = 120;
 const SAVE_ORDER_EMPTY = 0xFF;
 
+const COURSE_SAVE_NAME_OFFSET = 0x28;
+const COURSE_SAVE_NAME_LENGTH = 0x42;
+const COURSE_SAVE_MAKER_OFFSET = 0x92;
+const COURSE_SAVE_MAKER_LENGTH = 0x14;
+const COURSE_SAVE_TYPE_OFFSET = 0x6A;
+const COURSE_SAVE_TYPE_READABLE = {
+    "M1": "Super Mario Bros",
+    "M3": "Super Mario Bros 3",
+    "MW": "Super Mario World",
+    "WU": "New Super Mario Bros U"
+};
+
 const TNL_SIZE = 0xC800;
 const TNL_JPEG_MAX_SIZE = 0xC7F8;
 const TNL_DIMENSION = [
@@ -29,6 +41,7 @@ module.exports = {
 async function loadSave(pathToSave) {
     return new Promise((resolve) => {
         pathToSave = path.resolve(pathToSave);
+        if (!fs.existsSync(pathToSave)) throw new Error(`No such folder exists:\n${pathToSave}`);
         fs.readFile(path.resolve(`${pathToSave}/save.dat`), (err, data) => {
             if (err) throw err;
             resolve(new Save(pathToSave, data));
@@ -43,6 +56,7 @@ function loadImage(pathToFile) {
 function Save(pathToSave, data) {
     this.pathToSave = pathToSave;
     this.data = data;
+    this.courses = {};
 }
 
 Save.prototype = {
@@ -180,6 +194,63 @@ Save.prototype = {
             }));
         }
         await Promise.all(promises);
+
+    },
+
+    loadCourses: async function () {
+
+        let promises = [];
+        for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+            let course = `course${i.pad(3)}`;
+            let coursePath = path.resolve(`${this.pathToSave}/${course}/`);
+            promises.push(new Promise(async (resolve) => {
+                let exists = false;
+                await new Promise((resolve) => {
+                    fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
+                        exists = !err;
+                        resolve();
+                    });
+                });
+                if (exists) {
+                    fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), (err, data) => {
+                        if (err) throw err;
+                        let titleBuf = data.slice(COURSE_SAVE_NAME_OFFSET, COURSE_SAVE_NAME_OFFSET + COURSE_SAVE_NAME_LENGTH);
+                        let title = "";
+                        for (let i = 0; i < COURSE_SAVE_NAME_LENGTH; i++) {
+                            let charBuf = titleBuf.slice(i, i+1);
+                            if (charBuf.readUInt8(0) !== 0) {
+                                title += charBuf.toString();
+                            }
+                        }
+                        let makerBuf = data.slice(COURSE_SAVE_MAKER_OFFSET, COURSE_SAVE_MAKER_OFFSET + COURSE_SAVE_MAKER_LENGTH);
+                        let maker = "";
+                        let doBreak = false;
+                        for (let i = 0; i < COURSE_SAVE_MAKER_LENGTH; i++) {
+                            let charBuf = makerBuf.slice(i, i+1);
+                            if (charBuf.readUInt8(0) === 0) {
+                                if (doBreak) break;
+                                doBreak = true;
+                            } else {
+                                doBreak = false;
+                                maker += charBuf.toString();
+                            }
+                        }
+                        let type = data.slice(COURSE_SAVE_TYPE_OFFSET, COURSE_SAVE_TYPE_OFFSET + 2).toString();
+                        this.courses[course] = {
+                            title: title,
+                            maker: maker,
+                            type: type,
+                            type_readable: COURSE_SAVE_TYPE_READABLE[type]
+                        };
+                        resolve();
+                    });
+                } else {
+                    resolve();
+                }
+            }));
+        }
+        await Promise.all(promises);
+        return this.courses;
 
     }
 
