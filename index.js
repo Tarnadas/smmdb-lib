@@ -49,8 +49,8 @@ Save.prototype = {
                 let crc = Buffer.alloc(4);
                 crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
                 let crcBuffer = Buffer.concat([Buffer.from("0000000000000015", "hex"), crc, Buffer.alloc(4)], 16);
-                let fileBuffer = Buffer.concat([crcBuffer, fileWithoutCrc], SAVE_SIZE);
-                fs.writeFile(path.resolve(`${this.pathToSave}/mlc01/emulatorSave/${GAME_IDS['1.1']}/save.dat`), fileBuffer, null, () => {
+                this.data = Buffer.concat([crcBuffer, fileWithoutCrc], SAVE_SIZE);
+                fs.writeFile(path.resolve(`${this.pathToSave}/mlc01/emulatorSave/${GAME_IDS['1.1']}/save.dat`), this.data, null, () => {
                     resolve();
                 })
             } catch (err) {
@@ -111,9 +111,9 @@ Save.prototype = {
                     // write bytes to 'save.dat'
                     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
                         if (missingNo.includes(i)) {
-                            this.data.writeUInt8(SAVE_ORDER_EMPTY, i);
+                            this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i);
                         } else {
-                            this.data.writeUInt8(i, i);
+                            this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
                         }
                     }
 
