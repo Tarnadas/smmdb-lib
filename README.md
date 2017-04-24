@@ -17,8 +17,8 @@ let smm = require("cemu-smm");
 let fs  = require("fs");
 
 (async () => {
-  // let us load our SMM save file to do cool stuff
-  let save = await smm.loadSave("path/to/your/cemu/save");
+  // let us load our SMM save file
+  let save = await smm.loadSave("path/to/your/cemu/save/mlc01/emulatorSave/updateID");
   
   // reorder our course folders to match actual ingame appearance
   save.reorder();

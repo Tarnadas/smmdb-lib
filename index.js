@@ -3,10 +3,6 @@ const crc32 = require("buffer-crc32");
 const fs    = require("fs");
 const path  = require("path");
 
-const GAME_IDS = {
-    "1.1": "1358e99f" // TODO add additional game ID support
-};
-
 const SAVE_SIZE  = 0xA000;
 const SAVE_ORDER_OFFSET = 0x4340;
 const SAVE_ORDER_SIZE = 120;
@@ -23,7 +19,7 @@ module.exports = {
 async function loadSave(pathToSave) {
     return new Promise((resolve) => {
         pathToSave = path.resolve(pathToSave);
-        fs.readFile(path.resolve(`${pathToSave}/mlc01/emulatorSave/${GAME_IDS['1.1']}/save.dat`), (err, data) => {
+        fs.readFile(path.resolve(`${pathToSave}/save.dat`), (err, data) => {
             if (err) throw err;
             resolve(new Save(pathToSave, data));
         });
@@ -50,7 +46,7 @@ Save.prototype = {
                 crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
                 let crcBuffer = Buffer.concat([Buffer.from("0000000000000015", "hex"), crc, Buffer.alloc(4)], 16);
                 this.data = Buffer.concat([crcBuffer, fileWithoutCrc], SAVE_SIZE);
-                fs.writeFile(path.resolve(`${this.pathToSave}/mlc01/emulatorSave/${GAME_IDS['1.1']}/save.dat`), this.data, null, () => {
+                fs.writeFile(path.resolve(`${this.pathToSave}/save.dat`), this.data, null, () => {
                     resolve();
                 })
             } catch (err) {
@@ -86,8 +82,8 @@ Save.prototype = {
                         let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
                         if (index !== 255) {
                             promises.push(new Promise((resolve) => {
-                                let srcPath = path.resolve(`${this.pathToSave}/mlc01/emulatorSave/${GAME_IDS["1.1"]}/course${i.pad(3)}`);
-                                let dstPath = path.resolve(`${this.pathToSave}/mlc01/emulatorSave/${GAME_IDS["1.1"]}/course${(index).pad(3)}_reorder`);
+                                let srcPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}`);
+                                let dstPath = path.resolve(`${this.pathToSave}/course${(index).pad(3)}_reorder`);
                                 fs.rename(srcPath, dstPath, () => {
                                     resolve();
                                 });
@@ -98,8 +94,8 @@ Save.prototype = {
                     promises = [];
                     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
                         promises.push(new Promise((resolve) => {
-                            let srcPath = path.resolve(`${this.pathToSave}/mlc01/emulatorSave/${GAME_IDS["1.1"]}/course${i.pad(3)}_reorder`);
-                            let dstPath = path.resolve(`${this.pathToSave}/mlc01/emulatorSave/${GAME_IDS["1.1"]}/course${i.pad(3)}`);
+                            let srcPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}_reorder`);
+                            let dstPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}`);
                             fs.rename(srcPath, dstPath, () => {
                                 // somehow this does not throw an error if srcPath does not exist
                                 resolve();
