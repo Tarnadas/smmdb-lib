@@ -108,6 +108,8 @@ If ```doCrop === false```, parts of the image may be letter boxed.
 
 If ```doCrop === false```, parts of the image may be cropped.
 
+Images will automatically be resized to fit Super Mario Maker standards. You can even convert 4k images. If the file is still too big after rescaling, the quality of the JPEG will be shrinked.
+
 Save your file
 ```js
 fs.writeFileSync("path/to/newly/created/jpeg", tnl);
