@@ -19,7 +19,14 @@ let fs  = require("fs");
 (async () => {
   // let us load our SMM save file to do cool stuff
   let save = await smm.loadSave("path/to/your/cemu/save");
-  save.writeCrc(); // writes crc checksum to 'save.dat'
+  
+  // reorder our course folders to match actual ingame appearance
+  save.reorder();
+  
+  // recalculate crc checksum and write to 'save.dat'
+  // this always has to be done when changing bytes, e.g. in a Hex Editor
+  // internally done by reorder(), so unnecessary right here
+  save.writeCrc();
 
   // convert tnl to jpeg
   let tnl = smm.loadImage("path/to/your/tnl/file");
