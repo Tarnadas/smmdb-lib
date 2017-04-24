@@ -2,6 +2,7 @@
 
 This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu.
 It uses Javascript's async/await keywords that are available from Node >= 7.6.
+
 ## Installation
 
 With [npm](https://www.npmjs.org/package/cemu-smm):
@@ -27,7 +28,10 @@ let fs  = require("fs");
   // this always has to be done when changing bytes, e.g. in a Hex Editor
   // internally done by reorder(), so unnecessary right here
   save.writeCrc();
-
+  
+  // extract all tnl files to jpeg in their respective course folder
+  save.exportJpeg();
+  
   // convert tnl to jpeg
   let tnl = smm.loadImage("path/to/your/tnl/file");
   let jpeg = await tnl.toJpeg();

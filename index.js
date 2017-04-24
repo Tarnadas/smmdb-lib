@@ -39,7 +39,7 @@ Save.prototype = {
 
     writeCrc: async function () {
 
-        return new Promise((resolve) => {
+        await new Promise((resolve) => {
             try {
                 let fileWithoutCrc = this.data.slice(16);
                 let crc = Buffer.alloc(4);
@@ -58,7 +58,7 @@ Save.prototype = {
 
     reorder: async function () {
 
-        return new Promise(async (resolve, reject) => {
+        await new Promise(async (resolve, reject) => {
             try {
                 if (this.data.slice(SAVE_ORDER_OFFSET, SAVE_ORDER_OFFSET + SAVE_ORDER_SIZE).readUInt32BE(0) !== 0) {
                     // find all unused slots
@@ -125,12 +125,59 @@ Save.prototype = {
             }
         });
 
+    },
+
+    exportJpeg: async function () {
+
+        let promises = [];
+        for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+            let coursePath = path.resolve(`${this.pathToSave}/course${i.pad(3)}/`);
+            promises.push(new Promise(async (resolve) => {
+                let exists = false;
+                await new Promise((resolve) => {
+                    fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
+                        exists = !err;
+                        resolve();
+                    });
+                });
+                if (exists) {
+                    await Promise.all([
+                        new Promise(async (resolve) => {
+                            try {
+                                let tnl = new Tnl(coursePath + "/thumbnail0.tnl");
+                                let jpeg = await tnl.toJpeg();
+                                fs.writeFile(coursePath + "/thumbnail0.jpg", jpeg, null, () => {
+                                    resolve();
+                                })
+                            } catch (err) {
+                                resolve();
+                            }
+                        }),
+                        new Promise(async (resolve) => {
+                            try {
+                                let tnl = new Tnl(coursePath + "/thumbnail1.tnl");
+                                let jpeg = await tnl.toJpeg();
+                                fs.writeFile(coursePath + "/thumbnail1.jpg", jpeg, null, () => {
+                                    resolve();
+                                });
+                            } catch (err) {
+                                resolve();
+                            }
+                        })
+                    ]);
+                }
+                resolve();
+            }));
+        }
+        await Promise.all(promises);
+
     }
 
 };
 
 function Tnl(pathToFile) {
     this.pathToFile = path.resolve(pathToFile);
+    if (!fs.existsSync(this.pathToFile)) throw new Error(`No such file exists:\n${this.pathToFile}`);
 }
 
 Tnl.prototype = {
