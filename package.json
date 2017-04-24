@@ -1,6 +1,6 @@
 {
   "name": "cemu-smm",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,10 @@
   "author": "Mario Reder",
   "license": "MIT",
   "dependencies": {
-    "crc-32": "^1.0.1",
     "buffer-crc32": "latest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tarnadas/cemu-smm.git"
   }
 }

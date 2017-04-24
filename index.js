@@ -1,7 +1,7 @@
-const fs = require("fs");
-const path = require("path");
-const util = require("util");
 const crc32 = require("buffer-crc32");
+
+const fs    = require("fs");
+const path  = require("path");
 
 const GAME_IDS = {
     "1.1": "1358e99f" // TODO add additional game ID support
@@ -9,13 +9,15 @@ const GAME_IDS = {
 
 const SAVE_SIZE  = 0xA000;
 const SAVE_ORDER_OFFSET = 0x4340;
+const SAVE_ORDER_SIZE = 120;
+const SAVE_ORDER_EMPTY = 0xFF;
 
 const TNL_SIZE = 0xC800;
 const TNL_JPEG_MAX_SIZE = 0xC7F8;
 
 module.exports = {
     loadSave: loadSave,
-    tnl: Tnl
+    loadImage: loadImage
 };
 
 async function loadSave(pathToSave) {
@@ -28,13 +30,19 @@ async function loadSave(pathToSave) {
     });
 }
 
+function loadImage(pathToFile) {
+    return new Tnl(pathToFile);
+}
+
 function Save(pathToSave, data) {
     this.pathToSave = pathToSave;
     this.data = data;
 }
 
 Save.prototype = {
+
     writeCrc: async function () {
+
         return new Promise((resolve) => {
             try {
                 let fileWithoutCrc = this.data.slice(16);
@@ -49,10 +57,80 @@ Save.prototype = {
                 console.log(err);
             }
         });
+
     },
-    reorder: function () {
+
+    reorder: async function () {
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (this.data.slice(SAVE_ORDER_OFFSET, SAVE_ORDER_OFFSET + SAVE_ORDER_SIZE).readUInt32BE(0) !== 0) {
+                    // find all unused slots
+                    let numbers = [];
+                    for (let i = SAVE_ORDER_SIZE - 1; i > 0; i--) {
+                        let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
+                        if (index !== 255) {
+                            numbers.push(index);
+                        }
+                    }
+                    let missingNo = [];
+                    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+                        if (!numbers.includes(i)) {
+                            missingNo.push(i);
+                        }
+                    }
+
+                    // rename course folders
+                    let promises = [];
+                    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+                        let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
+                        if (index !== 255) {
+                            promises.push(new Promise((resolve) => {
+                                let srcPath = path.resolve(`${this.pathToSave}/mlc01/emulatorSave/${GAME_IDS["1.1"]}/course${i.pad(3)}`);
+                                let dstPath = path.resolve(`${this.pathToSave}/mlc01/emulatorSave/${GAME_IDS["1.1"]}/course${(index).pad(3)}_reorder`);
+                                fs.rename(srcPath, dstPath, () => {
+                                    resolve();
+                                });
+                            }));
+                        }
+                    }
+                    await Promise.all(promises);
+                    promises = [];
+                    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+                        promises.push(new Promise((resolve) => {
+                            let srcPath = path.resolve(`${this.pathToSave}/mlc01/emulatorSave/${GAME_IDS["1.1"]}/course${i.pad(3)}_reorder`);
+                            let dstPath = path.resolve(`${this.pathToSave}/mlc01/emulatorSave/${GAME_IDS["1.1"]}/course${i.pad(3)}`);
+                            fs.rename(srcPath, dstPath, () => {
+                                // somehow this does not throw an error if srcPath does not exist
+                                resolve();
+                            });
+                        }));
+                    }
+                    await Promise.all(promises);
+
+                    // write bytes to 'save.dat'
+                    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+                        if (missingNo.includes(i)) {
+                            this.data.writeUInt8(SAVE_ORDER_EMPTY, i);
+                        } else {
+                            this.data.writeUInt8(i, i);
+                        }
+                    }
+
+                    // recalculate checksum
+                    this.writeCrc();
+
+                    resolve();
+                } else {
+                    reject("No course has been saved so far");
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        });
 
     }
+
 };
 
 function Tnl(pathToFile) {
@@ -60,7 +138,9 @@ function Tnl(pathToFile) {
 }
 
 Tnl.prototype = {
+
     toJpeg: async function () {
+
         return new Promise((resolve) => {
             fs.readFile(this.pathToFile, (err, data) => {
                 if (err) throw err;
@@ -69,8 +149,11 @@ Tnl.prototype = {
                 resolve(jpeg);
             })
         });
+
     },
+
     fromJpeg: async function () {
+
         return new Promise((resolve, reject) => {
             fs.readFile(this.pathToFile, (err, data) => {
                 if (err) throw err;
@@ -91,17 +174,13 @@ Tnl.prototype = {
                 resolve(tnl);
             })
         });
+
     }
+
 };
 
-// test
-(async () => {
-
-    let tnl = new Tnl("C:/Users/Public/Games/Cemu/thumbnail script/yoshi prison break/thumbnail0.tnl");
-    let jpeg = await tnl.toJpeg();
-    fs.writeFileSync("C:/Users/Public/Games/Cemu/thumbnail script/yoshi prison break/test.jpg", jpeg);
-
-    let save = await loadSave("C:/Users/Public/Games/Cemu/cemu_1.6.4");
-    save.writeCrc();
-
-})();
+Number.prototype.pad = function(size) {
+    let s = String(this);
+    while (s.length < (size || 2)) {s = "0" + s;}
+    return s;
+};
