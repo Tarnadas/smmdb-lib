@@ -13,7 +13,7 @@ let smm = require("cemu-smm");
   let save = await smm.loadSave("path/to/your/cemu/save/mlc01/emulatorSave/updateID");
   
   // this will recalculate the CRC checksum of our save file
-  save.writeCrc()
+  save.writeCrc();
   
 })();
 ```
