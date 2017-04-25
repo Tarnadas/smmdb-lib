@@ -55,7 +55,6 @@ Inside your script type this:
 
 ```js
 let smm = require("cemu-smm");
-let fs  = require("fs");
   
 (async () => {
     
