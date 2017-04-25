@@ -1,5 +1,6 @@
-const crc32 = require("buffer-crc32");
-const jimp  = require("jimp");
+const Promise = require("bluebird");
+const crc32   = require("buffer-crc32");
+const jimp    = require("jimp");
 
 const fs    = require("fs");
 const path  = require("path");
@@ -42,6 +43,9 @@ async function loadSave(pathToSave) {
     return new Promise((resolve) => {
         pathToSave = path.resolve(pathToSave);
         if (!fs.existsSync(pathToSave)) throw new Error(`No such folder exists:\n${pathToSave}`);
+        fs.access(pathToSave, fs.constants.R_OK | fs.constants.W_OK, (err) => {
+            if (err) throw new Error("Please close you emuulator before executing your script");
+        });
         fs.readFile(path.resolve(`${pathToSave}/save.dat`), (err, data) => {
             if (err) throw err;
             resolve(new Save(pathToSave, data));
@@ -169,7 +173,7 @@ Save.prototype = {
                         new Promise(async (resolve) => {
                             try {
                                 let tnl = new Tnl(coursePath + "/thumbnail0.tnl");
-                                let jpeg = await tnl.toJpeg(true);
+                                let jpeg = await tnl.toJpeg();
                                 fs.writeFile(coursePath + "/thumbnail0.jpg", jpeg, null, () => {
                                     resolve();
                                 })
@@ -180,8 +184,54 @@ Save.prototype = {
                         new Promise(async (resolve) => {
                             try {
                                 let tnl = new Tnl(coursePath + "/thumbnail1.tnl");
-                                let jpeg = await tnl.toJpeg(false);
+                                let jpeg = await tnl.toJpeg();
                                 fs.writeFile(coursePath + "/thumbnail1.jpg", jpeg, null, () => {
+                                    resolve();
+                                });
+                            } catch (err) {
+                                resolve();
+                            }
+                        })
+                    ]);
+                }
+                resolve();
+            }));
+        }
+        await Promise.all(promises);
+
+    },
+
+    importJpeg: async function () {
+
+        let promises = [];
+        for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+            let coursePath = path.resolve(`${this.pathToSave}/course${i.pad(3)}/`);
+            promises.push(new Promise(async (resolve) => {
+                let exists = false;
+                await new Promise((resolve) => {
+                    fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
+                        exists = !err;
+                        resolve();
+                    });
+                });
+                if (exists) {
+                    await Promise.all([
+                        new Promise(async (resolve) => {
+                            try {
+                                let jpeg = new Tnl(coursePath + "/thumbnail0.jpg");
+                                let tnl = await jpeg.fromJpeg(true);
+                                fs.writeFile(coursePath + "/thumbnail0.tnl", tnl, null, () => {
+                                    resolve();
+                                })
+                            } catch (err) {
+                                resolve();
+                            }
+                        }),
+                        new Promise(async (resolve) => {
+                            try {
+                                let jpeg = new Tnl(coursePath + "/thumbnail1.jpg");
+                                let tnl = await jpeg.fromJpeg(false);
+                                fs.writeFile(coursePath + "/thumbnail1.tnl", tnl, null, () => {
                                     resolve();
                                 });
                             } catch (err) {
@@ -280,53 +330,72 @@ Tnl.prototype = {
 
         return new Promise(async (resolve, reject) => {
 
-            // image pre-processing
-            let image = await jimp.read(this.pathToFile);
-
-            if (isWide === null) {
-                let aspectRatio = image.bitmap.width / image.bitmap.height;
-                if (aspectRatio > TNL_ASPECT_RATIO[0] - TNL_ASPECT_RATIO_THRESHOLD[0] && aspectRatio < TNL_ASPECT_RATIO[0] + TNL_ASPECT_RATIO_THRESHOLD[0]) {
-                    isWide = true;
-                } else if (aspectRatio > TNL_ASPECT_RATIO[1] - TNL_ASPECT_RATIO_THRESHOLD[1] && aspectRatio < TNL_ASPECT_RATIO[1] + TNL_ASPECT_RATIO_THRESHOLD[1]) {
-                    isWide = false;
-                }
-                if (isWide === null) {
-                    isWide = TNL_ASPECT_RATIO[0] - TNL_ASPECT_RATIO_THRESHOLD[0] - aspectRatio <= TNL_ASPECT_RATIO[1] + TNL_ASPECT_RATIO_THRESHOLD[1] + aspectRatio;
-                }
-            }
-
-            if (isWide) {
-                if (doClip) {
-                    image.cover(TNL_DIMENSION[0][0], TNL_DIMENSION[0][1]);
-                } else {
-                    image.contain(TNL_DIMENSION[0][0], TNL_DIMENSION[0][1]);
-                }
-            } else {
-                if (doClip) {
-                    image.cover(TNL_DIMENSION[1][0], TNL_DIMENSION[1][1]);
-                } else {
-                    image.contain(TNL_DIMENSION[1][0], TNL_DIMENSION[1][1]);
-                }
-            }
-
-            // wrap tnl data around jpeg
+            let sizeOK = false;
             let data = await new Promise((resolve) => {
-                image.getBuffer(jimp.MIME_JPEG, (err, buffer) => { resolve(buffer); });
+                fs.readFile(this.pathToFile, (err, data) => {
+                    if (err) throw err;
+                    resolve(data);
+                });
             });
+            if (data.length <= TNL_JPEG_MAX_SIZE) {
+                sizeOK = true;
+            }
 
-            // lower quality until it fits
-            let quality = 100;
-            while (data.length > TNL_JPEG_MAX_SIZE) {
-                quality -= 5;
-                if (quality < 0) {
-                    reject("File could not be transformed into jpeg with lowest quality setting.");
+            let image = await jimp.read(this.pathToFile);
+            let skipPreprocessing = false;
+            if (sizeOK && (image.bitmap.width === TNL_DIMENSION[0][0] && image.bitmap.height === TNL_DIMENSION[0][1] ||
+                image.bitmap.width === TNL_DIMENSION[1][0] && image.bitmap.height === TNL_DIMENSION[1][1])) {
+                skipPreprocessing = true;
+            }
+
+            // image pre-processing
+            if (!skipPreprocessing) {
+                if (isWide === null) {
+                    let aspectRatio = image.bitmap.width / image.bitmap.height;
+                    if (aspectRatio > TNL_ASPECT_RATIO[0] - TNL_ASPECT_RATIO_THRESHOLD[0] && aspectRatio < TNL_ASPECT_RATIO[0] + TNL_ASPECT_RATIO_THRESHOLD[0]) {
+                        isWide = true;
+                    } else if (aspectRatio > TNL_ASPECT_RATIO[1] - TNL_ASPECT_RATIO_THRESHOLD[1] && aspectRatio < TNL_ASPECT_RATIO[1] + TNL_ASPECT_RATIO_THRESHOLD[1]) {
+                        isWide = false;
+                    }
+                    if (isWide === null) {
+                        isWide = TNL_ASPECT_RATIO[0] - TNL_ASPECT_RATIO_THRESHOLD[0] - aspectRatio <= TNL_ASPECT_RATIO[1] + TNL_ASPECT_RATIO_THRESHOLD[1] + aspectRatio;
+                    }
                 }
+
+                if (isWide) {
+                    if (doClip) {
+                        image.cover(TNL_DIMENSION[0][0], TNL_DIMENSION[0][1]);
+                    } else {
+                        image.contain(TNL_DIMENSION[0][0], TNL_DIMENSION[0][1]);
+                    }
+                } else {
+                    if (doClip) {
+                        image.cover(TNL_DIMENSION[1][0], TNL_DIMENSION[1][1]);
+                    } else {
+                        image.contain(TNL_DIMENSION[1][0], TNL_DIMENSION[1][1]);
+                    }
+                }
+
+                let quality = 80;
                 data = await new Promise((resolve) => {
                     image.quality(quality);
                     image.getBuffer(jimp.MIME_JPEG, (err, buffer) => { resolve(buffer); });
                 });
+
+                // lower quality until it fits
+                while (data.length > TNL_JPEG_MAX_SIZE) {
+                    quality -= 5;
+                    if (quality < 0) {
+                        reject("File could not be transformed into jpeg with lowest quality setting.");
+                    }
+                    data = await new Promise((resolve) => {
+                        image.quality(quality);
+                        image.getBuffer(jimp.MIME_JPEG, (err, buffer) => { resolve(buffer); });
+                    });
+                }
             }
 
+            // wrap tnl data around jpeg
             let length = Buffer.alloc(4);
             length.writeUInt32BE(data.length, 0);
 

@@ -7,14 +7,20 @@ let path = require("path");
     let save = await smm.loadSave("C:/Users/Public/Games/Cemu/cemu_1.6.4/mlc01/emulatorSave/1358e99f");
 
     await save.reorder();
+
+    await save.importJpeg();
     await save.exportJpeg();
+
     let courses = await save.loadCourses();
-    console.log(JSON.stringify(courses));
+
+    //console.log(JSON.stringify(courses));
+    // or write to file
+    fs.writeFileSync(`${__dirname}/courses.json`, JSON.stringify(courses, null, 2));
 
     // internally done by reorder()
     save.writeCrc(); // writes crc checksum to 'save.dat'
 
-    let jpeg = smm.loadImage(path.resolve(`${__dirname}/4k_test.jpg`));
+    let jpeg = smm.loadImage(`${__dirname}/4k_test.jpg`);
 
     // default conversion
     let tnl = await jpeg.fromJpeg();

@@ -16,7 +16,7 @@ $ npm install --save cemu-smm
 ```js
 let smm = require("cemu-smm");
 let fs  = require("fs");
-
+  
 (async () => {
   // let us load our SMM save file
   let save = await smm.loadSave("path/to/your/cemu/save/mlc01/emulatorSave/updateID");
@@ -28,6 +28,9 @@ let fs  = require("fs");
   // this always has to be done when changing bytes, e.g. in a Hex Editor
   // internally done by reorder(), so unnecessary right here
   save.writeCrc();
+  
+  // import all jpg files and create tnl files in their respective course folder
+  save.importJpeg();
   
   // extract all tnl files to jpeg in their respective course folder
   save.exportJpeg();
@@ -122,6 +125,16 @@ To convert all tnl files inside your save to jpeg, call
 save.exportJpeg();
 ```
 Navigate to your save folder and find jpeg files inside course folders.
+
+### JPEG mass import
+
+To convert all jpeg files inside your save to tnl, call
+```js
+save.importJpeg();
+```
+Files inside course folders must be named ```thumbnail0.jpg``` or ```thumbnail1.jpg````.
+
+Refer to [this](https://github.com/Tarnadas/cemu-smm/blob/master//tutorial/import_thumbnail.md) tutorial.
 
 ## License
 
