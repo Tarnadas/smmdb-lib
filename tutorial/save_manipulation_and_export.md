@@ -1,4 +1,4 @@
-#Save manipulation
+# Save manipulation
 
 It is possible to modify any bytes from your save file. Inside the first 16 bytes of any file is a CRC checksum from the rest of the file.
 
