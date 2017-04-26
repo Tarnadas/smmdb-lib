@@ -18,6 +18,7 @@ const path = require("path");
     save.loadCourseElements(); // for whole save folder
     courses["course001"].loadElements(); // for single course
     fs.writeFileSync(`${__dirname}/course001.json`, JSON.stringify(courses["course001"].getElements(), null, 2));
+    courses["course001"].writeCrc();
 
     // internally done by reorder()
     save.writeCrc(); // writes crc checksum to 'save.dat'

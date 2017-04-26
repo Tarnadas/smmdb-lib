@@ -7,9 +7,14 @@ const path = require("path");
 const createCourse = require("./course");
 
 const SAVE_SIZE  = 0xA000;
+
 const SAVE_ORDER_OFFSET = 0x4340;
 const SAVE_ORDER_SIZE = 120;
 const SAVE_ORDER_EMPTY = 0xFF;
+
+const SAVE_CRC_LENGTH = 0x10;
+const SAVE_CRC_PRE_BUF  = Buffer.from("0000000000000015", "hex");
+const SAVE_CRC_POST_BUF = Buffer.alloc(4);
 
 module.exports = Save;
 
@@ -28,7 +33,7 @@ Save.prototype = {
                 let fileWithoutCrc = this.data.slice(16);
                 let crc = Buffer.alloc(4);
                 crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
-                let crcBuffer = Buffer.concat([Buffer.from("0000000000000015", "hex"), crc, Buffer.alloc(4)], 16);
+                let crcBuffer = Buffer.concat([SAVE_CRC_PRE_BUF, crc, SAVE_CRC_POST_BUF], SAVE_CRC_LENGTH);
                 this.data = Buffer.concat([crcBuffer, fileWithoutCrc], SAVE_SIZE);
                 fs.writeFile(path.resolve(`${this.pathToSave}/save.dat`), this.data, null, () => {
                     resolve();

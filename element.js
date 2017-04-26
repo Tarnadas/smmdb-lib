@@ -1,6 +1,6 @@
-const ELEMENT_BITMASK    = "000000000000FFFF00000000FFFFFFFFFFFFFFFF0000000000FFFFFFFFFFFFFF";
+const ELEMENT_BITMASK_BUF    = Buffer.from("000000000000FFFF00000000FFFFFFFFFFFFFFFF0000000000FFFFFFFFFFFFFF", "hex");
 
-const ELEMENT_TYPE_BLOCK = "00000000000059E20000000006000840060008400000000000FFFFFFFFFFFFFF";
+const ELEMENT_TYPE_BLOCK_BUF = Buffer.from("00000000000059E20000000006000840060008400000000000FFFFFFFFFFFFFF", "hex");
 
 const ELEMENT_LOC_X_OFFSET = 2; // uint_16
 const ELEMENT_LOC_Y_OFFSET = 8; // uint_16
@@ -14,7 +14,7 @@ const ELEMENT_DIMENSION_OFFSET = 0xA; // x uint_8, y uint_8
 module.exports = getElement;
 
 function getElement (data) {
-    if (data.or(Buffer.from(ELEMENT_BITMASK, "hex")).compare(Buffer.from(ELEMENT_TYPE_BLOCK, "hex")) === 0) {
+    if (data.or(ELEMENT_BITMASK_BUF).compare(ELEMENT_TYPE_BLOCK_BUF) === 0) {
         return new Block(data);
     } else {
         return new Element("unknown", data);

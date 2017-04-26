@@ -6,6 +6,12 @@ const path = require("path");
 
 const getElement = require("./element");
 
+const COURSE_SIZE = 0x15000;
+
+const COURSE_CRC_LENGTH = 0x10;
+const COURSE_CRC_PRE_BUF  = Buffer.from("000000000000000B", "hex");
+const COURSE_CRC_POST_BUF = Buffer.alloc(4);
+
 const COURSE_NAME_OFFSET = 0x28;
 const COURSE_NAME_LENGTH = 0x42;
 
@@ -42,16 +48,22 @@ const COURSE_ELEMENT_DATA_OFFSET = 0x1B0;
 const COURSE_ELEMENT_DATA_LENGTH = 0x20;
 const COURSE_ELEMENT_DATA_END = 0x145F0;
 
-const courseData  = Symbol();
-const elements = Symbol();
+const courseData    = Symbol();
+const courseDataSub = Symbol();
+const elements      = Symbol();
 
 module.exports = createCourse;
 
-async function createCourse(courseId, coursePath) {
+async function createCourse (courseId, coursePath) {
 
-    return new Promise((resolve) => {
-        fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), (err, data) => {
+    return new Promise ((resolve) => {
+        fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
             if (err) throw err;
+            let dataSub = await new Promise((resolve) => {
+                fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
+                    resolve(data);
+                });
+            });
             let titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
             let title = "";
             for (let i = 0; i < COURSE_NAME_LENGTH; i++) {
@@ -75,14 +87,15 @@ async function createCourse(courseId, coursePath) {
             }
             let type = data.slice(COURSE_TYPE_OFFSET, COURSE_TYPE_OFFSET + 2).toString();
             let environment = data.readUInt8(COURSE_ENVIRONMENT_OFFSET);
-            resolve(new Course(courseId, data, coursePath, title, maker, type, environment));
+            resolve(new Course(courseId, data, dataSub, coursePath, title, maker, type, environment));
         });
     });
 }
 
-function Course (id, data, path, title, maker, type, environment) {
+function Course (id, data, dataSub, path, title, maker, type, environment) {
     this.id = id;
     this[courseData] = data;
+    this[courseDataSub] = dataSub;
     this.path = path;
     this.title = title;
     this.maker = maker;
@@ -93,6 +106,41 @@ function Course (id, data, path, title, maker, type, environment) {
 }
 
 Course.prototype = {
+
+    writeCrc: async function () {
+
+        await Promise.all([
+            new Promise (async (resolve) => {
+                try {
+                    let fileWithoutCrc = this[courseData].slice(16);
+                    let crc = Buffer.alloc(4);
+                    crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
+                    let crcBuffer = Buffer.concat([COURSE_CRC_PRE_BUF, crc, COURSE_CRC_POST_BUF], COURSE_CRC_LENGTH);
+                    this[courseData] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_SIZE);
+                    fs.writeFile(path.resolve(`${this.path}/course_data.cdt`), this[courseData], null, () => {
+                        resolve();
+                    });
+                } catch (err) {
+                    console.log(err);
+                }
+            }),
+            new Promise (async (resolve) => {
+                try {
+                    let fileWithoutCrc = this[courseDataSub].slice(16);
+                    let crc = Buffer.alloc(4);
+                    crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
+                    let crcBuffer = Buffer.concat([COURSE_CRC_PRE_BUF, crc, COURSE_CRC_POST_BUF], COURSE_CRC_LENGTH);
+                    this[courseDataSub] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_SIZE);
+                    fs.writeFile(path.resolve(`${this.path}/course_data_sub.cdt`), this[courseDataSub], null, () => {
+                        resolve();
+                    })
+                } catch (err) {
+                    console.log(err);
+                }
+            })
+        ]);
+
+    },
 
     loadElements: function () {
         this[elements] = [];
