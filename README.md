@@ -35,6 +35,15 @@ let fs  = require("fs");
   // extract all tnl files to jpeg in their respective course folder
   save.exportJpeg();
   
+  // load course folders inside save folder and write result to file in readable format
+  let courses = await save.loadCourses();
+  fs.writeFileSync(`${__dirname}/courses.json`, JSON.stringify(courses, null, 2));
+  
+  // load course block data and write result to file in readable format
+  //save.loadCourseElements(); // load whole save folder
+  courses["course001"].loadElements(); // or load single course
+  fs.writeFileSync(`${__dirname}/course001.json`, JSON.stringify(courses["course001"].getElements(), null, 2));
+  
   // convert tnl to jpeg
   let tnl = smm.loadImage("path/to/your/tnl/file");
   let jpeg = await tnl.toJpeg();
