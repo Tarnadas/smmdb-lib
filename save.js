@@ -292,6 +292,21 @@ Save.prototype = {
 
     },
 
+    loadCoursesSync: async function () {
+
+        for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+            let courseName = `course${i.pad(3)}`;
+            let coursePath = path.resolve(`${this.pathToSave}/${courseName}/`);
+            try {
+                fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
+                this.courses[courseName] = await createCourse(i, coursePath);
+            } catch (err) {
+            }
+        }
+        return this.courses;
+
+    },
+
     loadCourseElements: function () {
 
         for (let key in this.courses) {
