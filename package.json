@@ -4,7 +4,7 @@
   "description": "This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "babel src --out-dir legacy"
   },
   "author": "Mario Reder",
   "license": "MIT",
@@ -16,5 +16,11 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Tarnadas/cemu-smm.git"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.4.0"
   }
 }
