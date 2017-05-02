@@ -1,4 +1,4 @@
-let smm = require("./src/main.js");
+var smm = require("./main.js");
 
 module.exports = {
     loadSave: smm.loadSave,
