@@ -22,6 +22,14 @@ function Save(pathToSave, data) {
     this.pathToSave = pathToSave;
     this.data = data;
     this.courses = {};
+
+    this.slotToIndex = {};
+    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+        let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
+        if (index !== 255) {
+            this.slotToIndex[i] = index;
+        }
+    }
 }
 
 Save.prototype = {
@@ -47,72 +55,51 @@ Save.prototype = {
 
     reorder: async function () {
 
-        await new Promise(async (resolve, reject) => {
+        await new Promise(async (resolve) => {
             try {
-                if (this.data.slice(SAVE_ORDER_OFFSET, SAVE_ORDER_OFFSET + SAVE_ORDER_SIZE).readUInt32BE(0) !== 0) {
-                    // find all unused slots
-                    let numbers = [];
-                    for (let i = SAVE_ORDER_SIZE - 1; i >= 0; i--) {
-                        let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
-                        if (index !== 255) {
-                            numbers.push(index);
-                        }
-                    }
-                    let missingNo = [];
-                    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-                        if (!numbers.includes(i)) {
-                            missingNo.push(i);
-                        }
-                    }
-
-                    // rename course folders
-                    let promises = [];
-                    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-                        let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
-                        if (index !== 255) {
-                            promises.push(new Promise((resolve) => {
-                                let srcPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}`);
-                                let dstPath = path.resolve(`${this.pathToSave}/course${(index).pad(3)}_reorder`);
-                                fs.rename(srcPath, dstPath, () => {
-                                    resolve();
-                                });
-                                resolve();
-                            }));
-                        }
-                    }
-                    await Promise.all(promises);
-                    promises = [];
-                    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-                        promises.push(new Promise((resolve) => {
-                            let srcPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}_reorder`);
-                            let dstPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}`);
-                            fs.rename(srcPath, dstPath, () => {
-                                // somehow this does not throw an error if srcPath does not exist
-                                resolve();
-                            });
+                // rename course folders
+                let promises = [];
+                let slotToIndex = {};
+                Object.assign(slotToIndex, this.slotToIndex);
+                for (let i in slotToIndex) {
+                    promises.push(new Promise((resolve) => {
+                        let value = slotToIndex[i];
+                        let srcPath = path.resolve(`${this.pathToSave}/course${parseInt(i).pad(3)}`);
+                        let dstPath = path.resolve(`${this.pathToSave}/course${value.pad(3)}_reorder`);
+                        fs.rename(srcPath, dstPath, () => {
+                            this.slotToIndex[value] = value;
+                            this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value);
                             resolve();
-                        }));
-                    }
-                    await Promise.all(promises);
-
-                    // write bytes to 'save.dat'
-                    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-                        if (missingNo.includes(i)) {
-                            this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i);
-                        } else {
-                            this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
-                        }
-                    }
-
-                    // recalculate checksum
-                    this.writeCrc();
-
-                    resolve();
-                } else {
-                    reject("No course has been saved so far");
+                        });
+                        resolve();
+                    }));
                 }
+                await Promise.all(promises);
+                promises = [];
+                for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+                    promises.push(new Promise((resolve) => {
+                        let srcPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}_reorder`);
+                        let dstPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}`);
+                        fs.rename(srcPath, dstPath, (err) => {
+                            if (err) {
+                                if (this.slotToIndex[i]) {
+                                    delete this.slotToIndex[i];
+                                }
+                                this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i);
+                            }
+                            resolve();
+                        });
+                    }));
+                }
+                await Promise.all(promises);
+
+                // recalculate checksum
+                this.writeCrc();
+
+                resolve();
             } catch (err) {
                 console.log(err);
+                // TODO undo changes
             }
         });
 
@@ -121,56 +108,35 @@ Save.prototype = {
     reorderSync: function () {
 
         try {
-            if (this.data.slice(SAVE_ORDER_OFFSET, SAVE_ORDER_OFFSET + SAVE_ORDER_SIZE).readUInt32BE(0) !== 0) {
-                // find all unused slots
-                let numbers = [];
-                for (let i = SAVE_ORDER_SIZE - 1; i >= 0; i--) {
-                    let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
-                    if (index !== 255) {
-                        numbers.push(index);
-                    }
-                }
-                let missingNo = [];
-                for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-                    if (!numbers.includes(i)) {
-                        missingNo.push(i);
-                    }
-                }
-
-                // rename course folders
-                for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-                    let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
-                    if (index !== 255) {
-                        let srcPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}`);
-                        let dstPath = path.resolve(`${this.pathToSave}/course${(index).pad(3)}_reorder`);
-                        fs.renameSync(srcPath, dstPath);
-                    }
-                }
-                for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-                    let srcPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}_reorder`);
-                    let dstPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}`);
-                    try {
-                        fs.renameSync(srcPath, dstPath);
-                    } catch (err) { // ignore
-                    }
-                }
-
-                // write bytes to 'save.dat'
-                for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-                    if (missingNo.includes(i)) {
-                        this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i);
-                    } else {
-                        this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
-                    }
-                }
-
-                // recalculate checksum
-                this.writeCrc();
-            } else {
-                console.log("No course has been saved so far");
+            // rename course folders
+            let slotToIndex = {};
+            Object.assign(slotToIndex, this.slotToIndex);
+            for (let i in this.slotToIndex) {
+                let value = slotToIndex[i];
+                let srcPath = path.resolve(`${this.pathToSave}/course${parseInt(i).pad(3)}`);
+                let dstPath = path.resolve(`${this.pathToSave}/course${value.pad(3)}_reorder`);
+                fs.renameSync(srcPath, dstPath);
+                this.slotToIndex[value] = value;
+                this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value);
             }
+            for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+                let srcPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}_reorder`);
+                let dstPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}`);
+                try {
+                    fs.renameSync(srcPath, dstPath);
+                } catch (err) {
+                    if (this.slotToIndex[i]) {
+                        delete this.slotToIndex[i];
+                    }
+                    this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i);
+                }
+            }
+
+            // recalculate checksum
+            this.writeCrc();
         } catch (err) {
             console.log(err);
+            // TODO undo changes
         }
 
     },
