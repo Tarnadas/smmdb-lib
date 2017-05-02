@@ -1,4 +1,8 @@
-require("babel-polyfill");
+try {
+    require("babel-polyfill");
+} catch (err) {
+    // ignore
+}
 
 const Promise = require("bluebird");
 
