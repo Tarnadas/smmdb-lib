@@ -56,6 +56,13 @@ Tnl.prototype = {
         return toJpeg;
     }(),
 
+    toJpegSync: function toJpegSync() {
+
+        var data = fs.readFileSync(this.pathToFile);
+        var length = data.readUInt32BE(4);
+        return data.slice(8, 8 + length);
+    },
+
     fromJpeg: function () {
         var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(isWide) {
             var _this2 = this;

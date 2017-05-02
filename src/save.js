@@ -5,6 +5,7 @@ const fs   = require("fs");
 const path = require("path");
 
 const createCourse = require("./course");
+const Tnl = require("./tnl");
 
 const SAVE_SIZE  = 0xA000;
 
@@ -184,6 +185,34 @@ Save.prototype = {
             }));
         }
         await Promise.all(promises);
+
+    },
+
+    exportJpegSync: function () {
+
+        for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+            let coursePath = path.resolve(`${this.pathToSave}/course${i.pad(3)}/`);
+            let exists = true;
+            try {
+                fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
+            } catch (err) {
+                exists = false;
+            }
+            if (exists) {
+                try {
+                    let tnl = new Tnl(coursePath + "/thumbnail0.tnl");
+                    let jpeg = tnl.toJpegSync();
+                    fs.writeFileSync(coursePath + "/thumbnail0.jpg", jpeg)
+                } catch (err) {
+                }
+                try {
+                    let tnl = new Tnl(coursePath + "/thumbnail1.tnl");
+                    let jpeg = tnl.toJpegSync();
+                    fs.writeFileSync(coursePath + "/thumbnail1.jpg", jpeg);
+                } catch (err) {
+                }
+            }
+        }
 
     },
 

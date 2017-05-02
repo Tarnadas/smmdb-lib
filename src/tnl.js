@@ -39,6 +39,14 @@ Tnl.prototype = {
 
     },
 
+    toJpegSync: function () {
+
+        let data = fs.readFileSync(this.pathToFile);
+        let length = data.readUInt32BE(4);
+        return data.slice(8, 8 + length);
+
+    },
+
     fromJpeg: async function (isWide, doClip = false) {
 
         return new Promise(async (resolve, reject) => {
