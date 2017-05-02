@@ -15,8 +15,6 @@ $ npm install --save cemu-smm
 
 ```js
 let smm = require("cemu-smm");
-// use the legacy submodule if you need transpiled code
-//let smm = require("cemu-smm/legacy");
 let fs  = require("fs");
   
 (async () => {
