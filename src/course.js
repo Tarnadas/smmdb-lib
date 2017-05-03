@@ -66,24 +66,24 @@ async function createCourse (courseId, coursePath) {
             });
             let titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
             let title = "";
-            for (let i = 0; i < COURSE_NAME_LENGTH; i++) {
-                let charBuf = titleBuf.slice(i, i+1);
-                if (charBuf.readUInt8(0) !== 0) {
-                    title += charBuf.toString();
+            for (let i = 0; i < COURSE_NAME_LENGTH; i+=2) {
+                //let charBuf = Buffer.concat([titleBuf.slice(i+1, i+2), titleBuf.slice(i, i+1)]);
+                let charBuf = Buffer.allocUnsafe(2);
+                charBuf.writeUInt16BE(titleBuf.readUInt16LE(i));
+                if (charBuf.readUInt16LE(0) === 0) {
+                    break;
                 }
+                title += charBuf.toString('utf16le');
             }
             let makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
             let maker = "";
-            let doBreak = false;
-            for (let i = 0; i < COURSE_MAKER_LENGTH; i++) {
-                let charBuf = makerBuf.slice(i, i+1);
-                if (charBuf.readUInt8(0) === 0) {
-                    if (doBreak) break;
-                    doBreak = true;
-                } else {
-                    doBreak = false;
-                    maker += charBuf.toString();
+            for (let i = 0; i < COURSE_MAKER_LENGTH; i+=2) {
+                let charBuf = Buffer.allocUnsafe(2);
+                charBuf.writeUInt16BE(makerBuf.readUInt16LE(i));
+                if (charBuf.readUInt16LE(0) === 0) {
+                    break;
                 }
+                maker += charBuf.toString('utf16le');
             }
             let type = data.slice(COURSE_TYPE_OFFSET, COURSE_TYPE_OFFSET + 2).toString();
             let environment = data.readUInt8(COURSE_ENVIRONMENT_OFFSET);
