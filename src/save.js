@@ -13,6 +13,9 @@ const SAVE_ORDER_OFFSET = 0x4340;
 const SAVE_ORDER_SIZE = 120;
 const SAVE_ORDER_EMPTY = 0xFF;
 
+const SAVE_AMIIBO_OFFSET = 0x85E0;
+const SAVE_AMIIBO_LENGTH = 0x14;
+
 const SAVE_CRC_LENGTH = 0x10;
 const SAVE_CRC_PRE_BUF  = Buffer.from("0000000000000015", "hex");
 const SAVE_CRC_POST_BUF = Buffer.alloc(4);
@@ -259,6 +262,18 @@ Save.prototype = {
             }));
         }
         await Promise.all(promises);
+
+    },
+
+    unlockAmiibos: async function () {
+
+        await new Promise(async (resolve) => {
+            for (let i = 0; i < SAVE_AMIIBO_LENGTH; i++) {
+                this.data.writeUInt8(0xFF, SAVE_AMIIBO_OFFSET + i);
+            }
+            await this.writeCrc();
+            resolve();
+        })
 
     },
 
