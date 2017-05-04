@@ -11,7 +11,7 @@ var createCourse = function () {
                         return _context3.abrupt("return", new Promise(function (resolve) {
                             fs.readFile(path.resolve(coursePath + "/course_data.cdt"), function () {
                                 var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(err, data) {
-                                    var dataSub, titleBuf, title, i, charBuf, makerBuf, maker, doBreak, _i, _charBuf, type, environment;
+                                    var dataSub, titleBuf, title, i, charBuf, makerBuf, maker, _i, _charBuf, type, environment;
 
                                     return regeneratorRuntime.wrap(function _callee2$(_context2) {
                                         while (1) {
@@ -53,60 +53,71 @@ var createCourse = function () {
                                                     dataSub = _context2.sent;
                                                     titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
                                                     title = "";
+                                                    i = 0;
 
-                                                    for (i = 0; i < COURSE_NAME_LENGTH; i++) {
-                                                        charBuf = titleBuf.slice(i, i + 1);
-
-                                                        if (charBuf.readUInt8(0) !== 0) {
-                                                            title += charBuf.toString();
-                                                        }
-                                                    }
-                                                    makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
-                                                    maker = "";
-                                                    doBreak = false;
-                                                    _i = 0;
-
-                                                case 12:
-                                                    if (!(_i < COURSE_MAKER_LENGTH)) {
-                                                        _context2.next = 25;
-                                                        break;
-                                                    }
-
-                                                    _charBuf = makerBuf.slice(_i, _i + 1);
-
-                                                    if (!(_charBuf.readUInt8(0) === 0)) {
-                                                        _context2.next = 20;
-                                                        break;
-                                                    }
-
-                                                    if (!doBreak) {
+                                                case 8:
+                                                    if (!(i < COURSE_NAME_LENGTH)) {
                                                         _context2.next = 17;
                                                         break;
                                                     }
 
-                                                    return _context2.abrupt("break", 25);
+                                                    //let charBuf = Buffer.concat([titleBuf.slice(i+1, i+2), titleBuf.slice(i, i+1)]);
+                                                    charBuf = Buffer.allocUnsafe(2);
+
+                                                    charBuf.writeUInt16BE(titleBuf.readUInt16LE(i));
+
+                                                    if (!(charBuf.readUInt16LE(0) === 0)) {
+                                                        _context2.next = 13;
+                                                        break;
+                                                    }
+
+                                                    return _context2.abrupt("break", 17);
+
+                                                case 13:
+                                                    title += charBuf.toString('utf16le');
+
+                                                case 14:
+                                                    i += 2;
+                                                    _context2.next = 8;
+                                                    break;
 
                                                 case 17:
-                                                    doBreak = true;
-                                                    _context2.next = 22;
-                                                    break;
+                                                    makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
+                                                    maker = "";
+                                                    _i = 0;
 
                                                 case 20:
-                                                    doBreak = false;
-                                                    maker += _charBuf.toString();
+                                                    if (!(_i < COURSE_MAKER_LENGTH)) {
+                                                        _context2.next = 29;
+                                                        break;
+                                                    }
 
-                                                case 22:
-                                                    _i++;
-                                                    _context2.next = 12;
-                                                    break;
+                                                    _charBuf = Buffer.allocUnsafe(2);
+
+                                                    _charBuf.writeUInt16BE(makerBuf.readUInt16LE(_i));
+
+                                                    if (!(_charBuf.readUInt16LE(0) === 0)) {
+                                                        _context2.next = 25;
+                                                        break;
+                                                    }
+
+                                                    return _context2.abrupt("break", 29);
 
                                                 case 25:
+                                                    maker += _charBuf.toString('utf16le');
+
+                                                case 26:
+                                                    _i += 2;
+                                                    _context2.next = 20;
+                                                    break;
+
+                                                case 29:
                                                     type = data.slice(COURSE_TYPE_OFFSET, COURSE_TYPE_OFFSET + 2).toString();
                                                     environment = data.readUInt8(COURSE_ENVIRONMENT_OFFSET);
 
                                                     resolve(new Course(courseId, data, dataSub, coursePath, title, maker, type, environment));
 
-                                                case 28:
+                                                case 32:
                                                 case "end":
                                                     return _context2.stop();
                                             }

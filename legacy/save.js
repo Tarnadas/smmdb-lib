@@ -17,6 +17,9 @@ var SAVE_ORDER_OFFSET = 0x4340;
 var SAVE_ORDER_SIZE = 120;
 var SAVE_ORDER_EMPTY = 0xFF;
 
+var SAVE_AMIIBO_OFFSET = 0x85E0;
+var SAVE_AMIIBO_LENGTH = 0x14;
+
 var SAVE_CRC_LENGTH = 0x10;
 var SAVE_CRC_PRE_BUF = Buffer.from("0000000000000015", "hex");
 var SAVE_CRC_POST_BUF = Buffer.alloc(4);
@@ -95,7 +98,7 @@ Save.prototype = {
                                                 case 0:
                                                     _context3.prev = 0;
                                                     return _context3.delegateYield(regeneratorRuntime.mark(function _callee2() {
-                                                        var promises, slotToIndex, _loop, i, _loop2;
+                                                        var promises, slotToIndex, _loop, i, _loop2, _loop3;
 
                                                         return regeneratorRuntime.wrap(function _callee2$(_context2) {
                                                             while (1) {
@@ -153,13 +156,33 @@ Save.prototype = {
                                                                         return Promise.all(promises);
 
                                                                     case 12:
+                                                                        promises = [];
+
+                                                                        _loop3 = function _loop3(i) {
+                                                                            promises.push(new Promise(function (resolve) {
+                                                                                fs.access(path.resolve(_this2.pathToSave + "/course" + i.pad(3)), fs.constants.R_OK | fs.constants.W_OK, function (err) {
+                                                                                    if (!err) {
+                                                                                        _this2.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
+                                                                                    }
+                                                                                    resolve();
+                                                                                });
+                                                                            }));
+                                                                        };
+
+                                                                        for (i = 0; i < SAVE_ORDER_SIZE; i++) {
+                                                                            _loop3(i);
+                                                                        }
+                                                                        _context2.next = 17;
+                                                                        return Promise.all(promises);
+
+                                                                    case 17:
 
                                                                         // recalculate checksum
                                                                         _this2.writeCrc();
 
                                                                         resolve();
 
-                                                                    case 14:
+                                                                    case 19:
                                                                     case "end":
                                                                         return _context2.stop();
                                                                 }
@@ -232,6 +255,12 @@ Save.prototype = {
                     this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + _i);
                 }
             }
+            for (var _i2 = 0; _i2 < SAVE_ORDER_SIZE; _i2++) {
+                try {
+                    fs.accessSync(path.resolve(this.pathToSave + "/course" + _i2.pad(3)), fs.constants.R_OK | fs.constants.W_OK);
+                    this.data.writeUInt8(_i2, SAVE_ORDER_OFFSET + _i2);
+                } catch (err) {}
+            }
 
             // recalculate checksum
             this.writeCrc();
@@ -245,7 +274,7 @@ Save.prototype = {
         var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8() {
             var _this3 = this;
 
-            var promises, _loop3, i;
+            var promises, _loop4, i;
 
             return regeneratorRuntime.wrap(function _callee8$(_context8) {
                 while (1) {
@@ -253,7 +282,7 @@ Save.prototype = {
                         case 0:
                             promises = [];
 
-                            _loop3 = function _loop3(i) {
+                            _loop4 = function _loop4(i) {
                                 var coursePath = path.resolve(_this3.pathToSave + "/course" + i.pad(3) + "/");
                                 promises.push(new Promise(function () {
                                     var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(resolve) {
@@ -374,7 +403,7 @@ Save.prototype = {
                             };
 
                             for (i = 0; i < SAVE_ORDER_SIZE; i++) {
-                                _loop3(i);
+                                _loop4(i);
                             }
                             _context8.next = 5;
                             return Promise.all(promises);
@@ -423,7 +452,7 @@ Save.prototype = {
         var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12() {
             var _this4 = this;
 
-            var promises, _loop4, i;
+            var promises, _loop5, i;
 
             return regeneratorRuntime.wrap(function _callee12$(_context12) {
                 while (1) {
@@ -431,7 +460,7 @@ Save.prototype = {
                         case 0:
                             promises = [];
 
-                            _loop4 = function _loop4(i) {
+                            _loop5 = function _loop5(i) {
                                 var coursePath = path.resolve(_this4.pathToSave + "/course" + i.pad(3) + "/");
                                 promises.push(new Promise(function () {
                                     var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(resolve) {
@@ -552,7 +581,7 @@ Save.prototype = {
                             };
 
                             for (i = 0; i < SAVE_ORDER_SIZE; i++) {
-                                _loop4(i);
+                                _loop5(i);
                             }
                             _context12.next = 5;
                             return Promise.all(promises);
@@ -572,30 +601,83 @@ Save.prototype = {
         return importJpeg;
     }(),
 
-    loadCourses: function () {
+    unlockAmiibos: function () {
         var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14() {
             var _this5 = this;
-
-            var promises, _loop5, i;
 
             return regeneratorRuntime.wrap(function _callee14$(_context14) {
                 while (1) {
                     switch (_context14.prev = _context14.next) {
                         case 0:
+                            _context14.next = 2;
+                            return new Promise(function () {
+                                var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(resolve) {
+                                    var i;
+                                    return regeneratorRuntime.wrap(function _callee13$(_context13) {
+                                        while (1) {
+                                            switch (_context13.prev = _context13.next) {
+                                                case 0:
+                                                    for (i = 0; i < SAVE_AMIIBO_LENGTH; i++) {
+                                                        _this5.data.writeUInt8(0xFF, SAVE_AMIIBO_OFFSET + i);
+                                                    }
+                                                    _context13.next = 3;
+                                                    return _this5.writeCrc();
+
+                                                case 3:
+                                                    resolve();
+
+                                                case 4:
+                                                case "end":
+                                                    return _context13.stop();
+                                            }
+                                        }
+                                    }, _callee13, _this5);
+                                }));
+
+                                return function (_x8) {
+                                    return _ref13.apply(this, arguments);
+                                };
+                            }());
+
+                        case 2:
+                        case "end":
+                            return _context14.stop();
+                    }
+                }
+            }, _callee14, this);
+        }));
+
+        function unlockAmiibos() {
+            return _ref12.apply(this, arguments);
+        }
+
+        return unlockAmiibos;
+    }(),
+
+    loadCourses: function () {
+        var _ref14 = _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
+            var _this6 = this;
+
+            var promises, _loop6, i;
+
+            return regeneratorRuntime.wrap(function _callee16$(_context16) {
+                while (1) {
+                    switch (_context16.prev = _context16.next) {
+                        case 0:
                             promises = [];
 
-                            _loop5 = function _loop5(i) {
+                            _loop6 = function _loop6(i) {
                                 promises.push(new Promise(function () {
-                                    var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(resolve) {
+                                    var _ref15 = _asyncToGenerator(regeneratorRuntime.mark(function _callee15(resolve) {
                                         var exists, courseName, coursePath;
-                                        return regeneratorRuntime.wrap(function _callee13$(_context13) {
+                                        return regeneratorRuntime.wrap(function _callee15$(_context15) {
                                             while (1) {
-                                                switch (_context13.prev = _context13.next) {
+                                                switch (_context15.prev = _context15.next) {
                                                     case 0:
                                                         exists = false;
                                                         courseName = "course" + i.pad(3);
-                                                        coursePath = path.resolve(_this5.pathToSave + "/" + courseName + "/");
-                                                        _context13.next = 5;
+                                                        coursePath = path.resolve(_this6.pathToSave + "/" + courseName + "/");
+                                                        _context15.next = 5;
                                                         return new Promise(function (resolve) {
                                                             fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, function (err) {
                                                                 exists = !err;
@@ -605,108 +687,108 @@ Save.prototype = {
 
                                                     case 5:
                                                         if (!exists) {
-                                                            _context13.next = 9;
+                                                            _context15.next = 9;
                                                             break;
                                                         }
 
-                                                        _context13.next = 8;
+                                                        _context15.next = 8;
                                                         return createCourse(i, coursePath);
 
                                                     case 8:
-                                                        _this5.courses[courseName] = _context13.sent;
+                                                        _this6.courses[courseName] = _context15.sent;
 
                                                     case 9:
                                                         resolve();
 
                                                     case 10:
                                                     case "end":
-                                                        return _context13.stop();
+                                                        return _context15.stop();
                                                 }
                                             }
-                                        }, _callee13, _this5);
+                                        }, _callee15, _this6);
                                     }));
 
-                                    return function (_x8) {
-                                        return _ref13.apply(this, arguments);
+                                    return function (_x9) {
+                                        return _ref15.apply(this, arguments);
                                     };
                                 }()));
                             };
 
                             for (i = 0; i < SAVE_ORDER_SIZE; i++) {
-                                _loop5(i);
+                                _loop6(i);
                             }
-                            _context14.next = 5;
+                            _context16.next = 5;
                             return Promise.all(promises);
 
                         case 5:
-                            return _context14.abrupt("return", this.courses);
+                            return _context16.abrupt("return", this.courses);
 
                         case 6:
                         case "end":
-                            return _context14.stop();
+                            return _context16.stop();
                     }
                 }
-            }, _callee14, this);
+            }, _callee16, this);
         }));
 
         function loadCourses() {
-            return _ref12.apply(this, arguments);
+            return _ref14.apply(this, arguments);
         }
 
         return loadCourses;
     }(),
 
     loadCoursesSync: function () {
-        var _ref14 = _asyncToGenerator(regeneratorRuntime.mark(function _callee15() {
+        var _ref16 = _asyncToGenerator(regeneratorRuntime.mark(function _callee17() {
             var i, courseName, _coursePath2;
 
-            return regeneratorRuntime.wrap(function _callee15$(_context15) {
+            return regeneratorRuntime.wrap(function _callee17$(_context17) {
                 while (1) {
-                    switch (_context15.prev = _context15.next) {
+                    switch (_context17.prev = _context17.next) {
                         case 0:
                             i = 0;
 
                         case 1:
                             if (!(i < SAVE_ORDER_SIZE)) {
-                                _context15.next = 16;
+                                _context17.next = 16;
                                 break;
                             }
 
                             courseName = "course" + i.pad(3);
                             _coursePath2 = path.resolve(this.pathToSave + "/" + courseName + "/");
-                            _context15.prev = 4;
+                            _context17.prev = 4;
 
                             fs.accessSync(_coursePath2, fs.constants.R_OK | fs.constants.W_OK);
-                            _context15.next = 8;
+                            _context17.next = 8;
                             return createCourse(i, _coursePath2);
 
                         case 8:
-                            this.courses[courseName] = _context15.sent;
-                            _context15.next = 13;
+                            this.courses[courseName] = _context17.sent;
+                            _context17.next = 13;
                             break;
 
                         case 11:
-                            _context15.prev = 11;
-                            _context15.t0 = _context15["catch"](4);
+                            _context17.prev = 11;
+                            _context17.t0 = _context17["catch"](4);
 
                         case 13:
                             i++;
-                            _context15.next = 1;
+                            _context17.next = 1;
                             break;
 
                         case 16:
-                            return _context15.abrupt("return", this.courses);
+                            return _context17.abrupt("return", this.courses);
 
                         case 17:
                         case "end":
-                            return _context15.stop();
+                            return _context17.stop();
                     }
                 }
-            }, _callee15, this, [[4, 11]]);
+            }, _callee17, this, [[4, 11]]);
         }));
 
         function loadCoursesSync() {
-            return _ref14.apply(this, arguments);
+            return _ref16.apply(this, arguments);
         }
 
         return loadCoursesSync;
