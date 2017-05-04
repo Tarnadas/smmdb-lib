@@ -96,12 +96,18 @@ Save.prototype = {
                     }));
                 }
                 await Promise.all(promises);
+                promises = [];
                 for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-                    fs.access(path.resolve(`${this.pathToSave}/course${i.pad(3)}`), fs.constants.R_OK | fs.constants.W_OK, (err) => {
-                        if (err) return;
-                        this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
-                    })
+                    promises.push(new Promise((resolve) => {
+                        fs.access(path.resolve(`${this.pathToSave}/course${i.pad(3)}`), fs.constants.R_OK | fs.constants.W_OK, (err) => {
+                            if (!err) {
+                                this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
+                            }
+                            resolve();
+                        })
+                    }));
                 }
+                await Promise.all(promises);
 
                 // recalculate checksum
                 this.writeCrc();
