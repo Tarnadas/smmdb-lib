@@ -12,11 +12,11 @@ const COURSE_CRC_LENGTH = 0x10;
 const COURSE_CRC_PRE_BUF  = Buffer.from("000000000000000B", "hex");
 const COURSE_CRC_POST_BUF = Buffer.alloc(4);
 
-const COURSE_NAME_OFFSET = 0x28;
-const COURSE_NAME_LENGTH = 0x42;
+const COURSE_NAME_OFFSET = 0x29;
+const COURSE_NAME_LENGTH = 0x40;
 
-const COURSE_MAKER_OFFSET = 0x89;
-const COURSE_MAKER_LENGTH = 0x17;
+const COURSE_MAKER_OFFSET = 0x92;
+const COURSE_MAKER_LENGTH = 0x14;
 
 const COURSE_TYPE_OFFSET = 0x6A;
 const COURSE_TYPE_M1 = "M1";
@@ -67,20 +67,19 @@ async function createCourse (courseId, coursePath) {
             let titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
             let title = "";
             for (let i = 0; i < COURSE_NAME_LENGTH; i+=2) {
-                //let charBuf = Buffer.concat([titleBuf.slice(i+1, i+2), titleBuf.slice(i, i+1)]);
                 let charBuf = Buffer.allocUnsafe(2);
-                charBuf.writeUInt16BE(titleBuf.readUInt16LE(i));
-                if (charBuf.readUInt16LE(0) === 0) {
+                charBuf.writeUInt16BE(titleBuf.readUInt16BE(i));
+                if (charBuf.readUInt16BE(0) === 0) {
                     break;
                 }
                 title += charBuf.toString('utf16le');
             }
             let makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
             let maker = "";
-            for (let i = 0; i < COURSE_MAKER_LENGTH; i+=2) {
-                let charBuf = Buffer.allocUnsafe(2);
-                charBuf.writeUInt16BE(makerBuf.readUInt16LE(i));
-                if (charBuf.readUInt16LE(0) === 0) {
+            for (let i =  0; i < COURSE_MAKER_LENGTH; i+=2) {
+                let charBuf = Buffer.allocUnsafe(2)
+                charBuf.writeUInt16BE(makerBuf.readUInt16BE(i));
+                if (charBuf.readUInt16BE(0) === 0) {
                     break;
                 }
                 maker += charBuf.toString('utf16le');
