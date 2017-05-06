@@ -61,12 +61,11 @@ var createCourse = function () {
                                                         break;
                                                     }
 
-                                                    //let charBuf = Buffer.concat([titleBuf.slice(i+1, i+2), titleBuf.slice(i, i+1)]);
                                                     charBuf = Buffer.allocUnsafe(2);
 
-                                                    charBuf.writeUInt16BE(titleBuf.readUInt16LE(i));
+                                                    charBuf.writeUInt16BE(titleBuf.readUInt16BE(i));
 
-                                                    if (!(charBuf.readUInt16LE(0) === 0)) {
+                                                    if (!(charBuf.readUInt16BE(0) === 0)) {
                                                         _context2.next = 13;
                                                         break;
                                                     }
@@ -94,9 +93,9 @@ var createCourse = function () {
 
                                                     _charBuf = Buffer.allocUnsafe(2);
 
-                                                    _charBuf.writeUInt16BE(makerBuf.readUInt16LE(_i));
+                                                    _charBuf.writeUInt16BE(makerBuf.readUInt16BE(_i));
 
-                                                    if (!(_charBuf.readUInt16LE(0) === 0)) {
+                                                    if (!(_charBuf.readUInt16BE(0) === 0)) {
                                                         _context2.next = 25;
                                                         break;
                                                     }
@@ -160,8 +159,8 @@ var COURSE_CRC_LENGTH = 0x10;
 var COURSE_CRC_PRE_BUF = Buffer.from("000000000000000B", "hex");
 var COURSE_CRC_POST_BUF = Buffer.alloc(4);
 
-var COURSE_NAME_OFFSET = 0x28;
-var COURSE_NAME_LENGTH = 0x42;
+var COURSE_NAME_OFFSET = 0x29;
+var COURSE_NAME_LENGTH = 0x40;
 
 var COURSE_MAKER_OFFSET = 0x92;
 var COURSE_MAKER_LENGTH = 0x14;
