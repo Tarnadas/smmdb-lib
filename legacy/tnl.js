@@ -232,6 +232,44 @@ Tnl.prototype = {
         }
 
         return fromJpeg;
+    }(),
+
+    isBroken: function () {
+        var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5() {
+            var _this3 = this;
+
+            return regeneratorRuntime.wrap(function _callee5$(_context5) {
+                while (1) {
+                    switch (_context5.prev = _context5.next) {
+                        case 0:
+                            return _context5.abrupt("return", new Promise(function (resolve) {
+                                fs.readFile(_this3.pathToFile, function (err, data) {
+                                    if (err) throw err;
+                                    var length = data.readUInt32BE(4);
+                                    var jpeg = data.slice(8, 8 + length);
+                                    var zeros = 0;
+                                    for (var i = 0; i < jpeg.length; i++) {
+                                        if (jpeg.readUInt8(i) === 0) {
+                                            zeros++;
+                                        }
+                                    }
+                                    resolve(zeros / jpeg.length > 0.9);
+                                });
+                            }));
+
+                        case 1:
+                        case "end":
+                            return _context5.stop();
+                    }
+                }
+            }, _callee5, this);
+        }));
+
+        function isBroken() {
+            return _ref4.apply(this, arguments);
+        }
+
+        return isBroken;
     }()
 
 };

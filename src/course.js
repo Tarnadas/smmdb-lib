@@ -5,6 +5,7 @@ const fs   = require("fs");
 const path = require("path");
 
 const getElement = require("./element");
+const Tnl = require("./tnl");
 
 const COURSE_SIZE = 0x15000;
 
@@ -186,6 +187,31 @@ Course.prototype = {
         if (!!writeCrc) {
             this.writeCrc();
         }
+    },
+
+    setThumbnail: async function (pathToThumbnail) {
+
+        let jpeg = new Tnl(path.resolve(pathToThumbnail));
+        await Promise.all([
+            new Promise(async (resolve) => {
+                let tnl = await jpeg.fromJpeg(true);
+                fs.writeFile(path.join(this.path, 'thumbnail0.tnl'), tnl, (err) => {
+                    resolve();
+                });
+            }),
+            new Promise(async (resolve) => {
+                let tnl = await jpeg.fromJpeg(false);
+                fs.writeFile(path.join(this.path, 'thumbnail1.tnl'), tnl, () => {
+                    resolve();
+                });
+            })
+        ])
+
+    },
+
+    isThumbnailBroken: async function () {
+        let tnl = new Tnl(path.join(this.path, 'thumbnail1.tnl'));
+        return await tnl.isBroken();
     }
 
 };

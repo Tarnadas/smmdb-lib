@@ -132,6 +132,25 @@ Tnl.prototype = {
 
         });
 
+    },
+
+    isBroken: async function () {
+
+        return new Promise((resolve) => {
+            fs.readFile(this.pathToFile, (err, data) => {
+                if (err) throw err;
+                let length = data.readUInt32BE(4);
+                let jpeg = data.slice(8, 8 + length);
+                let zeros = 0;
+                for (let i = 0; i < jpeg.length; i++) {
+                    if (jpeg.readUInt8(i) === 0) {
+                        zeros++;
+                    }
+                }
+                resolve((zeros / jpeg.length) > 0.9);
+            })
+        });
+
     }
 
 };

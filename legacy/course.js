@@ -152,6 +152,7 @@ var fs = require("fs");
 var path = require("path");
 
 var getElement = require("./element");
+var Tnl = require("./tnl");
 
 var COURSE_SIZE = 0x15000;
 
@@ -353,6 +354,119 @@ Course.prototype = {
         if (!!writeCrc) {
             this.writeCrc();
         }
-    }
+    },
+
+    setThumbnail: function () {
+        var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(pathToThumbnail) {
+            var _this3 = this;
+
+            var jpeg;
+            return regeneratorRuntime.wrap(function _callee9$(_context9) {
+                while (1) {
+                    switch (_context9.prev = _context9.next) {
+                        case 0:
+                            jpeg = new Tnl(path.resolve(pathToThumbnail));
+                            _context9.next = 3;
+                            return Promise.all([new Promise(function () {
+                                var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(resolve) {
+                                    var tnl;
+                                    return regeneratorRuntime.wrap(function _callee7$(_context7) {
+                                        while (1) {
+                                            switch (_context7.prev = _context7.next) {
+                                                case 0:
+                                                    _context7.next = 2;
+                                                    return jpeg.fromJpeg(true);
+
+                                                case 2:
+                                                    tnl = _context7.sent;
+
+                                                    fs.writeFile(path.join(_this3.path, 'thumbnail0.tnl'), tnl, function (err) {
+                                                        resolve();
+                                                    });
+
+                                                case 4:
+                                                case "end":
+                                                    return _context7.stop();
+                                            }
+                                        }
+                                    }, _callee7, _this3);
+                                }));
+
+                                return function (_x10) {
+                                    return _ref8.apply(this, arguments);
+                                };
+                            }()), new Promise(function () {
+                                var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(resolve) {
+                                    var tnl;
+                                    return regeneratorRuntime.wrap(function _callee8$(_context8) {
+                                        while (1) {
+                                            switch (_context8.prev = _context8.next) {
+                                                case 0:
+                                                    _context8.next = 2;
+                                                    return jpeg.fromJpeg(false);
+
+                                                case 2:
+                                                    tnl = _context8.sent;
+
+                                                    fs.writeFile(path.join(_this3.path, 'thumbnail1.tnl'), tnl, function () {
+                                                        resolve();
+                                                    });
+
+                                                case 4:
+                                                case "end":
+                                                    return _context8.stop();
+                                            }
+                                        }
+                                    }, _callee8, _this3);
+                                }));
+
+                                return function (_x11) {
+                                    return _ref9.apply(this, arguments);
+                                };
+                            }())]);
+
+                        case 3:
+                        case "end":
+                            return _context9.stop();
+                    }
+                }
+            }, _callee9, this);
+        }));
+
+        function setThumbnail(_x9) {
+            return _ref7.apply(this, arguments);
+        }
+
+        return setThumbnail;
+    }(),
+
+    isThumbnailBroken: function () {
+        var _ref10 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
+            var tnl;
+            return regeneratorRuntime.wrap(function _callee10$(_context10) {
+                while (1) {
+                    switch (_context10.prev = _context10.next) {
+                        case 0:
+                            tnl = new Tnl(path.join(this.path, 'thumbnail1.tnl'));
+                            _context10.next = 3;
+                            return tnl.isBroken();
+
+                        case 3:
+                            return _context10.abrupt("return", _context10.sent);
+
+                        case 4:
+                        case "end":
+                            return _context10.stop();
+                    }
+                }
+            }, _callee10, this);
+        }));
+
+        function isThumbnailBroken() {
+            return _ref10.apply(this, arguments);
+        }
+
+        return isThumbnailBroken;
+    }()
 
 };
