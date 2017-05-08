@@ -253,7 +253,7 @@ Tnl.prototype = {
                                             zeros++;
                                         }
                                     }
-                                    resolve(zeros / jpeg.length > 0.9);
+                                    resolve(zeros / jpeg.length > 0.5);
                                 });
                             }));
 
