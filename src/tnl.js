@@ -138,6 +138,7 @@ Tnl.prototype = {
 
         return new Promise((resolve) => {
             fs.readFile(this.pathToFile, (err, data) => {
+                console.log(this.pathToFile);
                 if (err) throw err;
                 let length = data.readUInt32BE(4);
                 let jpeg = data.slice(8, 8 + length);
@@ -147,6 +148,7 @@ Tnl.prototype = {
                         zeros++;
                     }
                 }
+                console.log(zeros / jpeg.length);
                 resolve((zeros / jpeg.length) > 0.5);
             })
         });
