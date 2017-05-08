@@ -1,7 +1,7 @@
 "use strict";
 
 var createCourse = function () {
-    var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(courseId, coursePath) {
+    var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(coursePath, courseId) {
         var _this = this;
 
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
@@ -321,6 +321,38 @@ Course.prototype = {
 
     getElements: function getElements() {
         return this[elements];
+    },
+
+    setTitle: function setTitle(title, writeCrc) {
+        for (var i = COURSE_NAME_OFFSET, j = 0; i < COURSE_NAME_OFFSET + COURSE_NAME_LENGTH; i += 2, j++) {
+            if (j < title.length) {
+                this[courseData].write(title.charAt(j), i, 'utf16le');
+                this[courseDataSub].write(title.charAt(j), i, 'utf16le');
+            } else {
+                this[courseData].writeUInt16BE(0, i);
+                this[courseDataSub].writeUInt16BE(0, i);
+            }
+        }
+        this.title = title.substr(0, COURSE_NAME_LENGTH / 2);
+        if (!!writeCrc) {
+            this.writeCrc();
+        }
+    },
+
+    setMaker: function setMaker(makerName, writeCrc) {
+        for (var i = COURSE_MAKER_OFFSET, j = 0; i < COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH; i += 2, j++) {
+            if (j < makerName.length) {
+                this[courseData].write(makerName.charAt(j), i, 'utf16le');
+                this[courseDataSub].write(makerName.charAt(j), i, 'utf16le');
+            } else {
+                this[courseData].writeUInt16BE(0, i);
+                this[courseDataSub].writeUInt16BE(0, i);
+            }
+        }
+        this.maker = makerName.substr(0, COURSE_MAKER_LENGTH / 2);
+        if (!!writeCrc) {
+            this.writeCrc();
+        }
     }
 
 };

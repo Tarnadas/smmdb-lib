@@ -11,11 +11,13 @@ const path = require("path");
 
 const Save = require( "./save");
 const Tnl = require("./tnl");
+const course = require("./course");
 
 module.exports = {
     loadSave: loadSave,
     loadSaveSync: loadSaveSync,
-    loadImage: loadImage
+    loadImage: loadImage,
+    loadCourse: course
 };
 
 async function loadSave(pathToSave) {

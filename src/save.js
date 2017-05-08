@@ -310,7 +310,7 @@ Save.prototype = {
                     });
                 });
                 if (exists) {
-                    this.courses[courseName] = await createCourse(i, coursePath);
+                    this.courses[courseName] = await createCourse(coursePath, i);
                 }
                 resolve();
             }));
@@ -327,7 +327,7 @@ Save.prototype = {
             let coursePath = path.resolve(`${this.pathToSave}/${courseName}/`);
             try {
                 fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
-                this.courses[courseName] = await createCourse(i, coursePath);
+                this.courses[courseName] = await createCourse(coursePath, i);
             } catch (err) {
             }
         }

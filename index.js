@@ -3,13 +3,15 @@ if (process.env.NODE_ENV === 'production') {
     module.exports = {
         loadSave: smm.loadSave,
         loadSaveSync: smm.loadSaveSync,
-        loadImage: smm.loadImage
+        loadImage: smm.loadImage,
+        loadCourse: smm.loadCourse
     };
 } else {
     let smm = require("./src/main.js");
     module.exports = {
         loadSave: smm.loadSave,
         loadSaveSync: smm.loadSaveSync,
-        loadImage: smm.loadImage
+        loadImage: smm.loadImage,
+        loadCourse: smm.loadCourse
     };
 }

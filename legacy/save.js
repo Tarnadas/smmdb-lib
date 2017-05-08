@@ -692,7 +692,7 @@ Save.prototype = {
                                                         }
 
                                                         _context15.next = 8;
-                                                        return createCourse(i, coursePath);
+                                                        return createCourse(coursePath, i);
 
                                                     case 8:
                                                         _this6.courses[courseName] = _context15.sent;
@@ -760,7 +760,7 @@ Save.prototype = {
 
                             fs.accessSync(_coursePath2, fs.constants.R_OK | fs.constants.W_OK);
                             _context17.next = 8;
-                            return createCourse(i, _coursePath2);
+                            return createCourse(_coursePath2, i);
 
                         case 8:
                             this.courses[courseName] = _context17.sent;

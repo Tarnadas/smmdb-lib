@@ -54,7 +54,7 @@ const elements      = Symbol();
 
 module.exports = createCourse;
 
-async function createCourse (courseId, coursePath) {
+async function createCourse (coursePath, courseId) {
 
     return new Promise ((resolve) => {
         fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
@@ -77,7 +77,7 @@ async function createCourse (courseId, coursePath) {
             let makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
             let maker = "";
             for (let i =  0; i < COURSE_MAKER_LENGTH; i+=2) {
-                let charBuf = Buffer.allocUnsafe(2)
+                let charBuf = Buffer.allocUnsafe(2);
                 charBuf.writeUInt16BE(makerBuf.readUInt16BE(i));
                 if (charBuf.readUInt16BE(0) === 0) {
                     break;
@@ -154,6 +154,38 @@ Course.prototype = {
 
     getElements: function () {
         return this[elements];
+    },
+
+    setTitle: function (title, writeCrc) {
+        for (let i = COURSE_NAME_OFFSET, j = 0; i < COURSE_NAME_OFFSET + COURSE_NAME_LENGTH; i+=2, j++) {
+            if (j < title.length) {
+                this[courseData].write(title.charAt(j), i, 'utf16le');
+                this[courseDataSub].write(title.charAt(j), i, 'utf16le');
+            } else {
+                this[courseData].writeUInt16BE(0, i);
+                this[courseDataSub].writeUInt16BE(0, i);
+            }
+        }
+        this.title = title.substr(0, COURSE_NAME_LENGTH / 2);
+        if (!!writeCrc) {
+            this.writeCrc();
+        }
+    },
+
+    setMaker: function (makerName, writeCrc) {
+        for (let i = COURSE_MAKER_OFFSET, j = 0; i < COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH; i+=2, j++) {
+            if (j < makerName.length) {
+                this[courseData].write(makerName.charAt(j), i, 'utf16le');
+                this[courseDataSub].write(makerName.charAt(j), i, 'utf16le');
+            } else {
+                this[courseData].writeUInt16BE(0, i);
+                this[courseDataSub].writeUInt16BE(0, i);
+            }
+        }
+        this.maker = makerName.substr(0, COURSE_MAKER_LENGTH / 2);
+        if (!!writeCrc) {
+            this.writeCrc();
+        }
     }
 
 };

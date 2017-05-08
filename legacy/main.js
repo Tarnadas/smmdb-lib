@@ -46,11 +46,13 @@ var path = require("path");
 
 var Save = require("./save");
 var Tnl = require("./tnl");
+var course = require("./course");
 
 module.exports = {
     loadSave: loadSave,
     loadSaveSync: loadSaveSync,
-    loadImage: loadImage
+    loadImage: loadImage,
+    loadCourse: course
 };
 
 function loadSaveSync(pathToSave) {
