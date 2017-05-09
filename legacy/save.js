@@ -4,6 +4,8 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 var Promise = require("bluebird");
 var crc32 = require("buffer-crc32");
+var copydir = require("copy-dir");
+var rimraf = require("rimraf");
 
 var fs = require("fs");
 var path = require("path");
@@ -792,6 +794,95 @@ Save.prototype = {
         }
 
         return loadCoursesSync;
+    }(),
+
+    addCourse: function () {
+        var _ref17 = _asyncToGenerator(regeneratorRuntime.mark(function _callee18(courseDataPath) {
+            var _this7 = this;
+
+            var emptySlotName, emptySlot, i, courseName, cemuSavePath;
+            return regeneratorRuntime.wrap(function _callee18$(_context18) {
+                while (1) {
+                    switch (_context18.prev = _context18.next) {
+                        case 0:
+                            if (fs.existsSync(courseDataPath)) {
+                                _context18.next = 2;
+                                break;
+                            }
+
+                            throw new Error("Path does not exist: " + courseDataPath);
+
+                        case 2:
+                            emptySlotName = "";
+                            emptySlot = -1;
+                            i = 0;
+
+                        case 5:
+                            if (!(i < SAVE_ORDER_SIZE)) {
+                                _context18.next = 14;
+                                break;
+                            }
+
+                            courseName = "course" + i.pad(3);
+
+                            if (!this.courses[courseName]) {
+                                _context18.next = 11;
+                                break;
+                            }
+
+                            emptySlotName = courseName;
+                            emptySlot = i;
+                            return _context18.abrupt("break", 14);
+
+                        case 11:
+                            i++;
+                            _context18.next = 5;
+                            break;
+
+                        case 14:
+                            if (!(emptySlot === -1)) {
+                                _context18.next = 16;
+                                break;
+                            }
+
+                            throw new Error("No empty slot inside save");
+
+                        case 16:
+                            cemuSavePath = path.join(this.pathToSave, emptySlotName);
+                            _context18.prev = 17;
+                            _context18.next = 20;
+                            return new Promise(function (resolve) {
+                                rimraf(cemuSavePath, function () {
+                                    fs.mkdirSync(cemuSavePath);
+                                    copydir(courseDataPath, cemuSavePath);
+                                    _this7.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
+                                    _this7.writeCrc();
+                                    resolve();
+                                });
+                            });
+
+                        case 20:
+                            _context18.next = 25;
+                            break;
+
+                        case 22:
+                            _context18.prev = 22;
+                            _context18.t0 = _context18["catch"](17);
+                            throw _context18.t0;
+
+                        case 25:
+                        case "end":
+                            return _context18.stop();
+                    }
+                }
+            }, _callee18, this, [[17, 22]]);
+        }));
+
+        function addCourse(_x10) {
+            return _ref17.apply(this, arguments);
+        }
+
+        return addCourse;
     }(),
 
     loadCourseElements: function loadCourseElements() {

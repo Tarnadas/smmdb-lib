@@ -1,5 +1,7 @@
 const Promise = require("bluebird");
 const crc32   = require("buffer-crc32");
+const copydir = require("copy-dir");
+const rimraf  = require("rimraf");
 
 const fs   = require("fs");
 const path = require("path");
@@ -332,6 +334,41 @@ Save.prototype = {
             }
         }
         return this.courses;
+
+    },
+
+    addCourse: async function (courseDataPath) {
+
+        if (!fs.existsSync(courseDataPath)) {
+            throw new Error("Path does not exist: " + courseDataPath);
+        }
+        let emptySlotName = "";
+        let emptySlot = -1;
+        for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+            let courseName = `course${i.pad(3)}`;
+            if (!!this.courses[courseName]) {
+                emptySlotName = courseName;
+                emptySlot = i;
+                break;
+            }
+        }
+        if (emptySlot === -1) {
+            throw new Error("No empty slot inside save");
+        }
+        let cemuSavePath = path.join(this.pathToSave, emptySlotName);
+        try {
+            await new Promise((resolve) => {
+                rimraf(cemuSavePath, () => {
+                    fs.mkdirSync(cemuSavePath);
+                    copydir(courseDataPath, cemuSavePath);
+                    this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
+                    this.writeCrc();
+                    resolve();
+                })
+            });
+        } catch (err) {
+            throw err;
+        }
 
     },
 

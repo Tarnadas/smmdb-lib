@@ -12,7 +12,9 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "buffer-crc32": "latest",
-    "jimp": "^0.2.27"
+    "copy-dir": "^0.3.0",
+    "jimp": "^0.2.27",
+    "rimraf": "^2.6.1"
   },
   "repository": {
     "type": "git",

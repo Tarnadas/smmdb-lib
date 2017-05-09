@@ -247,13 +247,15 @@ Tnl.prototype = {
                                     if (err) throw err;
                                     var length = data.readUInt32BE(4);
                                     var jpeg = data.slice(8, 8 + length);
-                                    var zeros = 0;
-                                    for (var i = 0; i < jpeg.length; i++) {
-                                        if (jpeg.readUInt8(i) === 0) {
-                                            zeros++;
+                                    var count = 0;
+                                    try {
+                                        for (var i = 0; i < jpeg.length; i += 4) {
+                                            if (jpeg.readUInt32BE(i) === 0xA2800A28) {
+                                                count++;
+                                            }
                                         }
-                                    }
-                                    resolve(zeros / jpeg.length > 0.5);
+                                    } catch (err) {}
+                                    resolve(count * 4 / jpeg.length > 0.5);
                                 });
                             }));
 
