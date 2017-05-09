@@ -144,6 +144,7 @@ Tnl.prototype = {
                 let jpeg = data.slice(8, 8 + length);
                 let zeros = 0;
                 for (let i = 0; i < jpeg.length; i++) {
+                    console.log(jpeg.readUInt8(i));
                     if (jpeg.readUInt8(i) === 0) {
                         zeros++;
                     }
