@@ -138,19 +138,16 @@ Tnl.prototype = {
 
         return new Promise((resolve) => {
             fs.readFile(this.pathToFile, (err, data) => {
-                console.log(this.pathToFile);
                 if (err) throw err;
                 let length = data.readUInt32BE(4);
                 let jpeg = data.slice(8, 8 + length);
-                let zeros = 0;
-                for (let i = 0; i < jpeg.length; i++) {
-                    console.log(jpeg.readUInt8(i));
-                    if (jpeg.readUInt8(i) === 0) {
-                        zeros++;
+                let count = 0;
+                for (let i = 0; i < jpeg.length; i+=4) {
+                    if (jpeg.readUInt32BE(i) === 0xA2800A28) {
+                        count++;
                     }
                 }
-                console.log(zeros / jpeg.length);
-                resolve((zeros / jpeg.length) > 0.5);
+                resolve((count*4 / jpeg.length) > 0.5);
             })
         });
 
