@@ -142,11 +142,13 @@ Tnl.prototype = {
                 let length = data.readUInt32BE(4);
                 let jpeg = data.slice(8, 8 + length);
                 let count = 0;
-                for (let i = 0; i < jpeg.length; i+=4) {
-                    if (jpeg.readUInt32BE(i) === 0xA2800A28) {
-                        count++;
+                try {
+                    for (let i = 0; i < jpeg.length; i+=4) {
+                        if (jpeg.readUInt32BE(i) === 0xA2800A28) {
+                            count++;
+                        }
                     }
-                }
+                } catch (err) {}
                 resolve((count*4 / jpeg.length) > 0.5);
             })
         });
