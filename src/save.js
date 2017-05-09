@@ -346,7 +346,7 @@ Save.prototype = {
         let emptySlot = -1;
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
             let courseName = `course${i.pad(3)}`;
-            if (!!this.courses[courseName]) {
+            if (!this.courses[courseName]) {
                 emptySlotName = courseName;
                 emptySlot = i;
                 break;
