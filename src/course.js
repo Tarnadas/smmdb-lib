@@ -260,7 +260,7 @@ Course.prototype = {
             });
         });
         if (exists) {
-            await Promise.all([
+            return await Promise.all([
                 new Promise(async (resolve) => {
                     try {
                         let tnl = new Tnl(this.path + "/thumbnail0.tnl");
