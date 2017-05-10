@@ -6,7 +6,8 @@ const rimraf  = require("rimraf");
 const fs   = require("fs");
 const path = require("path");
 
-const createCourse = require("./course");
+const createCourse = require("./course").createCourse;
+const createCourseSync = require("./course").createCourseSync;
 const Tnl = require("./tnl");
 
 const SAVE_SIZE  = 0xA000;
@@ -168,7 +169,16 @@ Save.prototype = {
     exportJpeg: async function () {
 
         let promises = [];
-        for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+        if (this.courses === {}) {
+            await this.loadCourses();
+        }
+        for (let key in this.courses) {
+            promises.push(new Promise(async (resolve) => {
+                this.courses[key].exportJpeg();
+                resolve();
+            }));
+        }
+        /*for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
             let coursePath = path.resolve(`${this.pathToSave}/course${i.pad(3)}/`);
             promises.push(new Promise(async (resolve) => {
                 let exists = false;
@@ -206,8 +216,8 @@ Save.prototype = {
                 }
                 resolve();
             }));
-        }
-        await Promise.all(promises);
+        }*/
+        return await Promise.all(promises);
 
     },
 
@@ -322,14 +332,14 @@ Save.prototype = {
 
     },
 
-    loadCoursesSync: async function () {
+    loadCoursesSync: function () {
 
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
             let courseName = `course${i.pad(3)}`;
             let coursePath = path.resolve(`${this.pathToSave}/${courseName}/`);
             try {
                 fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
-                this.courses[courseName] = await createCourse(coursePath, i);
+                this.courses[courseName] = createCourseSync(coursePath, i);
             } catch (err) {
             }
         }

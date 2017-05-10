@@ -17,7 +17,8 @@ module.exports = {
     loadSave: loadSave,
     loadSaveSync: loadSaveSync,
     loadImage: loadImage,
-    loadCourse: course
+    loadCourse: course.createCourse,
+    loadCourseSync: course.createCourseSync
 };
 
 async function loadSave(pathToSave) {

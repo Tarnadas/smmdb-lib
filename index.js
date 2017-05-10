@@ -4,7 +4,8 @@ if (process.env.NODE_ENV === 'production') {
         loadSave: smm.loadSave,
         loadSaveSync: smm.loadSaveSync,
         loadImage: smm.loadImage,
-        loadCourse: smm.loadCourse
+        loadCourse: smm.loadCourse,
+        loadCourseSync: smm.loadCourseSync
     };
 } else {
     let smm = require("./src/main.js");
@@ -12,6 +13,7 @@ if (process.env.NODE_ENV === 'production') {
         loadSave: smm.loadSave,
         loadSaveSync: smm.loadSaveSync,
         loadImage: smm.loadImage,
-        loadCourse: smm.loadCourse
+        loadCourse: smm.loadCourse,
+        loadCourseSync: smm.loadCourseSync
     };
 }

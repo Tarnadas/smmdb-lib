@@ -200,7 +200,39 @@ var courseData = Symbol();
 var courseDataSub = Symbol();
 var elements = Symbol();
 
-module.exports = createCourse;
+module.exports = {
+    createCourse: createCourse,
+    createCourseSync: createCourseSync
+};
+
+function createCourseSync(coursePath, courseId) {
+
+    var data = fs.readFileSync(path.resolve(coursePath + "/course_data.cdt"));
+    var dataSub = fs.readFileSync(path.resolve(coursePath + "/course_data.cdt"));
+    var titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
+    var title = "";
+    for (var i = 0; i < COURSE_NAME_LENGTH; i += 2) {
+        var charBuf = Buffer.allocUnsafe(2);
+        charBuf.writeUInt16BE(titleBuf.readUInt16BE(i));
+        if (charBuf.readUInt16BE(0) === 0) {
+            break;
+        }
+        title += charBuf.toString('utf16le');
+    }
+    var makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
+    var maker = "";
+    for (var _i2 = 0; _i2 < COURSE_MAKER_LENGTH; _i2 += 2) {
+        var _charBuf2 = Buffer.allocUnsafe(2);
+        _charBuf2.writeUInt16BE(makerBuf.readUInt16BE(_i2));
+        if (_charBuf2.readUInt16BE(0) === 0) {
+            break;
+        }
+        maker += _charBuf2.toString('utf16le');
+    }
+    var type = data.slice(COURSE_TYPE_OFFSET, COURSE_TYPE_OFFSET + 2).toString();
+    var environment = data.readUInt8(COURSE_ENVIRONMENT_OFFSET);
+    return new Course(courseId, data, dataSub, coursePath, title, maker, type, environment);
+}
 
 function Course(id, data, dataSub, path, title, maker, type, environment) {
     this.id = id;
@@ -380,7 +412,7 @@ Course.prototype = {
                                                 case 2:
                                                     tnl = _context7.sent;
 
-                                                    fs.writeFile(path.join(_this3.path, 'thumbnail0.tnl'), tnl, function (err) {
+                                                    fs.writeFile(path.join(_this3.path, 'thumbnail0.tnl'), tnl, function () {
                                                         resolve();
                                                     });
 
@@ -426,6 +458,9 @@ Course.prototype = {
                             }())]);
 
                         case 3:
+                            return _context9.abrupt("return", _context9.sent);
+
+                        case 4:
                         case "end":
                             return _context9.stop();
                     }
@@ -467,6 +502,124 @@ Course.prototype = {
         }
 
         return isThumbnailBroken;
+    }(),
+
+    exportJpeg: function () {
+        var _ref11 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13() {
+            var _this4 = this;
+
+            var exists;
+            return regeneratorRuntime.wrap(function _callee13$(_context13) {
+                while (1) {
+                    switch (_context13.prev = _context13.next) {
+                        case 0:
+                            exists = false;
+                            _context13.next = 3;
+                            return new Promise(function (resolve) {
+                                fs.access(_this4.path, fs.constants.R_OK | fs.constants.W_OK, function (err) {
+                                    exists = !err;
+                                    resolve();
+                                });
+                            });
+
+                        case 3:
+                            if (!exists) {
+                                _context13.next = 6;
+                                break;
+                            }
+
+                            _context13.next = 6;
+                            return Promise.all([new Promise(function () {
+                                var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(resolve) {
+                                    var tnl, jpeg;
+                                    return regeneratorRuntime.wrap(function _callee11$(_context11) {
+                                        while (1) {
+                                            switch (_context11.prev = _context11.next) {
+                                                case 0:
+                                                    _context11.prev = 0;
+                                                    tnl = new Tnl(coursePath + "/thumbnail0.tnl");
+                                                    _context11.next = 4;
+                                                    return tnl.toJpeg();
+
+                                                case 4:
+                                                    jpeg = _context11.sent;
+
+                                                    fs.writeFile(coursePath + "/thumbnail0.jpg", jpeg, null, function () {
+                                                        resolve();
+                                                    });
+                                                    _context11.next = 11;
+                                                    break;
+
+                                                case 8:
+                                                    _context11.prev = 8;
+                                                    _context11.t0 = _context11["catch"](0);
+
+                                                    resolve();
+
+                                                case 11:
+                                                case "end":
+                                                    return _context11.stop();
+                                            }
+                                        }
+                                    }, _callee11, _this4, [[0, 8]]);
+                                }));
+
+                                return function (_x12) {
+                                    return _ref12.apply(this, arguments);
+                                };
+                            }()), new Promise(function () {
+                                var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12(resolve) {
+                                    var tnl, jpeg;
+                                    return regeneratorRuntime.wrap(function _callee12$(_context12) {
+                                        while (1) {
+                                            switch (_context12.prev = _context12.next) {
+                                                case 0:
+                                                    _context12.prev = 0;
+                                                    tnl = new Tnl(coursePath + "/thumbnail1.tnl");
+                                                    _context12.next = 4;
+                                                    return tnl.toJpeg();
+
+                                                case 4:
+                                                    jpeg = _context12.sent;
+
+                                                    fs.writeFile(coursePath + "/thumbnail1.jpg", jpeg, null, function () {
+                                                        resolve();
+                                                    });
+                                                    _context12.next = 11;
+                                                    break;
+
+                                                case 8:
+                                                    _context12.prev = 8;
+                                                    _context12.t0 = _context12["catch"](0);
+
+                                                    resolve();
+
+                                                case 11:
+                                                case "end":
+                                                    return _context12.stop();
+                                            }
+                                        }
+                                    }, _callee12, _this4, [[0, 8]]);
+                                }));
+
+                                return function (_x13) {
+                                    return _ref13.apply(this, arguments);
+                                };
+                            }())]);
+
+                        case 6:
+                        case "end":
+                            return _context13.stop();
+                    }
+                }
+            }, _callee13, this);
+        }));
+
+        function exportJpeg() {
+            return _ref11.apply(this, arguments);
+        }
+
+        return exportJpeg;
     }()
 
 };

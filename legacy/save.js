@@ -10,7 +10,8 @@ var rimraf = require("rimraf");
 var fs = require("fs");
 var path = require("path");
 
-var createCourse = require("./course");
+var createCourse = require("./course").createCourse;
+var createCourseSync = require("./course").createCourseSync;
 var Tnl = require("./tnl");
 
 var SAVE_SIZE = 0xA000;
@@ -273,129 +274,42 @@ Save.prototype = {
     },
 
     exportJpeg: function () {
-        var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8() {
+        var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6() {
             var _this3 = this;
 
-            var promises, _loop4, i;
+            var promises, _loop4, key;
 
-            return regeneratorRuntime.wrap(function _callee8$(_context8) {
+            return regeneratorRuntime.wrap(function _callee6$(_context6) {
                 while (1) {
-                    switch (_context8.prev = _context8.next) {
+                    switch (_context6.prev = _context6.next) {
                         case 0:
                             promises = [];
 
-                            _loop4 = function _loop4(i) {
-                                var coursePath = path.resolve(_this3.pathToSave + "/course" + i.pad(3) + "/");
+                            if (!(this.courses === {})) {
+                                _context6.next = 4;
+                                break;
+                            }
+
+                            _context6.next = 4;
+                            return this.loadCourses();
+
+                        case 4:
+                            _loop4 = function _loop4(key) {
                                 promises.push(new Promise(function () {
-                                    var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(resolve) {
-                                        var exists;
-                                        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+                                    var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(resolve) {
+                                        return regeneratorRuntime.wrap(function _callee5$(_context5) {
                                             while (1) {
-                                                switch (_context7.prev = _context7.next) {
+                                                switch (_context5.prev = _context5.next) {
                                                     case 0:
-                                                        exists = false;
-                                                        _context7.next = 3;
-                                                        return new Promise(function (resolve) {
-                                                            fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, function (err) {
-                                                                exists = !err;
-                                                                resolve();
-                                                            });
-                                                        });
-
-                                                    case 3:
-                                                        if (!exists) {
-                                                            _context7.next = 6;
-                                                            break;
-                                                        }
-
-                                                        _context7.next = 6;
-                                                        return Promise.all([new Promise(function () {
-                                                            var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(resolve) {
-                                                                var tnl, jpeg;
-                                                                return regeneratorRuntime.wrap(function _callee5$(_context5) {
-                                                                    while (1) {
-                                                                        switch (_context5.prev = _context5.next) {
-                                                                            case 0:
-                                                                                _context5.prev = 0;
-                                                                                tnl = new Tnl(coursePath + "/thumbnail0.tnl");
-                                                                                _context5.next = 4;
-                                                                                return tnl.toJpeg();
-
-                                                                            case 4:
-                                                                                jpeg = _context5.sent;
-
-                                                                                fs.writeFile(coursePath + "/thumbnail0.jpg", jpeg, null, function () {
-                                                                                    resolve();
-                                                                                });
-                                                                                _context5.next = 11;
-                                                                                break;
-
-                                                                            case 8:
-                                                                                _context5.prev = 8;
-                                                                                _context5.t0 = _context5["catch"](0);
-
-                                                                                resolve();
-
-                                                                            case 11:
-                                                                            case "end":
-                                                                                return _context5.stop();
-                                                                        }
-                                                                    }
-                                                                }, _callee5, _this3, [[0, 8]]);
-                                                            }));
-
-                                                            return function (_x3) {
-                                                                return _ref6.apply(this, arguments);
-                                                            };
-                                                        }()), new Promise(function () {
-                                                            var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(resolve) {
-                                                                var tnl, jpeg;
-                                                                return regeneratorRuntime.wrap(function _callee6$(_context6) {
-                                                                    while (1) {
-                                                                        switch (_context6.prev = _context6.next) {
-                                                                            case 0:
-                                                                                _context6.prev = 0;
-                                                                                tnl = new Tnl(coursePath + "/thumbnail1.tnl");
-                                                                                _context6.next = 4;
-                                                                                return tnl.toJpeg();
-
-                                                                            case 4:
-                                                                                jpeg = _context6.sent;
-
-                                                                                fs.writeFile(coursePath + "/thumbnail1.jpg", jpeg, null, function () {
-                                                                                    resolve();
-                                                                                });
-                                                                                _context6.next = 11;
-                                                                                break;
-
-                                                                            case 8:
-                                                                                _context6.prev = 8;
-                                                                                _context6.t0 = _context6["catch"](0);
-
-                                                                                resolve();
-
-                                                                            case 11:
-                                                                            case "end":
-                                                                                return _context6.stop();
-                                                                        }
-                                                                    }
-                                                                }, _callee6, _this3, [[0, 8]]);
-                                                            }));
-
-                                                            return function (_x4) {
-                                                                return _ref7.apply(this, arguments);
-                                                            };
-                                                        }())]);
-
-                                                    case 6:
+                                                        _this3.courses[key].exportJpeg();
                                                         resolve();
 
-                                                    case 7:
+                                                    case 2:
                                                     case "end":
-                                                        return _context7.stop();
+                                                        return _context5.stop();
                                                 }
                                             }
-                                        }, _callee7, _this3);
+                                        }, _callee5, _this3);
                                     }));
 
                                     return function (_x2) {
@@ -404,18 +318,60 @@ Save.prototype = {
                                 }()));
                             };
 
-                            for (i = 0; i < SAVE_ORDER_SIZE; i++) {
-                                _loop4(i);
+                            for (key in this.courses) {
+                                _loop4(key);
                             }
-                            _context8.next = 5;
+                            /*for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+                                let coursePath = path.resolve(`${this.pathToSave}/course${i.pad(3)}/`);
+                                promises.push(new Promise(async (resolve) => {
+                                    let exists = false;
+                                    await new Promise((resolve) => {
+                                        fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
+                                            exists = !err;
+                                            resolve();
+                                        });
+                                    });
+                                    if (exists) {
+                                        await Promise.all([
+                                            new Promise(async (resolve) => {
+                                                try {
+                                                    let tnl = new Tnl(coursePath + "/thumbnail0.tnl");
+                                                    let jpeg = await tnl.toJpeg();
+                                                    fs.writeFile(coursePath + "/thumbnail0.jpg", jpeg, null, () => {
+                                                        resolve();
+                                                    })
+                                                } catch (err) {
+                                                    resolve();
+                                                }
+                                            }),
+                                            new Promise(async (resolve) => {
+                                                try {
+                                                    let tnl = new Tnl(coursePath + "/thumbnail1.tnl");
+                                                    let jpeg = await tnl.toJpeg();
+                                                    fs.writeFile(coursePath + "/thumbnail1.jpg", jpeg, null, () => {
+                                                        resolve();
+                                                    });
+                                                } catch (err) {
+                                                    resolve();
+                                                }
+                                            })
+                                        ]);
+                                    }
+                                    resolve();
+                                }));
+                            }*/
+                            _context6.next = 8;
                             return Promise.all(promises);
 
-                        case 5:
+                        case 8:
+                            return _context6.abrupt("return", _context6.sent);
+
+                        case 9:
                         case "end":
-                            return _context8.stop();
+                            return _context6.stop();
                     }
                 }
-            }, _callee8, this);
+            }, _callee6, this);
         }));
 
         function exportJpeg() {
@@ -428,51 +384,51 @@ Save.prototype = {
     exportJpegSync: function exportJpegSync() {
 
         for (var i = 0; i < SAVE_ORDER_SIZE; i++) {
-            var _coursePath = path.resolve(this.pathToSave + "/course" + i.pad(3) + "/");
+            var coursePath = path.resolve(this.pathToSave + "/course" + i.pad(3) + "/");
             var exists = true;
             try {
-                fs.accessSync(_coursePath, fs.constants.R_OK | fs.constants.W_OK);
+                fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
             } catch (err) {
                 exists = false;
             }
             if (exists) {
                 try {
-                    var tnl = new Tnl(_coursePath + "/thumbnail0.tnl");
+                    var tnl = new Tnl(coursePath + "/thumbnail0.tnl");
                     var jpeg = tnl.toJpegSync();
-                    fs.writeFileSync(_coursePath + "/thumbnail0.jpg", jpeg);
+                    fs.writeFileSync(coursePath + "/thumbnail0.jpg", jpeg);
                 } catch (err) {}
                 try {
-                    var _tnl = new Tnl(_coursePath + "/thumbnail1.tnl");
+                    var _tnl = new Tnl(coursePath + "/thumbnail1.tnl");
                     var _jpeg = _tnl.toJpegSync();
-                    fs.writeFileSync(_coursePath + "/thumbnail1.jpg", _jpeg);
+                    fs.writeFileSync(coursePath + "/thumbnail1.jpg", _jpeg);
                 } catch (err) {}
             }
         }
     },
 
     importJpeg: function () {
-        var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12() {
+        var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
             var _this4 = this;
 
             var promises, _loop5, i;
 
-            return regeneratorRuntime.wrap(function _callee12$(_context12) {
+            return regeneratorRuntime.wrap(function _callee10$(_context10) {
                 while (1) {
-                    switch (_context12.prev = _context12.next) {
+                    switch (_context10.prev = _context10.next) {
                         case 0:
                             promises = [];
 
                             _loop5 = function _loop5(i) {
                                 var coursePath = path.resolve(_this4.pathToSave + "/course" + i.pad(3) + "/");
                                 promises.push(new Promise(function () {
-                                    var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(resolve) {
+                                    var _ref7 = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(resolve) {
                                         var exists;
-                                        return regeneratorRuntime.wrap(function _callee11$(_context11) {
+                                        return regeneratorRuntime.wrap(function _callee9$(_context9) {
                                             while (1) {
-                                                switch (_context11.prev = _context11.next) {
+                                                switch (_context9.prev = _context9.next) {
                                                     case 0:
                                                         exists = false;
-                                                        _context11.next = 3;
+                                                        _context9.next = 3;
                                                         return new Promise(function (resolve) {
                                                             fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, function (err) {
                                                                 exists = !err;
@@ -482,86 +438,86 @@ Save.prototype = {
 
                                                     case 3:
                                                         if (!exists) {
-                                                            _context11.next = 6;
+                                                            _context9.next = 6;
                                                             break;
                                                         }
 
-                                                        _context11.next = 6;
+                                                        _context9.next = 6;
                                                         return Promise.all([new Promise(function () {
-                                                            var _ref10 = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(resolve) {
+                                                            var _ref8 = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(resolve) {
                                                                 var jpeg, tnl;
-                                                                return regeneratorRuntime.wrap(function _callee9$(_context9) {
+                                                                return regeneratorRuntime.wrap(function _callee7$(_context7) {
                                                                     while (1) {
-                                                                        switch (_context9.prev = _context9.next) {
+                                                                        switch (_context7.prev = _context7.next) {
                                                                             case 0:
-                                                                                _context9.prev = 0;
+                                                                                _context7.prev = 0;
                                                                                 jpeg = new Tnl(coursePath + "/thumbnail0.jpg");
-                                                                                _context9.next = 4;
+                                                                                _context7.next = 4;
                                                                                 return jpeg.fromJpeg(true);
 
                                                                             case 4:
-                                                                                tnl = _context9.sent;
+                                                                                tnl = _context7.sent;
 
                                                                                 fs.writeFile(coursePath + "/thumbnail0.tnl", tnl, null, function () {
                                                                                     resolve();
                                                                                 });
-                                                                                _context9.next = 11;
+                                                                                _context7.next = 11;
                                                                                 break;
 
                                                                             case 8:
-                                                                                _context9.prev = 8;
-                                                                                _context9.t0 = _context9["catch"](0);
+                                                                                _context7.prev = 8;
+                                                                                _context7.t0 = _context7["catch"](0);
 
                                                                                 resolve();
 
                                                                             case 11:
                                                                             case "end":
-                                                                                return _context9.stop();
+                                                                                return _context7.stop();
                                                                         }
                                                                     }
-                                                                }, _callee9, _this4, [[0, 8]]);
+                                                                }, _callee7, _this4, [[0, 8]]);
                                                             }));
 
-                                                            return function (_x6) {
-                                                                return _ref10.apply(this, arguments);
+                                                            return function (_x4) {
+                                                                return _ref8.apply(this, arguments);
                                                             };
                                                         }()), new Promise(function () {
-                                                            var _ref11 = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(resolve) {
+                                                            var _ref9 = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(resolve) {
                                                                 var jpeg, tnl;
-                                                                return regeneratorRuntime.wrap(function _callee10$(_context10) {
+                                                                return regeneratorRuntime.wrap(function _callee8$(_context8) {
                                                                     while (1) {
-                                                                        switch (_context10.prev = _context10.next) {
+                                                                        switch (_context8.prev = _context8.next) {
                                                                             case 0:
-                                                                                _context10.prev = 0;
+                                                                                _context8.prev = 0;
                                                                                 jpeg = new Tnl(coursePath + "/thumbnail1.jpg");
-                                                                                _context10.next = 4;
+                                                                                _context8.next = 4;
                                                                                 return jpeg.fromJpeg(false);
 
                                                                             case 4:
-                                                                                tnl = _context10.sent;
+                                                                                tnl = _context8.sent;
 
                                                                                 fs.writeFile(coursePath + "/thumbnail1.tnl", tnl, null, function () {
                                                                                     resolve();
                                                                                 });
-                                                                                _context10.next = 11;
+                                                                                _context8.next = 11;
                                                                                 break;
 
                                                                             case 8:
-                                                                                _context10.prev = 8;
-                                                                                _context10.t0 = _context10["catch"](0);
+                                                                                _context8.prev = 8;
+                                                                                _context8.t0 = _context8["catch"](0);
 
                                                                                 resolve();
 
                                                                             case 11:
                                                                             case "end":
-                                                                                return _context10.stop();
+                                                                                return _context8.stop();
                                                                         }
                                                                     }
-                                                                }, _callee10, _this4, [[0, 8]]);
+                                                                }, _callee8, _this4, [[0, 8]]);
                                                             }));
 
-                                                            return function (_x7) {
-                                                                return _ref11.apply(this, arguments);
+                                                            return function (_x5) {
+                                                                return _ref9.apply(this, arguments);
                                                             };
                                                         }())]);
 
@@ -570,14 +526,14 @@ Save.prototype = {
 
                                                     case 7:
                                                     case "end":
-                                                        return _context11.stop();
+                                                        return _context9.stop();
                                                 }
                                             }
-                                        }, _callee11, _this4);
+                                        }, _callee9, _this4);
                                     }));
 
-                                    return function (_x5) {
-                                        return _ref9.apply(this, arguments);
+                                    return function (_x3) {
+                                        return _ref7.apply(this, arguments);
                                     };
                                 }()));
                             };
@@ -585,44 +541,44 @@ Save.prototype = {
                             for (i = 0; i < SAVE_ORDER_SIZE; i++) {
                                 _loop5(i);
                             }
-                            _context12.next = 5;
+                            _context10.next = 5;
                             return Promise.all(promises);
 
                         case 5:
                         case "end":
-                            return _context12.stop();
+                            return _context10.stop();
                     }
                 }
-            }, _callee12, this);
+            }, _callee10, this);
         }));
 
         function importJpeg() {
-            return _ref8.apply(this, arguments);
+            return _ref6.apply(this, arguments);
         }
 
         return importJpeg;
     }(),
 
     unlockAmiibos: function () {
-        var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14() {
+        var _ref10 = _asyncToGenerator(regeneratorRuntime.mark(function _callee12() {
             var _this5 = this;
 
-            return regeneratorRuntime.wrap(function _callee14$(_context14) {
+            return regeneratorRuntime.wrap(function _callee12$(_context12) {
                 while (1) {
-                    switch (_context14.prev = _context14.next) {
+                    switch (_context12.prev = _context12.next) {
                         case 0:
-                            _context14.next = 2;
+                            _context12.next = 2;
                             return new Promise(function () {
-                                var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(resolve) {
+                                var _ref11 = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(resolve) {
                                     var i;
-                                    return regeneratorRuntime.wrap(function _callee13$(_context13) {
+                                    return regeneratorRuntime.wrap(function _callee11$(_context11) {
                                         while (1) {
-                                            switch (_context13.prev = _context13.next) {
+                                            switch (_context11.prev = _context11.next) {
                                                 case 0:
                                                     for (i = 0; i < SAVE_AMIIBO_LENGTH; i++) {
                                                         _this5.data.writeUInt8(0xFF, SAVE_AMIIBO_OFFSET + i);
                                                     }
-                                                    _context13.next = 3;
+                                                    _context11.next = 3;
                                                     return _this5.writeCrc();
 
                                                 case 3:
@@ -630,56 +586,56 @@ Save.prototype = {
 
                                                 case 4:
                                                 case "end":
-                                                    return _context13.stop();
+                                                    return _context11.stop();
                                             }
                                         }
-                                    }, _callee13, _this5);
+                                    }, _callee11, _this5);
                                 }));
 
-                                return function (_x8) {
-                                    return _ref13.apply(this, arguments);
+                                return function (_x6) {
+                                    return _ref11.apply(this, arguments);
                                 };
                             }());
 
                         case 2:
                         case "end":
-                            return _context14.stop();
+                            return _context12.stop();
                     }
                 }
-            }, _callee14, this);
+            }, _callee12, this);
         }));
 
         function unlockAmiibos() {
-            return _ref12.apply(this, arguments);
+            return _ref10.apply(this, arguments);
         }
 
         return unlockAmiibos;
     }(),
 
     loadCourses: function () {
-        var _ref14 = _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
+        var _ref12 = _asyncToGenerator(regeneratorRuntime.mark(function _callee14() {
             var _this6 = this;
 
             var promises, _loop6, i;
 
-            return regeneratorRuntime.wrap(function _callee16$(_context16) {
+            return regeneratorRuntime.wrap(function _callee14$(_context14) {
                 while (1) {
-                    switch (_context16.prev = _context16.next) {
+                    switch (_context14.prev = _context14.next) {
                         case 0:
                             promises = [];
 
                             _loop6 = function _loop6(i) {
                                 promises.push(new Promise(function () {
-                                    var _ref15 = _asyncToGenerator(regeneratorRuntime.mark(function _callee15(resolve) {
+                                    var _ref13 = _asyncToGenerator(regeneratorRuntime.mark(function _callee13(resolve) {
                                         var exists, courseName, coursePath;
-                                        return regeneratorRuntime.wrap(function _callee15$(_context15) {
+                                        return regeneratorRuntime.wrap(function _callee13$(_context13) {
                                             while (1) {
-                                                switch (_context15.prev = _context15.next) {
+                                                switch (_context13.prev = _context13.next) {
                                                     case 0:
                                                         exists = false;
                                                         courseName = "course" + i.pad(3);
                                                         coursePath = path.resolve(_this6.pathToSave + "/" + courseName + "/");
-                                                        _context15.next = 5;
+                                                        _context13.next = 5;
                                                         return new Promise(function (resolve) {
                                                             fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, function (err) {
                                                                 exists = !err;
@@ -689,29 +645,29 @@ Save.prototype = {
 
                                                     case 5:
                                                         if (!exists) {
-                                                            _context15.next = 9;
+                                                            _context13.next = 9;
                                                             break;
                                                         }
 
-                                                        _context15.next = 8;
+                                                        _context13.next = 8;
                                                         return createCourse(coursePath, i);
 
                                                     case 8:
-                                                        _this6.courses[courseName] = _context15.sent;
+                                                        _this6.courses[courseName] = _context13.sent;
 
                                                     case 9:
                                                         resolve();
 
                                                     case 10:
                                                     case "end":
-                                                        return _context15.stop();
+                                                        return _context13.stop();
                                                 }
                                             }
-                                        }, _callee15, _this6);
+                                        }, _callee13, _this6);
                                     }));
 
-                                    return function (_x9) {
-                                        return _ref15.apply(this, arguments);
+                                    return function (_x7) {
+                                        return _ref13.apply(this, arguments);
                                     };
                                 }()));
                             };
@@ -719,94 +675,51 @@ Save.prototype = {
                             for (i = 0; i < SAVE_ORDER_SIZE; i++) {
                                 _loop6(i);
                             }
-                            _context16.next = 5;
+                            _context14.next = 5;
                             return Promise.all(promises);
 
                         case 5:
-                            return _context16.abrupt("return", this.courses);
+                            return _context14.abrupt("return", this.courses);
 
                         case 6:
                         case "end":
-                            return _context16.stop();
+                            return _context14.stop();
                     }
                 }
-            }, _callee16, this);
+            }, _callee14, this);
         }));
 
         function loadCourses() {
-            return _ref14.apply(this, arguments);
+            return _ref12.apply(this, arguments);
         }
 
         return loadCourses;
     }(),
 
-    loadCoursesSync: function () {
-        var _ref16 = _asyncToGenerator(regeneratorRuntime.mark(function _callee17() {
-            var i, courseName, _coursePath2;
+    loadCoursesSync: function loadCoursesSync() {
 
-            return regeneratorRuntime.wrap(function _callee17$(_context17) {
-                while (1) {
-                    switch (_context17.prev = _context17.next) {
-                        case 0:
-                            i = 0;
-
-                        case 1:
-                            if (!(i < SAVE_ORDER_SIZE)) {
-                                _context17.next = 16;
-                                break;
-                            }
-
-                            courseName = "course" + i.pad(3);
-                            _coursePath2 = path.resolve(this.pathToSave + "/" + courseName + "/");
-                            _context17.prev = 4;
-
-                            fs.accessSync(_coursePath2, fs.constants.R_OK | fs.constants.W_OK);
-                            _context17.next = 8;
-                            return createCourse(_coursePath2, i);
-
-                        case 8:
-                            this.courses[courseName] = _context17.sent;
-                            _context17.next = 13;
-                            break;
-
-                        case 11:
-                            _context17.prev = 11;
-                            _context17.t0 = _context17["catch"](4);
-
-                        case 13:
-                            i++;
-                            _context17.next = 1;
-                            break;
-
-                        case 16:
-                            return _context17.abrupt("return", this.courses);
-
-                        case 17:
-                        case "end":
-                            return _context17.stop();
-                    }
-                }
-            }, _callee17, this, [[4, 11]]);
-        }));
-
-        function loadCoursesSync() {
-            return _ref16.apply(this, arguments);
+        for (var i = 0; i < SAVE_ORDER_SIZE; i++) {
+            var courseName = "course" + i.pad(3);
+            var _coursePath = path.resolve(this.pathToSave + "/" + courseName + "/");
+            try {
+                fs.accessSync(_coursePath, fs.constants.R_OK | fs.constants.W_OK);
+                this.courses[courseName] = createCourseSync(_coursePath, i);
+            } catch (err) {}
         }
-
-        return loadCoursesSync;
-    }(),
+        return this.courses;
+    },
 
     addCourse: function () {
-        var _ref17 = _asyncToGenerator(regeneratorRuntime.mark(function _callee18(courseDataPath) {
+        var _ref14 = _asyncToGenerator(regeneratorRuntime.mark(function _callee16(courseDataPath) {
             var _this7 = this;
 
             var emptySlotName, emptySlot, i, courseName, cemuSavePath;
-            return regeneratorRuntime.wrap(function _callee18$(_context18) {
+            return regeneratorRuntime.wrap(function _callee16$(_context16) {
                 while (1) {
-                    switch (_context18.prev = _context18.next) {
+                    switch (_context16.prev = _context16.next) {
                         case 0:
                             if (fs.existsSync(courseDataPath)) {
-                                _context18.next = 2;
+                                _context16.next = 2;
                                 break;
                             }
 
@@ -819,29 +732,29 @@ Save.prototype = {
 
                         case 5:
                             if (!(i < SAVE_ORDER_SIZE)) {
-                                _context18.next = 14;
+                                _context16.next = 14;
                                 break;
                             }
 
                             courseName = "course" + i.pad(3);
 
-                            if (!this.courses[courseName]) {
-                                _context18.next = 11;
+                            if (this.courses[courseName]) {
+                                _context16.next = 11;
                                 break;
                             }
 
                             emptySlotName = courseName;
                             emptySlot = i;
-                            return _context18.abrupt("break", 14);
+                            return _context16.abrupt("break", 14);
 
                         case 11:
                             i++;
-                            _context18.next = 5;
+                            _context16.next = 5;
                             break;
 
                         case 14:
                             if (!(emptySlot === -1)) {
-                                _context18.next = 16;
+                                _context16.next = 16;
                                 break;
                             }
 
@@ -849,40 +762,110 @@ Save.prototype = {
 
                         case 16:
                             cemuSavePath = path.join(this.pathToSave, emptySlotName);
-                            _context18.prev = 17;
-                            _context18.next = 20;
+                            _context16.prev = 17;
+                            _context16.next = 20;
                             return new Promise(function (resolve) {
-                                rimraf(cemuSavePath, function () {
-                                    fs.mkdirSync(cemuSavePath);
-                                    copydir(courseDataPath, cemuSavePath);
-                                    _this7.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
-                                    _this7.writeCrc();
+                                rimraf(cemuSavePath, _asyncToGenerator(regeneratorRuntime.mark(function _callee15() {
+                                    return regeneratorRuntime.wrap(function _callee15$(_context15) {
+                                        while (1) {
+                                            switch (_context15.prev = _context15.next) {
+                                                case 0:
+                                                    fs.mkdirSync(cemuSavePath);
+                                                    copydir.sync(courseDataPath, cemuSavePath);
+                                                    _this7.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
+                                                    _this7.writeCrc();
+                                                    _context15.next = 6;
+                                                    return createCourse(cemuSavePath, emptySlot);
+
+                                                case 6:
+                                                    _this7.courses[emptySlotName] = _context15.sent;
+
+                                                    resolve();
+
+                                                case 8:
+                                                case "end":
+                                                    return _context15.stop();
+                                            }
+                                        }
+                                    }, _callee15, _this7);
+                                })));
+                            });
+
+                        case 20:
+                            return _context16.abrupt("return", _context16.sent);
+
+                        case 23:
+                            _context16.prev = 23;
+                            _context16.t0 = _context16["catch"](17);
+                            throw _context16.t0;
+
+                        case 26:
+                        case "end":
+                            return _context16.stop();
+                    }
+                }
+            }, _callee16, this, [[17, 23]]);
+        }));
+
+        function addCourse(_x8) {
+            return _ref14.apply(this, arguments);
+        }
+
+        return addCourse;
+    }(),
+
+    deleteCourse: function () {
+        var _ref16 = _asyncToGenerator(regeneratorRuntime.mark(function _callee17(courseId) {
+            var _this8 = this;
+
+            var courseName, coursePath;
+            return regeneratorRuntime.wrap(function _callee17$(_context17) {
+                while (1) {
+                    switch (_context17.prev = _context17.next) {
+                        case 0:
+                            courseName = "course" + courseId.pad(3);
+                            coursePath = path.join(this.pathToSave, courseName);
+
+                            if (fs.existsSync(coursePath)) {
+                                _context17.next = 4;
+                                break;
+                            }
+
+                            throw new Error("Course does not exist: " + courseId.pad(3));
+
+                        case 4:
+                            _context17.prev = 4;
+                            _context17.next = 7;
+                            return new Promise(function (resolve) {
+                                rimraf(coursePath, function () {
+                                    _this8.data.writeUInt8(courseId, SAVE_ORDER_OFFSET + courseId);
+                                    _this8.writeCrc();
+                                    delete _this8.courses[courseName];
                                     resolve();
                                 });
                             });
 
-                        case 20:
-                            _context18.next = 25;
-                            break;
+                        case 7:
+                            return _context17.abrupt("return", _context17.sent);
 
-                        case 22:
-                            _context18.prev = 22;
-                            _context18.t0 = _context18["catch"](17);
-                            throw _context18.t0;
+                        case 10:
+                            _context17.prev = 10;
+                            _context17.t0 = _context17["catch"](4);
+                            throw _context17.t0;
 
-                        case 25:
+                        case 13:
                         case "end":
-                            return _context18.stop();
+                            return _context17.stop();
                     }
                 }
-            }, _callee18, this, [[17, 22]]);
+            }, _callee17, this, [[4, 10]]);
         }));
 
-        function addCourse(_x10) {
-            return _ref17.apply(this, arguments);
+        function deleteCourse(_x9) {
+            return _ref16.apply(this, arguments);
         }
 
-        return addCourse;
+        return deleteCourse;
     }(),
 
     loadCourseElements: function loadCourseElements() {

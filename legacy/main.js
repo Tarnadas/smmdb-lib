@@ -52,7 +52,8 @@ module.exports = {
     loadSave: loadSave,
     loadSaveSync: loadSaveSync,
     loadImage: loadImage,
-    loadCourse: course
+    loadCourse: course.createCourse,
+    loadCourseSync: course.createCourseSync
 };
 
 function loadSaveSync(pathToSave) {

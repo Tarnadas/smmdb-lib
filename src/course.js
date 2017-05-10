@@ -53,7 +53,10 @@ const courseData    = Symbol();
 const courseDataSub = Symbol();
 const elements      = Symbol();
 
-module.exports = createCourse;
+module.exports = {
+    createCourse: createCourse,
+    createCourseSync: createCourseSync
+};
 
 async function createCourse (coursePath, courseId) {
 
@@ -90,6 +93,37 @@ async function createCourse (coursePath, courseId) {
             resolve(new Course(courseId, data, dataSub, coursePath, title, maker, type, environment));
         });
     });
+
+}
+
+function createCourseSync (coursePath, courseId) {
+
+    let data = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
+    let dataSub = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
+    let titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
+    let title = "";
+    for (let i = 0; i < COURSE_NAME_LENGTH; i+=2) {
+        let charBuf = Buffer.allocUnsafe(2);
+        charBuf.writeUInt16BE(titleBuf.readUInt16BE(i));
+        if (charBuf.readUInt16BE(0) === 0) {
+            break;
+        }
+        title += charBuf.toString('utf16le');
+    }
+    let makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
+    let maker = "";
+    for (let i =  0; i < COURSE_MAKER_LENGTH; i+=2) {
+        let charBuf = Buffer.allocUnsafe(2);
+        charBuf.writeUInt16BE(makerBuf.readUInt16BE(i));
+        if (charBuf.readUInt16BE(0) === 0) {
+            break;
+        }
+        maker += charBuf.toString('utf16le');
+    }
+    let type = data.slice(COURSE_TYPE_OFFSET, COURSE_TYPE_OFFSET + 2).toString();
+    let environment = data.readUInt8(COURSE_ENVIRONMENT_OFFSET);
+    return new Course(courseId, data, dataSub, coursePath, title, maker, type, environment);
+
 }
 
 function Course (id, data, dataSub, path, title, maker, type, environment) {
@@ -210,8 +244,48 @@ Course.prototype = {
     },
 
     isThumbnailBroken: async function () {
+
         let tnl = new Tnl(path.join(this.path, 'thumbnail1.tnl'));
         return await tnl.isBroken();
+
+    },
+
+    exportJpeg: async function () {
+
+        let exists = false;
+        await new Promise((resolve) => {
+            fs.access(this.path, fs.constants.R_OK | fs.constants.W_OK, (err) => {
+                exists = !err;
+                resolve();
+            });
+        });
+        if (exists) {
+            await Promise.all([
+                new Promise(async (resolve) => {
+                    try {
+                        let tnl = new Tnl(coursePath + "/thumbnail0.tnl");
+                        let jpeg = await tnl.toJpeg();
+                        fs.writeFile(coursePath + "/thumbnail0.jpg", jpeg, null, () => {
+                            resolve();
+                        })
+                    } catch (err) {
+                        resolve();
+                    }
+                }),
+                new Promise(async (resolve) => {
+                    try {
+                        let tnl = new Tnl(coursePath + "/thumbnail1.tnl");
+                        let jpeg = await tnl.toJpeg();
+                        fs.writeFile(coursePath + "/thumbnail1.jpg", jpeg, null, () => {
+                            resolve();
+                        });
+                    } catch (err) {
+                        resolve();
+                    }
+                })
+            ]);
+        }
+
     }
 
 };
