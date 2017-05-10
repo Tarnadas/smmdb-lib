@@ -349,6 +349,9 @@ Save.prototype = {
 
     addCourse: async function (courseDataPath) {
 
+        if (this.courses === {}) {
+            await this.loadCourses();
+        }
         if (!fs.existsSync(courseDataPath)) {
             throw new Error("Path does not exist: " + courseDataPath);
         }
@@ -385,6 +388,9 @@ Save.prototype = {
 
     deleteCourse: async function (courseId) {
 
+        if (this.courses === {}) {
+            await this.loadCourses();
+        }
         let courseName = `course${courseId.pad(3)}`;
         let coursePath = path.join(this.pathToSave, courseName);
         if (!fs.existsSync(coursePath)) {
