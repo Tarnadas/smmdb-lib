@@ -358,11 +358,12 @@ Save.prototype = {
         let cemuSavePath = path.join(this.pathToSave, emptySlotName);
         try {
             return await new Promise((resolve) => {
-                rimraf(cemuSavePath, () => {
+                rimraf(cemuSavePath, async () => {
                     fs.mkdirSync(cemuSavePath);
                     copydir.sync(courseDataPath, cemuSavePath);
                     this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
                     this.writeCrc();
+                    await this.courses[emptySlotName] = createCourse(cemuSavePath, emptySlot);
                     resolve();
                 })
             });
@@ -374,7 +375,8 @@ Save.prototype = {
 
     deleteCourse: async function (courseId) {
 
-        let coursePath = path.join(this.pathToSave, `course${courseId.pad(3)}`);
+        let courseName = `course${courseId.pad(3)}`;
+        let coursePath = path.join(this.pathToSave, courseName);
         if (!fs.existsSync(coursePath)) {
             throw new Error("Course does not exist: " + courseId.pad(3));
         }
@@ -383,6 +385,7 @@ Save.prototype = {
                 rimraf(coursePath, () => {
                     this.data.writeUInt8(courseId, SAVE_ORDER_OFFSET + courseId);
                     this.writeCrc();
+                    delete this.courses[courseName];
                     resolve();
                 })
             });
