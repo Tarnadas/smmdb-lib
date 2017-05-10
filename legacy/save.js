@@ -76,6 +76,9 @@ Save.prototype = {
                             });
 
                         case 2:
+                            return _context.abrupt("return", _context.sent);
+
+                        case 3:
                         case "end":
                             return _context.stop();
                     }
@@ -89,6 +92,16 @@ Save.prototype = {
 
         return writeCrc;
     }(),
+
+    writeCrcSync: function writeCrcSync() {
+
+        var fileWithoutCrc = this.data.slice(16);
+        var crc = Buffer.alloc(4);
+        crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
+        var crcBuffer = Buffer.concat([SAVE_CRC_PRE_BUF, crc, SAVE_CRC_POST_BUF], SAVE_CRC_LENGTH);
+        this.data = Buffer.concat([crcBuffer, fileWithoutCrc], SAVE_SIZE);
+        fs.writeFileSync(path.resolve(this.pathToSave + "/save.dat"), this.data);
+    },
 
     reorder: function () {
         var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
@@ -330,45 +343,6 @@ Save.prototype = {
                             for (key in this.courses) {
                                 _loop4(key);
                             }
-                            /*for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-                                let coursePath = path.resolve(`${this.pathToSave}/course${i.pad(3)}/`);
-                                promises.push(new Promise(async (resolve) => {
-                                    let exists = false;
-                                    await new Promise((resolve) => {
-                                        fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
-                                            exists = !err;
-                                            resolve();
-                                        });
-                                    });
-                                    if (exists) {
-                                        await Promise.all([
-                                            new Promise(async (resolve) => {
-                                                try {
-                                                    let tnl = new Tnl(coursePath + "/thumbnail0.tnl");
-                                                    let jpeg = await tnl.toJpeg();
-                                                    fs.writeFile(coursePath + "/thumbnail0.jpg", jpeg, null, () => {
-                                                        resolve();
-                                                    })
-                                                } catch (err) {
-                                                    resolve();
-                                                }
-                                            }),
-                                            new Promise(async (resolve) => {
-                                                try {
-                                                    let tnl = new Tnl(coursePath + "/thumbnail1.tnl");
-                                                    let jpeg = await tnl.toJpeg();
-                                                    fs.writeFile(coursePath + "/thumbnail1.jpg", jpeg, null, () => {
-                                                        resolve();
-                                                    });
-                                                } catch (err) {
-                                                    resolve();
-                                                }
-                                            })
-                                        ]);
-                                    }
-                                    resolve();
-                                }));
-                            }*/
                             _context6.next = 8;
                             return Promise.all(promises);
 
@@ -654,7 +628,7 @@ Save.prototype = {
 
                                                     case 5:
                                                         if (!exists) {
-                                                            _context13.next = 9;
+                                                            _context13.next = 12;
                                                             break;
                                                         }
 
@@ -664,10 +638,17 @@ Save.prototype = {
                                                     case 8:
                                                         _this6.courses[courseName] = _context13.sent;
 
-                                                    case 9:
+                                                        _this6.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
+                                                        _context13.next = 13;
+                                                        break;
+
+                                                    case 12:
+                                                        _this6.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i);
+
+                                                    case 13:
                                                         resolve();
 
-                                                    case 10:
+                                                    case 14:
                                                     case "end":
                                                         return _context13.stop();
                                                 }
@@ -688,9 +669,13 @@ Save.prototype = {
                             return Promise.all(promises);
 
                         case 5:
+                            _context14.next = 7;
+                            return this.writeCrc();
+
+                        case 7:
                             return _context14.abrupt("return", this.courses);
 
-                        case 6:
+                        case 8:
                         case "end":
                             return _context14.stop();
                     }
@@ -713,8 +698,12 @@ Save.prototype = {
             try {
                 fs.accessSync(_coursePath, fs.constants.R_OK | fs.constants.W_OK);
                 this.courses[courseName] = createCourseSync(_coursePath, i);
-            } catch (err) {}
+                this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
+            } catch (err) {
+                this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i);
+            }
         }
+        this.writeCrcSync();
         return this.courses;
     },
 
