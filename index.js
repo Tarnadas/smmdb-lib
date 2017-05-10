@@ -1,4 +1,11 @@
-if (process.env.NODE_ENV === 'production') {
+let isProd = true;
+try {
+    require("babel-polyfill");
+} catch (err) {
+    isProd = false;
+}
+//if (process.env.NODE_ENV === 'production') {
+if (isProd) {
     var smm = require("./legacy/main.js");
     module.exports = {
         loadSave: smm.loadSave,
