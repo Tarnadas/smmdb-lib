@@ -180,7 +180,7 @@ Save.prototype = {
         }
         for (let key in this.courses) {
             promises.push(new Promise(async (resolve) => {
-                this.courses[key].exportJpeg();
+                await this.courses[key].exportJpeg();
                 resolve();
             }));
         }
