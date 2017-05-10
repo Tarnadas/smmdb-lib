@@ -192,10 +192,10 @@ Course.prototype = {
     setThumbnail: async function (pathToThumbnail) {
 
         let jpeg = new Tnl(path.resolve(pathToThumbnail));
-        await Promise.all([
+        return await Promise.all([
             new Promise(async (resolve) => {
                 let tnl = await jpeg.fromJpeg(true);
-                fs.writeFile(path.join(this.path, 'thumbnail0.tnl'), tnl, (err) => {
+                fs.writeFile(path.join(this.path, 'thumbnail0.tnl'), tnl, () => {
                     resolve();
                 });
             }),
