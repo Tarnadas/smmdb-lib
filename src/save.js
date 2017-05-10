@@ -363,7 +363,7 @@ Save.prototype = {
                     copydir.sync(courseDataPath, cemuSavePath);
                     this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
                     this.writeCrc();
-                    await this.courses[emptySlotName] = createCourse(cemuSavePath, emptySlot);
+                    this.courses[emptySlotName] = await createCourse(cemuSavePath, emptySlot);
                     resolve();
                 })
             });
