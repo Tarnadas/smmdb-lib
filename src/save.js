@@ -360,7 +360,7 @@ Save.prototype = {
             await new Promise((resolve) => {
                 rimraf(cemuSavePath, () => {
                     fs.mkdirSync(cemuSavePath);
-                    copydir(courseDataPath, cemuSavePath);
+                    copydir.sync(courseDataPath, cemuSavePath);
                     this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
                     this.writeCrc();
                     resolve();
