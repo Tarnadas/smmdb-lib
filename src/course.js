@@ -263,9 +263,9 @@ Course.prototype = {
             await Promise.all([
                 new Promise(async (resolve) => {
                     try {
-                        let tnl = new Tnl(coursePath + "/thumbnail0.tnl");
+                        let tnl = new Tnl(this.path + "/thumbnail0.tnl");
                         let jpeg = await tnl.toJpeg();
-                        fs.writeFile(coursePath + "/thumbnail0.jpg", jpeg, null, () => {
+                        fs.writeFile(this.path + "/thumbnail0.jpg", jpeg, null, () => {
                             resolve();
                         })
                     } catch (err) {
@@ -274,9 +274,9 @@ Course.prototype = {
                 }),
                 new Promise(async (resolve) => {
                     try {
-                        let tnl = new Tnl(coursePath + "/thumbnail1.tnl");
+                        let tnl = new Tnl(this.path + "/thumbnail1.tnl");
                         let jpeg = await tnl.toJpeg();
-                        fs.writeFile(coursePath + "/thumbnail1.jpg", jpeg, null, () => {
+                        fs.writeFile(this.path + "/thumbnail1.jpg", jpeg, null, () => {
                             resolve();
                         });
                     } catch (err) {
