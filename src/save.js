@@ -377,7 +377,7 @@ Save.prototype = {
                     this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
                     this.writeCrc();
                     this.courses[emptySlotName] = await createCourse(cemuSavePath, emptySlot);
-                    resolve();
+                    resolve(emptySlot);
                 })
             });
         } catch (err) {

@@ -524,7 +524,7 @@ Course.prototype = {
 
                         case 3:
                             if (!exists) {
-                                _context13.next = 6;
+                                _context13.next = 7;
                                 break;
                             }
 
@@ -537,14 +537,14 @@ Course.prototype = {
                                             switch (_context11.prev = _context11.next) {
                                                 case 0:
                                                     _context11.prev = 0;
-                                                    tnl = new Tnl(coursePath + "/thumbnail0.tnl");
+                                                    tnl = new Tnl(_this4.path + "/thumbnail0.tnl");
                                                     _context11.next = 4;
                                                     return tnl.toJpeg();
 
                                                 case 4:
                                                     jpeg = _context11.sent;
 
-                                                    fs.writeFile(coursePath + "/thumbnail0.jpg", jpeg, null, function () {
+                                                    fs.writeFile(_this4.path + "/thumbnail0.jpg", jpeg, null, function () {
                                                         resolve();
                                                     });
                                                     _context11.next = 11;
@@ -575,14 +575,14 @@ Course.prototype = {
                                             switch (_context12.prev = _context12.next) {
                                                 case 0:
                                                     _context12.prev = 0;
-                                                    tnl = new Tnl(coursePath + "/thumbnail1.tnl");
+                                                    tnl = new Tnl(_this4.path + "/thumbnail1.tnl");
                                                     _context12.next = 4;
                                                     return tnl.toJpeg();
 
                                                 case 4:
                                                     jpeg = _context12.sent;
 
-                                                    fs.writeFile(coursePath + "/thumbnail1.jpg", jpeg, null, function () {
+                                                    fs.writeFile(_this4.path + "/thumbnail1.jpg", jpeg, null, function () {
                                                         resolve();
                                                     });
                                                     _context12.next = 11;
@@ -608,6 +608,9 @@ Course.prototype = {
                             }())]);
 
                         case 6:
+                            return _context13.abrupt("return", _context13.sent);
+
+                        case 7:
                         case "end":
                             return _context13.stop();
                     }

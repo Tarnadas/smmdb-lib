@@ -718,52 +718,61 @@ Save.prototype = {
                 while (1) {
                     switch (_context16.prev = _context16.next) {
                         case 0:
+                            if (!(this.courses === {})) {
+                                _context16.next = 3;
+                                break;
+                            }
+
+                            _context16.next = 3;
+                            return this.loadCourses();
+
+                        case 3:
                             if (fs.existsSync(courseDataPath)) {
-                                _context16.next = 2;
+                                _context16.next = 5;
                                 break;
                             }
 
                             throw new Error("Path does not exist: " + courseDataPath);
 
-                        case 2:
+                        case 5:
                             emptySlotName = "";
                             emptySlot = -1;
                             i = 0;
 
-                        case 5:
+                        case 8:
                             if (!(i < SAVE_ORDER_SIZE)) {
-                                _context16.next = 14;
+                                _context16.next = 17;
                                 break;
                             }
 
                             courseName = "course" + i.pad(3);
 
                             if (this.courses[courseName]) {
-                                _context16.next = 11;
+                                _context16.next = 14;
                                 break;
                             }
 
                             emptySlotName = courseName;
                             emptySlot = i;
-                            return _context16.abrupt("break", 14);
-
-                        case 11:
-                            i++;
-                            _context16.next = 5;
-                            break;
+                            return _context16.abrupt("break", 17);
 
                         case 14:
+                            i++;
+                            _context16.next = 8;
+                            break;
+
+                        case 17:
                             if (!(emptySlot === -1)) {
-                                _context16.next = 16;
+                                _context16.next = 19;
                                 break;
                             }
 
                             throw new Error("No empty slot inside save");
 
-                        case 16:
+                        case 19:
                             cemuSavePath = path.join(this.pathToSave, emptySlotName);
-                            _context16.prev = 17;
-                            _context16.next = 20;
+                            _context16.prev = 20;
+                            _context16.next = 23;
                             return new Promise(function (resolve) {
                                 rimraf(cemuSavePath, _asyncToGenerator(regeneratorRuntime.mark(function _callee15() {
                                     return regeneratorRuntime.wrap(function _callee15$(_context15) {
@@ -791,20 +800,20 @@ Save.prototype = {
                                 })));
                             });
 
-                        case 20:
+                        case 23:
                             return _context16.abrupt("return", _context16.sent);
 
-                        case 23:
-                            _context16.prev = 23;
-                            _context16.t0 = _context16["catch"](17);
+                        case 26:
+                            _context16.prev = 26;
+                            _context16.t0 = _context16["catch"](20);
                             throw _context16.t0;
 
-                        case 26:
+                        case 29:
                         case "end":
                             return _context16.stop();
                     }
                 }
-            }, _callee16, this, [[17, 23]]);
+            }, _callee16, this, [[20, 26]]);
         }));
 
         function addCourse(_x8) {
@@ -823,19 +832,28 @@ Save.prototype = {
                 while (1) {
                     switch (_context17.prev = _context17.next) {
                         case 0:
+                            if (!(this.courses === {})) {
+                                _context17.next = 3;
+                                break;
+                            }
+
+                            _context17.next = 3;
+                            return this.loadCourses();
+
+                        case 3:
                             courseName = "course" + courseId.pad(3);
                             coursePath = path.join(this.pathToSave, courseName);
 
                             if (fs.existsSync(coursePath)) {
-                                _context17.next = 4;
+                                _context17.next = 7;
                                 break;
                             }
 
                             throw new Error("Course does not exist: " + courseId.pad(3));
 
-                        case 4:
-                            _context17.prev = 4;
-                            _context17.next = 7;
+                        case 7:
+                            _context17.prev = 7;
+                            _context17.next = 10;
                             return new Promise(function (resolve) {
                                 rimraf(coursePath, function () {
                                     _this8.data.writeUInt8(courseId, SAVE_ORDER_OFFSET + courseId);
@@ -845,20 +863,20 @@ Save.prototype = {
                                 });
                             });
 
-                        case 7:
+                        case 10:
                             return _context17.abrupt("return", _context17.sent);
 
-                        case 10:
-                            _context17.prev = 10;
-                            _context17.t0 = _context17["catch"](4);
+                        case 13:
+                            _context17.prev = 13;
+                            _context17.t0 = _context17["catch"](7);
                             throw _context17.t0;
 
-                        case 13:
+                        case 16:
                         case "end":
                             return _context17.stop();
                     }
                 }
-            }, _callee17, this, [[4, 10]]);
+            }, _callee17, this, [[7, 13]]);
         }));
 
         function deleteCourse(_x9) {
