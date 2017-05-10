@@ -49,7 +49,7 @@ Save.prototype = {
 
     writeCrc: async function () {
 
-        await new Promise((resolve) => {
+        return await new Promise((resolve) => {
             try {
                 let fileWithoutCrc = this.data.slice(16);
                 let crc = Buffer.alloc(4);
@@ -63,6 +63,17 @@ Save.prototype = {
                 console.log(err);
             }
         });
+
+    },
+
+    writeCrcSync: function () {
+
+        let fileWithoutCrc = this.data.slice(16);
+        let crc = Buffer.alloc(4);
+        crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
+        let crcBuffer = Buffer.concat([SAVE_CRC_PRE_BUF, crc, SAVE_CRC_POST_BUF], SAVE_CRC_LENGTH);
+        this.data = Buffer.concat([crcBuffer, fileWithoutCrc], SAVE_SIZE);
+        fs.writeFileSync(path.resolve(`${this.pathToSave}/save.dat`), this.data);
 
     },
 
@@ -184,45 +195,6 @@ Save.prototype = {
                 resolve();
             }));
         }
-        /*for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-            let coursePath = path.resolve(`${this.pathToSave}/course${i.pad(3)}/`);
-            promises.push(new Promise(async (resolve) => {
-                let exists = false;
-                await new Promise((resolve) => {
-                    fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
-                        exists = !err;
-                        resolve();
-                    });
-                });
-                if (exists) {
-                    await Promise.all([
-                        new Promise(async (resolve) => {
-                            try {
-                                let tnl = new Tnl(coursePath + "/thumbnail0.tnl");
-                                let jpeg = await tnl.toJpeg();
-                                fs.writeFile(coursePath + "/thumbnail0.jpg", jpeg, null, () => {
-                                    resolve();
-                                })
-                            } catch (err) {
-                                resolve();
-                            }
-                        }),
-                        new Promise(async (resolve) => {
-                            try {
-                                let tnl = new Tnl(coursePath + "/thumbnail1.tnl");
-                                let jpeg = await tnl.toJpeg();
-                                fs.writeFile(coursePath + "/thumbnail1.jpg", jpeg, null, () => {
-                                    resolve();
-                                });
-                            } catch (err) {
-                                resolve();
-                            }
-                        })
-                    ]);
-                }
-                resolve();
-            }));
-        }*/
         return await Promise.all(promises);
 
     },
@@ -329,11 +301,15 @@ Save.prototype = {
                 });
                 if (exists) {
                     this.courses[courseName] = await createCourse(coursePath, i);
+                    this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
+                } else {
+                    this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i);
                 }
                 resolve();
             }));
         }
         await Promise.all(promises);
+        await this.writeCrc();
         return this.courses;
 
     },
@@ -346,9 +322,12 @@ Save.prototype = {
             try {
                 fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
                 this.courses[courseName] = createCourseSync(coursePath, i);
+                this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
             } catch (err) {
+                this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i);
             }
         }
+        this.writeCrcSync();
         return this.courses;
 
     },
