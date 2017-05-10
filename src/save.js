@@ -374,7 +374,7 @@ Save.prototype = {
 
     deleteCourse: async function (courseId) {
 
-        let coursePath = path.join(this.pathToSave, courseId.pad(3));
+        let coursePath = path.join(this.pathToSave, `course${courseId.pad(3)}`);
         if (!fs.existsSync(coursePath)) {
             throw new Error("Course does not exist: " + courseId.pad(3));
         }
