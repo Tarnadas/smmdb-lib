@@ -384,7 +384,7 @@ Save.prototype = {
         try {
             return await new Promise((resolve) => {
                 rimraf(coursePath, () => {
-                    this.data.writeUInt8(courseId, SAVE_ORDER_OFFSET + courseId);
+                    this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + courseId);
                     this.writeCrc();
                     delete this.courses[courseName];
                     resolve();
