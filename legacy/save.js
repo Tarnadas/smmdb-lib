@@ -854,7 +854,7 @@ Save.prototype = {
                             _context17.next = 10;
                             return new Promise(function (resolve) {
                                 rimraf(coursePath, function () {
-                                    _this8.data.writeUInt8(courseId, SAVE_ORDER_OFFSET + courseId);
+                                    _this8.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + courseId);
                                     _this8.writeCrc();
                                     delete _this8.courses[courseName];
                                     resolve();
