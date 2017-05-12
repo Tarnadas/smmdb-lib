@@ -1,5 +1,3 @@
-import "babel-polyfill";
-
 import Promise from "bluebird";
 
 import fs from "fs";
