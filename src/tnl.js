@@ -1,11 +1,9 @@
-const Promise = require("bluebird");
-const jimp    = require("jimp");
-const crc32   = require("buffer-crc32");
+import Promise from "bluebird"
+import jimp    from "jimp"
+import crc32   from "buffer-crc32"
 
-const fs   = require("fs");
-const path = require("path");
-
-module.exports = Tnl;
+import fs   from "fs"
+import path from "path"
 
 const TNL_SIZE = 0xC800;
 const TNL_JPEG_MAX_SIZE = 0xC7F8;
@@ -19,14 +17,14 @@ const TNL_ASPECT_RATIO = [
 ];
 const TNL_ASPECT_RATIO_THRESHOLD = [ 3.5, 0.3 ];
 
-function Tnl(pathToFile) {
-    this.pathToFile = path.resolve(pathToFile);
-    if (!fs.existsSync(this.pathToFile)) throw new Error(`No such file exists:\n${this.pathToFile}`);
-}
+export default class Tnl {
 
-Tnl.prototype = {
+    constructor (pathToFile) {
+        this.pathToFile = path.resolve(pathToFile);
+        if (!fs.existsSync(this.pathToFile)) throw new Error(`No such file exists:\n${this.pathToFile}`);
+    }
 
-    toJpeg: async function () {
+    async toJpeg () {
 
         return new Promise((resolve) => {
             fs.readFile(this.pathToFile, (err, data) => {
@@ -37,17 +35,17 @@ Tnl.prototype = {
             })
         });
 
-    },
+    }
 
-    toJpegSync: function () {
+    toJpegSync () {
 
         let data = fs.readFileSync(this.pathToFile);
         let length = data.readUInt32BE(4);
         return data.slice(8, 8 + length);
 
-    },
+    }
 
-    fromJpeg: async function (isWide, doClip = false) {
+    async fromJpeg (isWide, doClip = false) {
 
         return new Promise(async (resolve, reject) => {
 
@@ -132,9 +130,9 @@ Tnl.prototype = {
 
         });
 
-    },
+    }
 
-    isBroken: async function () {
+    async isBroken () {
 
         return new Promise((resolve) => {
             fs.readFile(this.pathToFile, (err, data) => {
@@ -155,4 +153,4 @@ Tnl.prototype = {
 
     }
 
-};
+}

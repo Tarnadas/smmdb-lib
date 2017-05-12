@@ -12,8 +12,8 @@ export {
     loadImage
 }
 export {
-    createCourse,
-    createCourseSync
+    loadCourse,
+    loadCourseSync
 } from "./src/course"
 
 async function loadSave(pathToSave) {

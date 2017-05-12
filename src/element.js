@@ -11,9 +11,7 @@ const ELEMENT_LOC_OFFSET = 0xA0;
 
 const ELEMENT_DIMENSION_OFFSET = 0xA; // x uint_8, y uint_8
 
-module.exports = getElement;
-
-function getElement (data) {
+export default function getElement (data) {
     if (data.or(ELEMENT_BITMASK_BUF).compare(ELEMENT_TYPE_BLOCK_BUF) === 0) {
         return new Block(data);
     } else {

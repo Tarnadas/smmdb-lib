@@ -1,11 +1,11 @@
-const Promise = require("bluebird");
-const crc32   = require("buffer-crc32");
+import Promise from "bluebird"
+import crc32   from "buffer-crc32"
 
-const fs   = require("fs");
-const path = require("path");
+import fs from "fs"
+import path from "path"
 
-const getElement = require("./element");
-const Tnl = require("./tnl");
+import getElement from "./element"
+import Tnl from "./tnl"
 
 const COURSE_SIZE = 0x15000;
 
@@ -53,12 +53,7 @@ const courseData    = Symbol();
 const courseDataSub = Symbol();
 const elements      = Symbol();
 
-module.exports = {
-    createCourse: createCourse,
-    createCourseSync: createCourseSync
-};
-
-async function createCourse (coursePath, courseId) {
+export async function loadCourse (coursePath, courseId) {
 
     return new Promise ((resolve) => {
         fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
@@ -96,7 +91,7 @@ async function createCourse (coursePath, courseId) {
 
 }
 
-function createCourseSync (coursePath, courseId) {
+export function loadCourseSync (coursePath, courseId) {
 
     let data = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
     let dataSub = fs.readFileSync(path.resolve(`${coursePath}/course_data_sub.cdt`));
@@ -126,24 +121,23 @@ function createCourseSync (coursePath, courseId) {
 
 }
 
-function Course (id, data, dataSub, path, title, maker, type, environment) {
-    this.id = id;
-    this[courseData] = data;
-    this[courseDataSub] = dataSub;
-    this.path = path;
-    this.title = title;
-    this.maker = maker;
-    this.type = type;
-    this.type_readable = COURSE_TYPES[type];
-    this.environment = environment;
-    this.environmentReadable = COURSE_ENVIRONMENTS[environment];
-}
+class Course {
+    constructor (id, data, dataSub, path, title, maker, type, environment) {
+        this.id = id;
+        this[courseData] = data;
+        this[courseDataSub] = dataSub;
+        this.path = path;
+        this.title = title;
+        this.maker = maker;
+        this.type = type;
+        this.type_readable = COURSE_TYPES[type];
+        this.environment = environment;
+        this.environmentReadable = COURSE_ENVIRONMENTS[environment];
+    }
 
-Course.prototype = {
+    async writeCrc () {
 
-    writeCrc: async function () {
-
-        await Promise.all([
+        return await Promise.all([
             new Promise (async (resolve) => {
                 try {
                     let fileWithoutCrc = this[courseData].slice(16);
@@ -174,9 +168,9 @@ Course.prototype = {
             })
         ]);
 
-    },
+    }
 
-    loadElements: function () {
+    loadElements () {
         this[elements] = [];
         for (let offset = COURSE_ELEMENT_DATA_OFFSET; offset < COURSE_ELEMENT_DATA_END; offset += COURSE_ELEMENT_DATA_LENGTH) {
             let elementData = this[courseData].slice(offset, offset + COURSE_ELEMENT_DATA_LENGTH);
@@ -185,13 +179,13 @@ Course.prototype = {
             }
             this[elements].push(getElement(elementData));
         }
-    },
+    }
 
-    getElements: function () {
+    getElements () {
         return this[elements];
-    },
+    }
 
-    setTitle: function (title, writeCrc) {
+    async setTitle (title, writeCrc) {
         for (let i = COURSE_NAME_OFFSET, j = 0; i < COURSE_NAME_OFFSET + COURSE_NAME_LENGTH; i+=2, j++) {
             if (j < title.length) {
                 this[courseData].write(title.charAt(j), i, 'utf16le');
@@ -203,11 +197,11 @@ Course.prototype = {
         }
         this.title = title.substr(0, COURSE_NAME_LENGTH / 2);
         if (!!writeCrc) {
-            this.writeCrc();
+            return await this.writeCrc();
         }
-    },
+    }
 
-    setMaker: function (makerName, writeCrc) {
+    async setMaker (makerName, writeCrc) {
         for (let i = COURSE_MAKER_OFFSET, j = 0; i < COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH; i+=2, j++) {
             if (j < makerName.length) {
                 this[courseData].write(makerName.charAt(j), i, 'utf16le');
@@ -219,11 +213,11 @@ Course.prototype = {
         }
         this.maker = makerName.substr(0, COURSE_MAKER_LENGTH / 2);
         if (!!writeCrc) {
-            this.writeCrc();
+            await this.writeCrc();
         }
-    },
+    }
 
-    setThumbnail: async function (pathToThumbnail) {
+    async setThumbnail (pathToThumbnail) {
 
         let jpeg = new Tnl(path.resolve(pathToThumbnail));
         return await Promise.all([
@@ -241,16 +235,16 @@ Course.prototype = {
             })
         ])
 
-    },
+    }
 
-    isThumbnailBroken: async function () {
+    async isThumbnailBroken () {
 
         let tnl = new Tnl(path.join(this.path, 'thumbnail1.tnl'));
         return await tnl.isBroken();
 
-    },
+    }
 
-    exportJpeg: async function () {
+    async exportJpeg () {
 
         let exists = false;
         await new Promise((resolve) => {
@@ -287,5 +281,4 @@ Course.prototype = {
         }
 
     }
-
-};
+}

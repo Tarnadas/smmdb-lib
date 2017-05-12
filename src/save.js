@@ -1,14 +1,14 @@
-const Promise = require("bluebird");
-const crc32   = require("buffer-crc32");
-const copydir = require("copy-dir");
-const rimraf  = require("rimraf");
+import Promise from "bluebird"
+import crc32   from "buffer-crc32"
+import copydir from "copy-dir"
+import rimraf  from "rimraf"
 
-const fs   = require("fs");
-const path = require("path");
+import fs   from "fs"
+import path from "path"
 
-const createCourse = require("./course").createCourse;
-const createCourseSync = require("./course").createCourseSync;
-const Tnl = require("./tnl");
+import { loadCourse } from "./course"
+import { loadCourseSync } from"./course"
+import Tnl from "./tnl"
 
 const SAVE_SIZE  = 0xA000;
 
@@ -23,25 +23,23 @@ const SAVE_CRC_LENGTH = 0x10;
 const SAVE_CRC_PRE_BUF  = Buffer.from("0000000000000015", "hex");
 const SAVE_CRC_POST_BUF = Buffer.alloc(4);
 
-module.exports = Save;
+export default class Save {
 
-function Save(pathToSave, data) {
-    this.pathToSave = pathToSave;
-    this.data = data;
-    this.courses = {};
+    constructor (pathToSave, data) {
+        this.pathToSave = pathToSave;
+        this.data = data;
+        this.courses = {};
 
-    this.slotToIndex = {};
-    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-        let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
-        if (index !== 255) {
-            this.slotToIndex[i] = index;
+        this.slotToIndex = {};
+        for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+            let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
+            if (index !== 255) {
+                this.slotToIndex[i] = index;
+            }
         }
     }
-}
 
-Save.prototype = {
-
-    writeCrc: async function () {
+    async writeCrc () {
 
         return await new Promise((resolve) => {
             try {
@@ -58,9 +56,9 @@ Save.prototype = {
             }
         });
 
-    },
+    }
 
-    writeCrcSync: function () {
+    writeCrcSync () {
 
         let fileWithoutCrc = this.data.slice(16);
         let crc = Buffer.alloc(4);
@@ -69,9 +67,9 @@ Save.prototype = {
         this.data = Buffer.concat([crcBuffer, fileWithoutCrc], SAVE_SIZE);
         fs.writeFileSync(path.resolve(`${this.pathToSave}/save.dat`), this.data);
 
-    },
+    }
 
-    reorder: async function () {
+    async reorder () {
 
         await new Promise(async (resolve) => {
             try {
@@ -133,9 +131,9 @@ Save.prototype = {
             }
         });
 
-    },
+    }
 
-    reorderSync: function () {
+    reorderSync () {
 
         try {
             // rename course folders
@@ -175,9 +173,9 @@ Save.prototype = {
             // TODO undo changes
         }
 
-    },
+    }
 
-    exportJpeg: async function () {
+    async exportJpeg () {
 
         let promises = [];
         if (this.courses === {}) {
@@ -191,9 +189,9 @@ Save.prototype = {
         }
         return await Promise.all(promises);
 
-    },
+    }
 
-    exportJpegSync: function () {
+    exportJpegSync () {
 
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
             let coursePath = path.resolve(`${this.pathToSave}/course${i.pad(3)}/`);
@@ -219,9 +217,9 @@ Save.prototype = {
             }
         }
 
-    },
+    }
 
-    importJpeg: async function () {
+    async importJpeg () {
 
         let promises = [];
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
@@ -265,9 +263,9 @@ Save.prototype = {
         }
         await Promise.all(promises);
 
-    },
+    }
 
-    unlockAmiibos: async function () {
+    async unlockAmiibos () {
 
         await new Promise(async (resolve) => {
             for (let i = 0; i < SAVE_AMIIBO_LENGTH; i++) {
@@ -277,9 +275,9 @@ Save.prototype = {
             resolve();
         })
 
-    },
+    }
 
-    loadCourses: async function () {
+    async loadCourses () {
 
         let promises = [];
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
@@ -294,7 +292,7 @@ Save.prototype = {
                     });
                 });
                 if (exists) {
-                    this.courses[courseName] = await createCourse(coursePath, i);
+                    this.courses[courseName] = await loadCourse(coursePath, i);
                     this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
                 } else {
                     this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i);
@@ -306,16 +304,16 @@ Save.prototype = {
         await this.writeCrc();
         return this.courses;
 
-    },
+    }
 
-    loadCoursesSync: function () {
+    loadCoursesSync () {
 
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
             let courseName = `course${i.pad(3)}`;
             let coursePath = path.resolve(`${this.pathToSave}/${courseName}/`);
             try {
                 fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
-                this.courses[courseName] = createCourseSync(coursePath, i);
+                this.courses[courseName] = loadCourseSync(coursePath, i);
                 this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
             } catch (err) {
                 this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i);
@@ -324,9 +322,9 @@ Save.prototype = {
         this.writeCrcSync();
         return this.courses;
 
-    },
+    }
 
-    addCourse: async function (courseDataPath) {
+    async addCourse (courseDataPath) {
 
         if (this.courses === {}) {
             await this.loadCourses();
@@ -354,8 +352,8 @@ Save.prototype = {
                     fs.mkdirSync(cemuSavePath);
                     copydir.sync(courseDataPath, cemuSavePath);
                     this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
-                    this.writeCrc();
-                    this.courses[emptySlotName] = await createCourse(cemuSavePath, emptySlot);
+                    this.courses[emptySlotName] = await loadCourse(cemuSavePath, emptySlot);
+                    await this.writeCrc();
                     resolve(emptySlot);
                 })
             });
@@ -363,9 +361,9 @@ Save.prototype = {
             throw err;
         }
 
-    },
+    }
 
-    deleteCourse: async function (courseId) {
+    async deleteCourse (courseId) {
 
         if (this.courses === {}) {
             await this.loadCourses();
@@ -377,10 +375,10 @@ Save.prototype = {
         }
         try {
             return await new Promise((resolve) => {
-                rimraf(coursePath, () => {
+                rimraf(coursePath, async () => {
                     this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + courseId);
-                    this.writeCrc();
                     delete this.courses[courseName];
+                    await this.writeCrc();
                     resolve();
                 })
             });
@@ -388,9 +386,9 @@ Save.prototype = {
             throw err;
         }
 
-    },
+    }
 
-    loadCourseElements: function () {
+    loadCourseElements () {
 
         for (let key in this.courses) {
             //noinspection JSUnfilteredForInLoop
@@ -398,8 +396,7 @@ Save.prototype = {
         }
 
     }
-
-};
+}
 
 Number.prototype.pad = function(size) {
     let s = String(this);
