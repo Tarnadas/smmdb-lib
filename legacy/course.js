@@ -214,7 +214,7 @@ module.exports = {
 function createCourseSync(coursePath, courseId) {
 
     var data = fs.readFileSync(path.resolve(coursePath + "/course_data.cdt"));
-    var dataSub = fs.readFileSync(path.resolve(coursePath + "/course_data.cdt"));
+    var dataSub = fs.readFileSync(path.resolve(coursePath + "/course_data_subn.cdt"));
     var titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
     var title = "";
     for (var i = 0; i < COURSE_NAME_LENGTH; i += 2) {
