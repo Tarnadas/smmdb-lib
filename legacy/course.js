@@ -27,7 +27,7 @@ var createCourse = function () {
                                                 case 2:
                                                     _context2.next = 4;
                                                     return new Promise(function (resolve) {
-                                                        fs.readFile(path.resolve(coursePath + "/course_data.cdt"), function () {
+                                                        fs.readFile(path.resolve(coursePath + "/course_data_sub.cdt"), function () {
                                                             var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(err, data) {
                                                                 return regeneratorRuntime.wrap(function _callee$(_context) {
                                                                     while (1) {
@@ -214,7 +214,7 @@ module.exports = {
 function createCourseSync(coursePath, courseId) {
 
     var data = fs.readFileSync(path.resolve(coursePath + "/course_data.cdt"));
-    var dataSub = fs.readFileSync(path.resolve(coursePath + "/course_data_subn.cdt"));
+    var dataSub = fs.readFileSync(path.resolve(coursePath + "/course_data_sub.cdt"));
     var titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
     var title = "";
     for (var i = 0; i < COURSE_NAME_LENGTH; i += 2) {

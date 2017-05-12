@@ -70,7 +70,7 @@ async function createCourse (coursePath, courseId) {
         fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
             if (err) throw err;
             let dataSub = await new Promise((resolve) => {
-                fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
+                fs.readFile(path.resolve(`${coursePath}/course_data_sub.cdt`), async (err, data) => {
                     resolve(data);
                 });
             });
@@ -105,7 +105,7 @@ async function createCourse (coursePath, courseId) {
 function createCourseSync (coursePath, courseId) {
 
     let data = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
-    let dataSub = fs.readFileSync(path.resolve(`${coursePath}/course_data_subn.cdt`));
+    let dataSub = fs.readFileSync(path.resolve(`${coursePath}/course_data_sub.cdt`));
     let titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
     let title = "";
     for (let i = 0; i < COURSE_NAME_LENGTH; i+=2) {
