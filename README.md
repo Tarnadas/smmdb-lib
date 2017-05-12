@@ -1,7 +1,7 @@
 # cemu-smm
 
 This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu.
-It uses Javascript's async/await keywords that are available from Node >= 7.6.
+It uses Promises and implements most (if not all) functions as synchronous version.
 
 ## Installation
 

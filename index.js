@@ -1,4 +1,4 @@
-import "babel-polyfill";
+require("babel-polyfill");
 /*let isProd = true;
 try {
     require("babel-polyfill");
@@ -16,7 +16,7 @@ try {
         loadCourseSync: smm.loadCourseSync
     };
 } else {*/
-    import smm from "./src/main.js";
+    var smm = require("./build/main.js");
     module.exports = {
         loadSave: smm.loadSave,
         loadSaveSync: smm.loadSaveSync,
