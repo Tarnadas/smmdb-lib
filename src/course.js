@@ -1,9 +1,3 @@
-try {
-    require("babel-polyfill");
-} catch (err) {
-    // ignore
-}
-
 const Promise = require("bluebird");
 const crc32   = require("buffer-crc32");
 
