@@ -11,6 +11,8 @@
   "author": "Mario Reder",
   "license": "MIT",
   "dependencies": {
+    "babel-core": "^6.24.1",
+    "babel-preset-env": "^1.4.0",
     "bluebird": "^3.5.0",
     "buffer-crc32": "latest",
     "copy-dir": "^0.3.0",
@@ -22,7 +24,5 @@
     "url": "https://github.com/Tarnadas/cemu-smm.git"
   },
   "devDependencies": {
-    "babel-core": "^6.24.1",
-    "babel-preset-env": "^1.4.0"
   }
 }
