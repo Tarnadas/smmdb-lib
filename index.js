@@ -15,7 +15,8 @@ try {
         loadCourseSync: smm.loadCourseSync
     };
 } else {*/
-    var smm = require("./build/main.js");
+    //var smm = require("./build/main.js");
+import * as smm from "./src/main";
     module.exports = {
         loadSave: smm.loadSave,
         loadSaveSync: smm.loadSaveSync,
