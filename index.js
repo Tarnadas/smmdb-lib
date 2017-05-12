@@ -1,4 +1,3 @@
-require("babel-polyfill");
 /*let isProd = true;
 try {
     require("babel-polyfill");

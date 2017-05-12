@@ -1,11 +1,13 @@
-const Promise = require("bluebird");
+import "babel-polyfill";
 
-const fs   = require("fs");
-const path = require("path");
+import Promise from "bluebird";
 
-const Save = require( "./save");
-const Tnl = require("./tnl");
-const course = require("./course");
+import fs from "fs";
+import path from "path";
+
+import Save from "./save";
+import Tnl from "./tnl";
+import course from "./course";
 
 module.exports = {
     loadSave: loadSave,
