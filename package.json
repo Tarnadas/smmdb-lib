@@ -4,9 +4,7 @@
   "description": "This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu",
   "main": "index.js",
   "scripts": {
-    "build": "babel src --out-dir build",
-    "test": "node test/test",
-    "postinstall": "npm run build"
+    "test": "node test/test"
   },
   "author": "Mario Reder",
   "license": "MIT",
