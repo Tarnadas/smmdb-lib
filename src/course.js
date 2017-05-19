@@ -57,12 +57,12 @@ export async function loadCourse (coursePath, courseId) {
 
     return new Promise ((resolve, reject) => {
         fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
-            if (err) {
+            if (err || !data) {
                 reject(err);
             }
-            let dataSub = await new Promise((resolve) => {
+            let dataSub = await new Promise((resolve, reject) => {
                 fs.readFile(path.resolve(`${coursePath}/course_data_sub.cdt`), async (err, data) => {
-                    if (err) {
+                    if (err || !data) {
                         reject(err);
                     }
                     resolve(data);
