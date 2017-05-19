@@ -55,7 +55,7 @@ const elements      = Symbol();
 
 export async function loadCourse (coursePath, courseId) {
 
-    return new Promise ((resolve) => {
+    return new Promise ((resolve, reject) => {
         fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
             if (err) throw err;
             let dataSub = await new Promise((resolve) => {
@@ -85,7 +85,12 @@ export async function loadCourse (coursePath, courseId) {
             }
             let type = data.slice(COURSE_TYPE_OFFSET, COURSE_TYPE_OFFSET + 2).toString();
             let environment = data.readUInt8(COURSE_ENVIRONMENT_OFFSET);
-            resolve(new Course(courseId, data, dataSub, coursePath, title, maker, type, environment));
+            try {
+                let course = new Course(courseId, data, dataSub, coursePath, title, maker, type, environment)
+                resolve(course);
+            } catch (err) {
+                reject(err);
+            }
         });
     });
 
@@ -123,6 +128,9 @@ export function loadCourseSync (coursePath, courseId) {
 
 class Course {
     constructor (id, data, dataSub, path, title, maker, type, environment) {
+        if (!fs.existsSync(path)) {
+            throw new Error("Path does not exists: " + path);
+        }
         this.id = id;
         this[courseData] = data;
         this[courseDataSub] = dataSub;
@@ -138,32 +146,30 @@ class Course {
     async writeCrc () {
 
         return await Promise.all([
-            new Promise (async (resolve) => {
+            new Promise (async (resolve, reject) => {
                 try {
                     let fileWithoutCrc = this[courseData].slice(16);
                     let crc = Buffer.alloc(4);
                     crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
                     let crcBuffer = Buffer.concat([COURSE_CRC_PRE_BUF, crc, COURSE_CRC_POST_BUF], COURSE_CRC_LENGTH);
                     this[courseData] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_SIZE);
-                    fs.writeFile(path.resolve(`${this.path}/course_data.cdt`), this[courseData], null, () => {
-                        resolve();
-                    });
+                    fs.writeFileSync(path.resolve(`${this.path}/course_data.cdt`), this[courseData]);
+                    resolve();
                 } catch (err) {
-                    console.log(err);
+                    reject(err);
                 }
             }),
-            new Promise (async (resolve) => {
+            new Promise (async (resolve, reject) => {
                 try {
                     let fileWithoutCrc = this[courseDataSub].slice(16);
                     let crc = Buffer.alloc(4);
                     crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
                     let crcBuffer = Buffer.concat([COURSE_CRC_PRE_BUF, crc, COURSE_CRC_POST_BUF], COURSE_CRC_LENGTH);
                     this[courseDataSub] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_SIZE);
-                    fs.writeFile(path.resolve(`${this.path}/course_data_sub.cdt`), this[courseDataSub], null, () => {
-                        resolve();
-                    })
+                    fs.writeFileSync(path.resolve(`${this.path}/course_data_sub.cdt`), this[courseDataSub]);
+                    resolve();
                 } catch (err) {
-                    console.log(err);
+                    reject(err);
                 }
             })
         ]);

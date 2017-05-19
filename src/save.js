@@ -281,13 +281,11 @@ export default class Save {
         let promises = [];
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
             promises.push(new Promise(async (resolve) => {
-                let exists = false;
                 let courseName = `course${i.pad(3)}`;
                 let coursePath = path.resolve(`${this.pathToSave}/${courseName}/`);
-                await new Promise((resolve) => {
+                let exists = await new Promise((resolve) => {
                     fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
-                        exists = !err;
-                        resolve();
+                        resolve(!err);
                     });
                 });
                 if (exists) {
