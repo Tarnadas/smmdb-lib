@@ -56,42 +56,46 @@ const elements      = Symbol();
 export async function loadCourse (coursePath, courseId) {
 
     return new Promise ((resolve, reject) => {
-        fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
-            if (err) throw err;
-            let dataSub = await new Promise((resolve) => {
-                fs.readFile(path.resolve(`${coursePath}/course_data_sub.cdt`), async (err, data) => {
-                    resolve(data);
+        try {
+            fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
+                if (err) throw err;
+                let dataSub = await new Promise((resolve) => {
+                    fs.readFile(path.resolve(`${coursePath}/course_data_sub.cdt`), async (err, data) => {
+                        resolve(data);
+                    });
                 });
+                let titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
+                let title = "";
+                for (let i = 0; i < COURSE_NAME_LENGTH; i+=2) {
+                    let charBuf = Buffer.allocUnsafe(2);
+                    charBuf.writeUInt16BE(titleBuf.readUInt16BE(i));
+                    if (charBuf.readUInt16BE(0) === 0) {
+                        break;
+                    }
+                    title += charBuf.toString('utf16le');
+                }
+                let makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
+                let maker = "";
+                for (let i =  0; i < COURSE_MAKER_LENGTH; i+=2) {
+                    let charBuf = Buffer.allocUnsafe(2);
+                    charBuf.writeUInt16BE(makerBuf.readUInt16BE(i));
+                    if (charBuf.readUInt16BE(0) === 0) {
+                        break;
+                    }
+                    maker += charBuf.toString('utf16le');
+                }
+                let type = data.slice(COURSE_TYPE_OFFSET, COURSE_TYPE_OFFSET + 2).toString();
+                let environment = data.readUInt8(COURSE_ENVIRONMENT_OFFSET);
+                try {
+                    let course = new Course(courseId, data, dataSub, coursePath, title, maker, type, environment)
+                    resolve(course);
+                } catch (err) {
+                    reject(err);
+                }
             });
-            let titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
-            let title = "";
-            for (let i = 0; i < COURSE_NAME_LENGTH; i+=2) {
-                let charBuf = Buffer.allocUnsafe(2);
-                charBuf.writeUInt16BE(titleBuf.readUInt16BE(i));
-                if (charBuf.readUInt16BE(0) === 0) {
-                    break;
-                }
-                title += charBuf.toString('utf16le');
-            }
-            let makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
-            let maker = "";
-            for (let i =  0; i < COURSE_MAKER_LENGTH; i+=2) {
-                let charBuf = Buffer.allocUnsafe(2);
-                charBuf.writeUInt16BE(makerBuf.readUInt16BE(i));
-                if (charBuf.readUInt16BE(0) === 0) {
-                    break;
-                }
-                maker += charBuf.toString('utf16le');
-            }
-            let type = data.slice(COURSE_TYPE_OFFSET, COURSE_TYPE_OFFSET + 2).toString();
-            let environment = data.readUInt8(COURSE_ENVIRONMENT_OFFSET);
-            try {
-                let course = new Course(courseId, data, dataSub, coursePath, title, maker, type, environment)
-                resolve(course);
-            } catch (err) {
-                reject(err);
-            }
-        });
+        } catch (err) {
+            reject(err);
+        }
     });
 
 }
