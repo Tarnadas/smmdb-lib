@@ -289,8 +289,12 @@ export default class Save {
                     });
                 });
                 if (exists) {
-                    this.courses[courseName] = await loadCourse(coursePath, i);
-                    this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
+                    try {
+                        this.courses[courseName] = await loadCourse(coursePath, i);
+                        this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
+                    } catch (err) {
+                        this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i);
+                    }
                 } else {
                     this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i);
                 }
