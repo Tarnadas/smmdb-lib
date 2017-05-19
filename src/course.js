@@ -239,8 +239,12 @@ class Course {
 
     async isThumbnailBroken () {
 
-        let tnl = new Tnl(path.join(this.path, 'thumbnail1.tnl'));
-        return await tnl.isBroken();
+        try {
+            let tnl = new Tnl(path.join(this.path, 'thumbnail1.tnl'));
+            return await tnl.isBroken();
+        } catch (err) {
+            return true;
+        }
 
     }
 

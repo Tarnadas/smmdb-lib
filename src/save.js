@@ -6,8 +6,7 @@ import rimraf  from "rimraf"
 import fs   from "fs"
 import path from "path"
 
-import { loadCourse } from "./course"
-import { loadCourseSync } from"./course"
+import { loadCourse, loadCourseSync } from "./course"
 import Tnl from "./tnl"
 
 const SAVE_SIZE  = 0xA000;
@@ -371,7 +370,7 @@ export default class Save {
         let courseName = `course${courseId.pad(3)}`;
         let coursePath = path.join(this.pathToSave, courseName);
         if (!fs.existsSync(coursePath)) {
-            throw new Error("Course does not exist: " + courseId.pad(3));
+            throw new Error("Course does not exist: course" + courseId.pad(3));
         }
         try {
             return await new Promise((resolve) => {
