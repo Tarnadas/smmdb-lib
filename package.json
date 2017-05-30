@@ -1,10 +1,11 @@
 {
   "name": "cemu-smm",
-  "version": "1.5.5",
+  "version": "2.0.0",
   "description": "This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu",
-  "main": "index.js",
+  "main": "lib",
   "scripts": {
-    "test": "node test/test"
+    "compile": "babel src --out-dir lib",
+    "test": "npm run compile&& node test/test"
   },
   "author": "Mario Reder",
   "license": "MIT",
@@ -14,13 +15,17 @@
     "buffer-crc32": "latest",
     "copy-dir": "^0.3.0",
     "jimp": "^0.2.27",
-    "rimraf": "^2.6.1"
+    "protobufjs": "^6.7.3",
+    "require-json": "0.0.1",
+    "rimraf": "^2.6.1",
+    "smm-protobuf": "https://github.com/Tarnadas/smm-protobuf"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/Tarnadas/cemu-smm.git"
   },
   "devDependencies": {
+    "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.4.0"

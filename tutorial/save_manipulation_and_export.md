@@ -5,7 +5,7 @@ It is possible to modify any bytes from your save file. Inside the first 16 byte
 After changing any bytes, the CRC checksum must be recalculated or CEMU will crash, when it tries to load it.
 
 ```js
-let smm = require("cemu-smm");
+const smm = require("cemu-smm");
   
 (async () => {
     
@@ -30,8 +30,8 @@ Reading and potentially manipulating course save files is just at the beginning,
 
 
 ```js
-let smm = require("cemu-smm");
-let fs  = require("fs");
+const smm = require("cemu-smm");
+const fs  = require("fs");
   
 (async () => {
     
