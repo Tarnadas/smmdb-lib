@@ -254,23 +254,28 @@ class Course {
     async setThumbnail (pathToThumbnail) {
 
         let jpeg = new Tnl(path.resolve(pathToThumbnail));
+        this[tnl] = await jpeg.fromJpeg(true);
+        this.thumbnail = await this[tnl].toJpeg();
+        this[tnlPreview] = await jpeg.fromJpeg(false);
+        this.thumbnailPreview = await this[tnlPreview].toJpeg();
+
+    }
+    
+    async writeThumbnail () {
+        
         return await Promise.all([
-            new Promise(async (resolve) => {
-                this[tnl] = await jpeg.fromJpeg(true);
+            new Promise(resolve => {
                 fs.writeFile(path.join(this[coursePath], 'thumbnail0.tnl'), this[tnl], () => {
                     resolve();
                 });
-                this.thumbnail = await this[tnl].toJpeg();
             }),
-            new Promise(async (resolve) => {
-                this[tnlPreview] = await jpeg.fromJpeg(false);
+            new Promise(resolve => {
                 fs.writeFile(path.join(this[coursePath], 'thumbnail1.tnl'), this[tnlPreview], () => {
                     resolve();
                 });
-                this.thumbnailPreview = await this[tnlPreview].toJpeg();
             })
         ]);
-
+        
     }
 
     async isThumbnailBroken () {
@@ -339,8 +344,9 @@ class Course {
     }
 
     static deserialize (buffer) {
-        return smmCourse.toObject(smmCourse.decode(Buffer.from(buffer)), {
+        let obj = smmCourse.toObject(smmCourse.decode(Buffer.from(buffer)), {
             arrays: true
         });
+        return Object.setPrototypeOf(obj, this.prototype);
     }
 }
