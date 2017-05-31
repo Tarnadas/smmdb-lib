@@ -11,13 +11,22 @@
 
 <dl>
 <dt><a href="#loadCourse">loadCourse(coursePath, [courseId])</a> ⇒ <code><a href="#Course">Promise.&lt;Course&gt;</a></code></dt>
-<dd><p>loads a course from fs</p>
+<dd><p>Loads a course from fs</p>
 </dd>
 <dt><a href="#loadCourseSync">loadCourseSync(coursePath, [courseId])</a> ⇒ <code><a href="#Course">Course</a></code></dt>
-<dd><p>loads a course from fs</p>
+<dd><p>Synchronous version of <a href="#loadCourse">loadCourse</a></p>
 </dd>
 <dt><a href="#deserialize">deserialize(buffer)</a> ⇒ <code><a href="#Course">Course</a></code></dt>
-<dd><p>deserializes a node buffer or Uint8Array</p>
+<dd><p>Deserializes a node buffer or Uint8Array</p>
+</dd>
+<dt><a href="#loadSave">loadSave(pathToSave)</a> ⇒ <code><a href="#Save">Promise.&lt;Save&gt;</a></code></dt>
+<dd><p>Loads a save from fs</p>
+</dd>
+<dt><a href="#loadSave">loadSave(pathToSave)</a> ⇒ <code><a href="#Save">Promise.&lt;Save&gt;</a></code></dt>
+<dd><p>Synchronous version of <a href="#loadSave">loadSave</a></p>
+</dd>
+<dt><a href="#loadImage">loadImage(pathToFile)</a> ⇒ <code>Tnl</code> | <code>Jpeg</code></dt>
+<dd><p>Load JPEG or TNL image</p>
 </dd>
 </dl>
 
@@ -229,7 +238,7 @@ Deletes a course from this save
 <a name="loadCourse"></a>
 
 ## loadCourse(coursePath, [courseId]) ⇒ [<code>Promise.&lt;Course&gt;</code>](#Course)
-loads a course from fs
+Loads a course from fs
 
 **Kind**: global function  
 
@@ -241,7 +250,7 @@ loads a course from fs
 <a name="loadCourseSync"></a>
 
 ## loadCourseSync(coursePath, [courseId]) ⇒ [<code>Course</code>](#Course)
-loads a course from fs
+Synchronous version of [loadCourse](#loadCourse)
 
 **Kind**: global function  
 
@@ -253,11 +262,56 @@ loads a course from fs
 <a name="deserialize"></a>
 
 ## deserialize(buffer) ⇒ [<code>Course</code>](#Course)
-deserializes a node buffer or Uint8Array
+Deserializes a node buffer or Uint8Array
 
 **Kind**: global function  
 
 | Param | Type |
 | --- | --- |
 | buffer | <code>Buffer</code> \| <code>Uint8Array</code> | 
+
+<a name="loadSave"></a>
+
+## loadSave(pathToSave) ⇒ [<code>Promise.&lt;Save&gt;</code>](#Save)
+Loads a save from fs
+
+**Kind**: global function  
+**Throws**:
+
+- <code>Error</code> pathToSave must exist and must have read/write privileges
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| pathToSave | <code>string</code> | path to save on fs |
+
+<a name="loadSave"></a>
+
+## loadSave(pathToSave) ⇒ [<code>Promise.&lt;Save&gt;</code>](#Save)
+Synchronous version of [loadSave](#loadSave)
+
+**Kind**: global function  
+**Throws**:
+
+- <code>Error</code> pathToSave must exist and must have read/write privileges
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| pathToSave | <code>string</code> | path to save on fs |
+
+<a name="loadImage"></a>
+
+## loadImage(pathToFile) ⇒ <code>Tnl</code> \| <code>Jpeg</code>
+Load JPEG or TNL image
+
+**Kind**: global function  
+**Throws**:
+
+- <code>Error</code> pathToFile must exist, must have read/write privileges and file must be JPEG or TNL
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| pathToFile | <code>string</code> | path to image on fs |
 

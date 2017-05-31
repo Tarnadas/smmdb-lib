@@ -11,5 +11,5 @@ const fs   = require('fs');
         files,
         configure: path.join(__dirname, 'jsdoc.json')
     });
-    fs.writeFileSync(path.join(__dirname, 'docs/api.md'), md);
+    fs.writeFileSync(path.join(__dirname, 'documentation/api.md'), md);
 })();

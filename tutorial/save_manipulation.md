@@ -2,7 +2,7 @@
 
 It is possible to modify any bytes from your save file. Inside the first 16 bytes of any file is a CRC checksum from the rest of the file.
 
-After changing any bytes, the CRC checksum must be recalculated or CEMU will crash, when it tries to load it.
+After changing any bytes, the CRC checksum must be recalculated or Cemu will crash, when it tries to load it.
 
 ```js
 const smm = require("cemu-smm");
@@ -23,6 +23,17 @@ const smm = require("cemu-smm");
 If you have ever wondered why course000 folder does not correspond to the very first course in game, this is because how the game handles drag and dropping files in your course bot.
 
 To reorder all your course folders for making imports of custom courses that you have downloaded easier, you simply have to call ```save.reorder()```
+
+When calling
+```js
+save.reorder();
+```
+
+![Alt text](https://raw.githubusercontent.com/Tarnadas/cemu-smm/master/test/reorder_before.jpg)
+
+becomes
+
+![Alt text](https://raw.githubusercontent.com/Tarnadas/cemu-smm/master/test/reorder_after.jpg)
 
 ## Exporting course info from save file
 

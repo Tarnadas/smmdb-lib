@@ -42,7 +42,7 @@ const COURSE_BLOCK_DATA_LENGTH = 0x20;
 const COURSE_BLOCK_DATA_END = 0x145F0;
 
 /**
- * loads a course from fs
+ * Loads a course from fs
  * @function loadCourse
  * @param {string} coursePath - path to course on fs
  * @param {number} [courseId] - course ID inside save
@@ -97,7 +97,7 @@ export async function loadCourse (coursePath, courseId) {
 }
 
 /**
- * loads a course from fs
+ * Synchronous version of {@link loadCourse}
  * @function loadCourseSync
  * @param {string} coursePath - path to course on fs
  * @param {number} [courseId] - course ID inside save
@@ -134,7 +134,7 @@ export function loadCourseSync (coursePath, courseId) {
 }
 
 /**
- * deserializes a node buffer or Uint8Array
+ * Deserializes a node buffer or Uint8Array
  * @param {Buffer | Uint8Array} buffer
  * @returns {Course}
  */
