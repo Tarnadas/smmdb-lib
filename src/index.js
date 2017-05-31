@@ -1,9 +1,10 @@
 import Promise from "bluebird"
 
-import * as fs from "fs"
+import * as fs   from "fs"
 import * as path from "path"
 
-import Save from "./save"
+import Save   from "./save"
+import Course from "./course"
 import {
     Tnl, Jpeg
 } from "./tnl"
@@ -46,11 +47,107 @@ export function loadSaveSync(pathToSave) {
     return new Save(pathToSave, data);
 }
 
-export {
-    loadCourse,
-    loadCourseSync,
-    deserialize
-} from "./course"
+/**
+ * Loads a course from fs
+ * @function loadCourse
+ * @param {string} coursePath - path to course on fs
+ * @param {number} [courseId] - course ID inside save
+ * @return {Promise.<Course>}
+ */
+export async function loadCourse (coursePath, courseId) {
+
+    return new Promise ((resolve, reject) => {
+        fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
+            if (err || !data) {
+                reject(err);
+            }
+            let dataSub = await new Promise((resolve, reject) => {
+                fs.readFile(path.resolve(`${coursePath}/course_data_sub.cdt`), async (err, data) => {
+                    if (err || !data) {
+                        reject(err);
+                    }
+                    resolve(data);
+                });
+            });
+            let titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
+            let title = "";
+            for (let i = 0; i < COURSE_NAME_LENGTH; i+=2) {
+                let charBuf = Buffer.allocUnsafe(2);
+                charBuf.writeUInt16BE(titleBuf.readUInt16BE(i), 0);
+                if (charBuf.readUInt16BE(0) === 0) {
+                    break;
+                }
+                title += charBuf.toString('utf16le');
+            }
+            let makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
+            let maker = "";
+            for (let i =  0; i < COURSE_MAKER_LENGTH; i+=2) {
+                let charBuf = Buffer.allocUnsafe(2);
+                charBuf.writeUInt16BE(makerBuf.readUInt16BE(i), 0);
+                if (charBuf.readUInt16BE(0) === 0) {
+                    break;
+                }
+                maker += charBuf.toString('utf16le');
+            }
+            let gameStyle = data.slice(COURSE_GAME_STYLE_OFFSET, COURSE_GAME_STYLE_OFFSET + 2).toString();
+            let courseTheme = data.readUInt8(COURSE_THEME_OFFSET);
+            try {
+                let course = new Course(courseId, data, dataSub, coursePath, title, maker, gameStyle, courseTheme);
+                resolve(course);
+            } catch (err) {
+                reject(err);
+            }
+        });
+    });
+
+}
+
+/**
+ * Synchronous version of {@link loadCourse}
+ * @function loadCourseSync
+ * @param {string} coursePath - path to course on fs
+ * @param {number} [courseId] - course ID inside save
+ * @returns {Course}
+ */
+export function loadCourseSync (coursePath, courseId) {
+
+    let data = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
+    let dataSub = fs.readFileSync(path.resolve(`${coursePath}/course_data_sub.cdt`));
+    let titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
+    let title = "";
+    for (let i = 0; i < COURSE_NAME_LENGTH; i+=2) {
+        let charBuf = Buffer.allocUnsafe(2);
+        charBuf.writeUInt16BE(titleBuf.readUInt16BE(i), 0);
+        if (charBuf.readUInt16BE(0) === 0) {
+            break;
+        }
+        title += charBuf.toString('utf16le');
+    }
+    let makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
+    let maker = "";
+    for (let i =  0; i < COURSE_MAKER_LENGTH; i+=2) {
+        let charBuf = Buffer.allocUnsafe(2);
+        charBuf.writeUInt16BE(makerBuf.readUInt16BE(i), 0);
+        if (charBuf.readUInt16BE(0) === 0) {
+            break;
+        }
+        maker += charBuf.toString('utf16le');
+    }
+    let gameStyle = data.slice(COURSE_GAME_STYLE_OFFSET, COURSE_GAME_STYLE_OFFSET + 2).toString();
+    let courseTheme = data.readUInt8(COURSE_THEME_OFFSET);
+    return new Course(courseId, data, dataSub, coursePath, title, maker, gameStyle, courseTheme);
+
+}
+
+/**
+ * Deserializes a node buffer or Uint8Array
+ * @function deserialize
+ * @param {Buffer | Uint8Array} buffer
+ * @returns {Course}
+ */
+export function deserialize (buffer) {
+    return Course.deserialize(buffer);
+}
 
 /**
  * Load JPEG or TNL image

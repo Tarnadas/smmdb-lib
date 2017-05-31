@@ -41,107 +41,6 @@ const COURSE_BLOCK_DATA_OFFSET = 0x1B0;
 const COURSE_BLOCK_DATA_LENGTH = 0x20;
 const COURSE_BLOCK_DATA_END = 0x145F0;
 
-/**
- * Loads a course from fs
- * @function loadCourse
- * @param {string} coursePath - path to course on fs
- * @param {number} [courseId] - course ID inside save
- * @return {Promise.<Course>}
- */
-export async function loadCourse (coursePath, courseId) {
-
-    return new Promise ((resolve, reject) => {
-        fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
-            if (err || !data) {
-                reject(err);
-            }
-            let dataSub = await new Promise((resolve, reject) => {
-                fs.readFile(path.resolve(`${coursePath}/course_data_sub.cdt`), async (err, data) => {
-                    if (err || !data) {
-                        reject(err);
-                    }
-                    resolve(data);
-                });
-            });
-            let titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
-            let title = "";
-            for (let i = 0; i < COURSE_NAME_LENGTH; i+=2) {
-                let charBuf = Buffer.allocUnsafe(2);
-                charBuf.writeUInt16BE(titleBuf.readUInt16BE(i), 0);
-                if (charBuf.readUInt16BE(0) === 0) {
-                    break;
-                }
-                title += charBuf.toString('utf16le');
-            }
-            let makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
-            let maker = "";
-            for (let i =  0; i < COURSE_MAKER_LENGTH; i+=2) {
-                let charBuf = Buffer.allocUnsafe(2);
-                charBuf.writeUInt16BE(makerBuf.readUInt16BE(i), 0);
-                if (charBuf.readUInt16BE(0) === 0) {
-                    break;
-                }
-                maker += charBuf.toString('utf16le');
-            }
-            let gameStyle = data.slice(COURSE_GAME_STYLE_OFFSET, COURSE_GAME_STYLE_OFFSET + 2).toString();
-            let courseTheme = data.readUInt8(COURSE_THEME_OFFSET);
-            try {
-                let course = new Course(courseId, data, dataSub, coursePath, title, maker, gameStyle, courseTheme);
-                resolve(course);
-            } catch (err) {
-                reject(err);
-            }
-        });
-    });
-
-}
-
-/**
- * Synchronous version of {@link loadCourse}
- * @function loadCourseSync
- * @param {string} coursePath - path to course on fs
- * @param {number} [courseId] - course ID inside save
- * @returns {Course}
- */
-export function loadCourseSync (coursePath, courseId) {
-
-    let data = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
-    let dataSub = fs.readFileSync(path.resolve(`${coursePath}/course_data_sub.cdt`));
-    let titleBuf = data.slice(COURSE_NAME_OFFSET, COURSE_NAME_OFFSET + COURSE_NAME_LENGTH);
-    let title = "";
-    for (let i = 0; i < COURSE_NAME_LENGTH; i+=2) {
-        let charBuf = Buffer.allocUnsafe(2);
-        charBuf.writeUInt16BE(titleBuf.readUInt16BE(i), 0);
-        if (charBuf.readUInt16BE(0) === 0) {
-            break;
-        }
-        title += charBuf.toString('utf16le');
-    }
-    let makerBuf = data.slice(COURSE_MAKER_OFFSET, COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH);
-    let maker = "";
-    for (let i =  0; i < COURSE_MAKER_LENGTH; i+=2) {
-        let charBuf = Buffer.allocUnsafe(2);
-        charBuf.writeUInt16BE(makerBuf.readUInt16BE(i), 0);
-        if (charBuf.readUInt16BE(0) === 0) {
-            break;
-        }
-        maker += charBuf.toString('utf16le');
-    }
-    let gameStyle = data.slice(COURSE_GAME_STYLE_OFFSET, COURSE_GAME_STYLE_OFFSET + 2).toString();
-    let courseTheme = data.readUInt8(COURSE_THEME_OFFSET);
-    return new Course(courseId, data, dataSub, coursePath, title, maker, gameStyle, courseTheme);
-
-}
-
-/**
- * Deserializes a node buffer or Uint8Array
- * @param {Buffer | Uint8Array} buffer
- * @returns {Course}
- */
-export function deserialize (buffer) {
-    return Course.deserialize(buffer);
-}
-
 const courseId      = Symbol();
 const coursePath    = Symbol();
 const courseData    = Symbol();
@@ -161,7 +60,7 @@ const tnlPreview    = Symbol();
  * @param gameStyle
  * @param courseTheme
  */
-class Course {
+export default class Course {
 
     constructor (id, data, dataSub, path, title, maker, gameStyle, courseTheme) {
 
@@ -172,10 +71,45 @@ class Course {
         this[courseData] = data;
         this[courseDataSub] = dataSub;
         this[coursePath] = path;
+        
+        /**
+         * Title of course
+         * @member {string} title
+         * @memberOf Course
+         * @instance
+         */
         this.title = title;
+        
+        /**
+         * Maker name
+         * @member {string} maker
+         * @memberOf Course
+         * @instance
+         */
         this.maker = maker;
+        
+        /**
+         * Game style of course
+         * @member {number} gameStyle
+         * @memberOf Course
+         * @instance
+         */
         this.gameStyle = COURSE_GAME_STYLE[gameStyle];
+        
+        /**
+         * Course theme
+         * @member {number} courseTheme
+         * @memberOf Course
+         * @instance
+         */
         this.courseTheme = COURSE_THEME[COURSE_THEME_BY_ID[courseTheme]];
+        
+        /**
+         * Blocks of main course
+         * @member {Array<Block>} blocks
+         * @memberOf Course
+         * @instance
+         */
         this.blocks = [];
         for (let offset = COURSE_BLOCK_DATA_OFFSET; offset < COURSE_BLOCK_DATA_END; offset += COURSE_BLOCK_DATA_LENGTH) {
             let blockData = this[courseData].slice(offset, offset + COURSE_BLOCK_DATA_LENGTH);
@@ -184,6 +118,13 @@ class Course {
             }
             this.blocks.push(new Block(blockData));
         }
+        
+        /**
+         * Blocks of sub course
+         * @member {Array<Block>} blocksSub
+         * @memberOf Course
+         * @instance
+         */
         this.blocksSub = [];
         for (let offset = COURSE_BLOCK_DATA_OFFSET; offset < COURSE_BLOCK_DATA_END; offset += COURSE_BLOCK_DATA_LENGTH) {
             let blockData = this[courseDataSub].slice(offset, offset + COURSE_BLOCK_DATA_LENGTH);
@@ -192,6 +133,13 @@ class Course {
             }
             this.blocksSub.push(new Block(blockData));
         }
+        
+        /**
+         * Course sounds
+         * @member {Array<Sound>} sounds
+         * @memberOf Course
+         * @instance
+         */
         this.sounds = [];
         // TODO add sounds
         try {
@@ -263,9 +211,12 @@ class Course {
     }
 
     /**
-     * sets a new title for this course and optionally recalculates crc checksum
+     * Sets a new title for this course and optionally recalculates crc checksum
+     * @function setTitle
+     * @memberOf Course
+     * @instance
      * @param {string} title - new title
-     * @param [boolean} [writeCrc=true] - should crc checksum be recalculated
+     * @param {boolean} [writeCrc=true] - should crc checksum be recalculated
      * @returns {Promise.<void>}
      */
     async setTitle (title, writeCrc = true) {
@@ -285,9 +236,12 @@ class Course {
     }
 
     /**
-     * sets a new maker for this course and optionally recalculates crc checksum
+     * Sets a new maker for this course and optionally recalculates crc checksum
+     * @function setMaker
+     * @memberOf Course
+     * @instance
      * @param {string} makerName - new maker
-     * @param [boolean} [writeCrc=true] - should crc checksum be recalculated
+     * @param {boolean} [writeCrc=true] - should crc checksum be recalculated
      * @returns {Promise.<void>}
      */
     async setMaker (makerName, writeCrc = true) {
@@ -307,7 +261,11 @@ class Course {
     }
 
     /**
-     * load tnl thumbnails from fs
+     * Load tnl thumbnails from fs.
+     * Implicitly called by constructor
+     * @function loadTnl
+     * @memberOf Course
+     * @instance
      * @returns {Array<Tnl>}
      */
     loadTnl () {
@@ -320,7 +278,10 @@ class Course {
     }
 
     /**
-     * convert tnl thumbnails to jpeg thumbnails
+     * Convert TNL thumbnails to JPEG thumbnails
+     * @function loadThumbnail
+     * @memberOf Course
+     * @instance
      * @returns {null}
      */
     async loadThumbnail () {
@@ -335,7 +296,10 @@ class Course {
     }
 
     /**
-     * convert tnl thumbnails to jpeg thumbnails
+     * Synchronous version of {@link Course#loadThumbnail}
+     * @function loadThumbnailSync
+     * @memberOf Course
+     * @instance
      */
     loadThumbnailSync () {
 
@@ -348,7 +312,10 @@ class Course {
     }
 
     /**
-     * change thumbnail of this course
+     * Change thumbnail of this course
+     * @function setThumbnail
+     * @memberOf Course
+     * @instance
      * @param {string} pathToThumbnail - path to new thumbnail on fs
      * @returns {null}
      */
@@ -364,8 +331,12 @@ class Course {
     }
 
     /**
-     *
-     * @returns {Promise.<Promise.<*>|*>}
+     * Write thumbnail to fs
+     * @function writeThumbnail
+     * @memberOf Course
+     * @instance
+     * @returns {Promise.<void>}
+     * @throws {Error} course must be part of a {@link Save}
      */
     async writeThumbnail () {
         
@@ -385,8 +356,11 @@ class Course {
     }
 
     /**
-     *
-     * @returns {Promise.<*>}
+     * Check if this course's thumbnail is broken
+     * @function isThumbnailBroken
+     * @memberOf Course
+     * @instance
+     * @returns {Promise.<boolean>}
      */
     async isThumbnailBroken () {
 
@@ -399,10 +373,15 @@ class Course {
     }
 
     /**
-     *
-     * @returns {Promise.<Promise.<*>|*>}
+     * Write thumbnail to fs
+     * @function writeThumbnail
+     * @memberOf Course
+     * @instance
+     * @returns {Promise.<void>}
+     * @throws {Error} course must be part of a {@link Save}
+     * @throws {Error} thumbnail must not be null
      */
-    async exportJpeg () {
+    async exportThumbnail () {
 
         if (!this[coursePath]) throw new Error("Course does not exist on file system");
         if (!this[tnl] && !this.thumbnail) throw new Error("Could not find thumbnail");
