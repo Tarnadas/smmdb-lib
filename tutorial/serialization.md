@@ -4,6 +4,7 @@ Serialization complies to [smm-protobuf](https://github.com/Tarnadas/smm-protobu
 
 ```js
 const smm = require("cemu-smm");
+const rp  = require("request-promise");
 const fs  = require("fs");
   
 (async () => {
@@ -19,8 +20,8 @@ const fs  = require("fs");
   //let serialized = courses.course000.serializeGzipped();
   
   // deserialization
-  let deserialized = smm.deserialize(serialized);
-  // courses.course000 === deserialized yields true
+  let response = await rp("http://some-server-that-sends-serialized-courses.com");
+  let deserialized = smm.deserialize(response);
   
 })();
 ```

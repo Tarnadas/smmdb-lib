@@ -11,11 +11,15 @@ With [npm](https://www.npmjs.org/package/cemu-smm):
 $ npm install --save cemu-smm
 ```
 
+## API
+
+Please refer to the full [API Documentation](docs/api.md)
+
 ## Code Example
 
 ```js
-let smm = require("cemu-smm");
-let fs  = require("fs");
+const smm = require("cemu-smm");
+const fs  = require("fs");
   
 (async () => {
   // let us load our SMM save file
@@ -27,7 +31,7 @@ let fs  = require("fs");
   // recalculate crc checksum and write to 'save.dat'
   // this always has to be done when changing bytes, e.g. in a Hex Editor
   // internally done by reorder(), so unnecessary right here
-  save.writeCrc();
+  await save.writeCrc();
   
   // import all jpg files and create tnl files in their respective course folder
   save.importJpeg();
@@ -41,7 +45,6 @@ let fs  = require("fs");
   
   // load course block data and write result to file in readable format
   //save.loadCourseElements(); // load whole save folder
-  courses["course001"].loadElements(); // or load single course
   fs.writeFileSync(`${__dirname}/course001.json`, JSON.stringify(courses["course001"].getElements(), null, 2));
   
   // convert tnl to jpeg

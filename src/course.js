@@ -9,7 +9,11 @@ import * as zlib from "zlib"
 
 import Block from "./block"
 import Sound from "./sound"
-import Tnl   from "./tnl"
+import {
+    Tnl, Jpeg
+} from "./tnl"
+
+const sound = fs.readFileSync(path.join(__dirname, "../data/sound.bwv"));
 
 const root = protobuf.Root.fromJSON(proto);
 const smmCourse = root.lookupType('SMMCourse');
@@ -37,6 +41,13 @@ const COURSE_BLOCK_DATA_OFFSET = 0x1B0;
 const COURSE_BLOCK_DATA_LENGTH = 0x20;
 const COURSE_BLOCK_DATA_END = 0x145F0;
 
+/**
+ * loads a course from fs
+ * @function loadCourse
+ * @param {string} coursePath - path to course on fs
+ * @param {number} [courseId] - course ID inside save
+ * @return {Promise.<Course>}
+ */
 export async function loadCourse (coursePath, courseId) {
 
     return new Promise ((resolve, reject) => {
@@ -85,6 +96,13 @@ export async function loadCourse (coursePath, courseId) {
 
 }
 
+/**
+ * loads a course from fs
+ * @function loadCourseSync
+ * @param {string} coursePath - path to course on fs
+ * @param {number} [courseId] - course ID inside save
+ * @returns {Course}
+ */
 export function loadCourseSync (coursePath, courseId) {
 
     let data = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
@@ -115,6 +133,11 @@ export function loadCourseSync (coursePath, courseId) {
 
 }
 
+/**
+ * deserializes a node buffer or Uint8Array
+ * @param {Buffer | Uint8Array} buffer
+ * @returns {Course}
+ */
 export function deserialize (buffer) {
     return Course.deserialize(buffer);
 }
@@ -126,8 +149,22 @@ const courseDataSub = Symbol();
 const tnl           = Symbol();
 const tnlPreview    = Symbol();
 
+/**
+ * Represents a Super Mario Maker course
+ * @class Course
+ * @param id
+ * @param data
+ * @param dataSub
+ * @param path
+ * @param title
+ * @param maker
+ * @param gameStyle
+ * @param courseTheme
+ */
 class Course {
+
     constructor (id, data, dataSub, path, title, maker, gameStyle, courseTheme) {
+
         if (!fs.existsSync(path)) {
             throw new Error("Path does not exists: " + path);
         }
@@ -137,10 +174,6 @@ class Course {
         this[coursePath] = path;
         this.title = title;
         this.maker = maker;
-        /*console.log(gameStyle);
-        console.log(COURSE_THEME_BY_ID[courseTheme]);
-        console.log(COURSE_GAME_STYLE);
-        console.log(COURSE_THEME);*/
         this.gameStyle = COURSE_GAME_STYLE[gameStyle];
         this.courseTheme = COURSE_THEME[COURSE_THEME_BY_ID[courseTheme]];
         this.blocks = [];
@@ -165,8 +198,37 @@ class Course {
             [this[tnl], this[tnlPreview]] = this.loadTnl();
         } catch (err) {
         }
+
     }
 
+    /**
+     * Writes course to fs inside save folder.
+     * This function should not be called directly. Instead call save.addCourse(course)
+     * @function writeToSave
+     * @memberOf Course
+     * @instance
+     * @param id - course ID inside save
+     * @param pathToCourse - path on fs to course
+     */
+    writeToSave (id, pathToCourse) {
+
+        this[courseId] = id;
+        this[coursePath] = pathToCourse;
+        fs.writeFileSync(path.resolve(`${this[coursePath]}/course_data.cdt`), this[courseData]);
+        fs.writeFileSync(path.resolve(`${this[coursePath]}/course_data_sub.cdt`), this[courseDataSub]);
+        fs.writeFileSync(path.resolve(`${this[coursePath]}/sound.bwv`), sound);
+        fs.writeFileSync(path.resolve(`${this[coursePath]}/thumbnail0.tnl`), this[tnl]);
+        fs.writeFileSync(path.resolve(`${this[coursePath]}/thumbnail1.tnl`), this[tnlPreview]);
+
+    }
+
+    /**
+     * Writes crc checksum of course to fs
+     * @function writeCrc
+     * @memberOf Course
+     * @instance
+     * @returns {Promise.<void>}
+     */
     async writeCrc () {
 
         return await Promise.all([
@@ -200,7 +262,13 @@ class Course {
 
     }
 
-    async setTitle (title, writeCrc) {
+    /**
+     * sets a new title for this course and optionally recalculates crc checksum
+     * @param {string} title - new title
+     * @param [boolean} [writeCrc=true] - should crc checksum be recalculated
+     * @returns {Promise.<void>}
+     */
+    async setTitle (title, writeCrc = true) {
         for (let i = COURSE_NAME_OFFSET, j = 0; i < COURSE_NAME_OFFSET + COURSE_NAME_LENGTH; i+=2, j++) {
             if (j < title.length) {
                 this[courseData].write(title.charAt(j), i, 'utf16le');
@@ -211,12 +279,18 @@ class Course {
             }
         }
         this.title = title.substr(0, COURSE_NAME_LENGTH / 2);
-        if (!!writeCrc) {
+        if (writeCrc) {
             return await this.writeCrc();
         }
     }
 
-    async setMaker (makerName, writeCrc) {
+    /**
+     * sets a new maker for this course and optionally recalculates crc checksum
+     * @param {string} makerName - new maker
+     * @param [boolean} [writeCrc=true] - should crc checksum be recalculated
+     * @returns {Promise.<void>}
+     */
+    async setMaker (makerName, writeCrc = true) {
         for (let i = COURSE_MAKER_OFFSET, j = 0; i < COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH; i+=2, j++) {
             if (j < makerName.length) {
                 this[courseData].write(makerName.charAt(j), i, 'utf16le');
@@ -227,11 +301,15 @@ class Course {
             }
         }
         this.maker = makerName.substr(0, COURSE_MAKER_LENGTH / 2);
-        if (!!writeCrc) {
+        if (writeCrc) {
             await this.writeCrc();
         }
     }
 
+    /**
+     * load tnl thumbnails from fs
+     * @returns {Array<Tnl>}
+     */
     loadTnl () {
 
         return [
@@ -241,6 +319,10 @@ class Course {
 
     }
 
+    /**
+     * convert tnl thumbnails to jpeg thumbnails
+     * @returns {null}
+     */
     async loadThumbnail () {
 
         try {
@@ -248,19 +330,43 @@ class Course {
             this.thumbnailPreview = await this[tnlPreview].toJpeg();
         } catch (err) {
         }
+        return null;
 
     }
 
+    /**
+     * convert tnl thumbnails to jpeg thumbnails
+     */
+    loadThumbnailSync () {
+
+        try {
+            this.thumbnail = this[tnl].toJpegSync();
+            this.thumbnailPreview = this[tnlPreview].toJpegSync();
+        } catch (err) {
+        }
+
+    }
+
+    /**
+     * change thumbnail of this course
+     * @param {string} pathToThumbnail - path to new thumbnail on fs
+     * @returns {null}
+     */
     async setThumbnail (pathToThumbnail) {
 
-        let jpeg = new Tnl(path.resolve(pathToThumbnail));
-        this[tnl] = await jpeg.fromJpeg(true);
+        let jpeg = new Jpeg(path.resolve(pathToThumbnail));
+        this[tnl] = await jpeg.toTnl(true);
         this.thumbnail = await this[tnl].toJpeg();
-        this[tnlPreview] = await jpeg.fromJpeg(false);
+        this[tnlPreview] = await jpeg.toTnl(false);
         this.thumbnailPreview = await this[tnlPreview].toJpeg();
+        return null;
 
     }
-    
+
+    /**
+     *
+     * @returns {Promise.<Promise.<*>|*>}
+     */
     async writeThumbnail () {
         
         return await Promise.all([
@@ -278,6 +384,10 @@ class Course {
         
     }
 
+    /**
+     *
+     * @returns {Promise.<*>}
+     */
     async isThumbnailBroken () {
 
         try {
@@ -288,42 +398,53 @@ class Course {
 
     }
 
+    /**
+     *
+     * @returns {Promise.<Promise.<*>|*>}
+     */
     async exportJpeg () {
 
-        let exists = false;
-        await new Promise((resolve) => {
-            fs.access(this[coursePath], fs.constants.R_OK | fs.constants.W_OK, (err) => {
-                exists = !err;
-                resolve();
-            });
-        });
-        if (exists) {
-            return await Promise.all([
-                new Promise(async (resolve) => {
-                    try {
-                        let jpeg = await this[tnl].toJpeg();
-                        fs.writeFile(this[coursePath] + "/thumbnail0.jpg", jpeg, null, () => {
-                            resolve();
-                        });
-                    } catch (err) {
-                        resolve();
-                    }
-                }),
-                new Promise(async (resolve) => {
-                    try {
-                        let jpeg = await this[tnlPreview].toJpeg();
-                        fs.writeFile(this[coursePath] + "/thumbnail1.jpg", jpeg, null, () => {
-                            resolve();
-                        });
-                    } catch (err) {
-                        resolve();
-                    }
-                })
-            ]);
+        if (!this[coursePath]) throw new Error("Course does not exist on file system");
+        if (!this[tnl] && !this.thumbnail) throw new Error("Could not find thumbnail");
+        if (!this.thumbnail) {
+            await this.loadThumbnail();
         }
+        return await Promise.all([
+            new Promise(async (resolve, reject) => {
+                fs.writeFile(this[coursePath] + "/thumbnail0.jpg", this.thumbnail, null, (err) => {
+                    if (err) reject(err);
+                    resolve();
+                });
+            }),
+            new Promise(async (resolve, reject) => {
+                fs.writeFile(this[coursePath] + "/thumbnail1.jpg", this.thumbnailPreview, null, (err) => {
+                    if (err) reject(err);
+                    resolve();
+                });
+            })
+        ]);
 
     }
 
+    /**
+     *
+     */
+    exportJpegSync () {
+
+        if (!this[coursePath]) throw new Error("Course does not exist on file system");
+        if (!this[tnl] && !this.thumbnail) throw new Error("Could not find thumbnail");
+        if (!this.thumbnail) {
+            this.loadThumbnailSync();
+        }
+        fs.writeFileSync(this[coursePath] + "/thumbnail0.jpg", this.thumbnail);
+        fs.writeFileSync(this[coursePath] + "/thumbnail1.jpg", this.thumbnailPreview);
+
+    }
+
+    /**
+     *
+     * @returns {Promise<Buffer>}
+     */
     async serialize () {
         if (!!this[tnl] && !this.thumbnail) {
             await this.loadThumbnail();
@@ -331,6 +452,10 @@ class Course {
         return Buffer.from(JSON.parse(JSON.stringify(smmCourse.encode(this).finish())));
     }
 
+    /**
+     *
+     * @returns {Promise.<*>}
+     */
     async serializeGzipped () {
         if (!!this[tnl] && !this.thumbnail) {
             await this.loadThumbnail();
@@ -343,6 +468,11 @@ class Course {
         });
     }
 
+    /**
+     *
+     * @param buffer
+     * @returns {*|boolean}
+     */
     static deserialize (buffer) {
         let obj = smmCourse.toObject(smmCourse.decode(Buffer.from(buffer)), {
             arrays: true

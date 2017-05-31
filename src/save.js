@@ -3,11 +3,15 @@ import crc32   from "buffer-crc32"
 import copydir from "copy-dir"
 import rimraf  from "rimraf"
 
-import fs   from "fs"
-import path from "path"
+import * as fs   from "fs"
+import * as path from "path"
 
-import { loadCourse, loadCourseSync } from "./course"
-import Tnl from "./tnl"
+import {
+    loadCourse, loadCourseSync
+} from "./course"
+import {
+    Tnl, Jpeg
+} from "./tnl"
 
 const SAVE_SIZE  = 0xA000;
 
@@ -22,22 +26,58 @@ const SAVE_CRC_LENGTH = 0x10;
 const SAVE_CRC_PRE_BUF  = Buffer.from("0000000000000015", "hex");
 const SAVE_CRC_POST_BUF = Buffer.alloc(4);
 
+const slotToIndex = Symbol();
+
+/**
+ * Represents a Super Mario Maker save
+ * @class Save
+ * @param pathToSave
+ * @param data
+ */
 export default class Save {
 
     constructor (pathToSave, data) {
+
+        /**
+         * Path to save
+         * @member {string} pathToSave
+         * @memberOf Save
+         * @instance
+         */
         this.pathToSave = pathToSave;
+
+        /**
+         * Node buffer of save.dat file
+         * @member {Buffer} data
+         * @memberOf Save
+         * @instance
+         */
         this.data = data;
+
+        /**
+         * @member {Object.<string,Course>} courses
+         * @memberOf Save
+         * @instance
+         */
         this.courses = {};
 
-        this.slotToIndex = {};
+        this[slotToIndex] = {};
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
             let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
             if (index !== 255) {
-                this.slotToIndex[i] = index;
+                this[slotToIndex][i] = index;
             }
         }
+
     }
 
+    /**
+     * Writes crc checksum of save.dat
+     * @function writeCrc
+     * @memberOf Save
+     * @instance
+     * @returns {Promise.<void>}
+     */
     async writeCrc () {
 
         return await new Promise((resolve) => {
@@ -57,6 +97,12 @@ export default class Save {
 
     }
 
+    /**
+     * Synchronous version of {@link Save#writeCrc}
+     * @function writeCrcSync
+     * @memberOf Save
+     * @instance
+     */
     writeCrcSync () {
 
         let fileWithoutCrc = this.data.slice(16);
@@ -68,21 +114,28 @@ export default class Save {
 
     }
 
+    /**
+     * Reorders course folders to match actual in game appearance
+     * @function reorder
+     * @memberOf Save
+     * @instance
+     * @returns {Promise.<void>}
+     */
     async reorder () {
 
         await new Promise(async (resolve) => {
             try {
                 // rename course folders
                 let promises = [];
-                let slotToIndex = {};
-                Object.assign(slotToIndex, this.slotToIndex);
-                for (let i in slotToIndex) {
+                let sti = {};
+                Object.assign(sti, this[slotToIndex]);
+                for (let i in sti) {
                     promises.push(new Promise((resolve) => {
-                        let value = slotToIndex[i];
+                        let value = sti[i];
                         let srcPath = path.resolve(`${this.pathToSave}/course${parseInt(i).pad(3)}`);
                         let dstPath = path.resolve(`${this.pathToSave}/course${value.pad(3)}_reorder`);
                         fs.rename(srcPath, dstPath, () => {
-                            this.slotToIndex[value] = value;
+                            this[slotToIndex][value] = value;
                             this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value);
                             resolve();
                         });
@@ -97,8 +150,8 @@ export default class Save {
                         let dstPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}`);
                         fs.rename(srcPath, dstPath, (err) => {
                             if (err) {
-                                if (this.slotToIndex[i]) {
-                                    delete this.slotToIndex[i];
+                                if (this[slotToIndex][i]) {
+                                    delete this[slotToIndex][i];
                                 }
                                 this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i);
                             }
@@ -121,7 +174,7 @@ export default class Save {
                 await Promise.all(promises);
 
                 // recalculate checksum
-                this.writeCrc();
+                await this.writeCrc();
 
                 resolve();
             } catch (err) {
@@ -132,18 +185,24 @@ export default class Save {
 
     }
 
+    /**
+     * Synchronous version of {@link Save#reorder}
+     * @function reorderSync
+     * @memberOf Save
+     * @instance
+     */
     reorderSync () {
 
         try {
             // rename course folders
-            let slotToIndex = {};
-            Object.assign(slotToIndex, this.slotToIndex);
-            for (let i in this.slotToIndex) {
-                let value = slotToIndex[i];
+            let sti = {};
+            Object.assign(sti, this[slotToIndex]);
+            for (let i in sti) {
+                let value = sti[i];
                 let srcPath = path.resolve(`${this.pathToSave}/course${parseInt(i).pad(3)}`);
                 let dstPath = path.resolve(`${this.pathToSave}/course${value.pad(3)}_reorder`);
                 fs.renameSync(srcPath, dstPath);
-                this.slotToIndex[value] = value;
+                this[slotToIndex][value] = value;
                 this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value);
             }
             for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
@@ -152,8 +211,8 @@ export default class Save {
                 try {
                     fs.renameSync(srcPath, dstPath);
                 } catch (err) {
-                    if (this.slotToIndex[i]) {
-                        delete this.slotToIndex[i];
+                    if (this[slotToIndex][i]) {
+                        delete this[slotToIndex][i];
                     }
                     this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i);
                 }
@@ -174,6 +233,13 @@ export default class Save {
 
     }
 
+    /**
+     * Exports all course thumbnails as jpeg within course folders
+     * @function exportJpeg
+     * @memberOf Save
+     * @instance
+     * @returns {Promise.<void>}
+     */
     async exportJpeg () {
 
         let promises = [];
@@ -190,6 +256,12 @@ export default class Save {
 
     }
 
+    /**
+     * Synchronous version of {@link Save#exportJpeg}
+     * @function exportJpegSync
+     * @memberOf Save
+     * @instance
+     */
     exportJpegSync () {
 
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
@@ -218,6 +290,12 @@ export default class Save {
 
     }
 
+    /**
+     * Exports all jpeg thumbnails as tnl within course folders
+     * @function importJpeg
+     * @memberOf Save
+     * @instance
+     */
     async importJpeg () {
 
         let promises = [];
@@ -235,8 +313,8 @@ export default class Save {
                     await Promise.all([
                         new Promise(async (resolve) => {
                             try {
-                                let jpeg = new Tnl(coursePath + "/thumbnail0.jpg");
-                                let tnl = await jpeg.fromJpeg(true);
+                                let jpeg = new Jpeg(coursePath + "/thumbnail0.jpg");
+                                let tnl = await jpeg.toTnl(true);
                                 fs.writeFile(coursePath + "/thumbnail0.tnl", tnl, null, () => {
                                     resolve();
                                 })
@@ -246,8 +324,8 @@ export default class Save {
                         }),
                         new Promise(async (resolve) => {
                             try {
-                                let jpeg = new Tnl(coursePath + "/thumbnail1.jpg");
-                                let tnl = await jpeg.fromJpeg(false);
+                                let jpeg = new Jpeg(coursePath + "/thumbnail1.jpg");
+                                let tnl = await jpeg.toTnl(false);
                                 fs.writeFile(coursePath + "/thumbnail1.tnl", tnl, null, () => {
                                     resolve();
                                 });
@@ -264,6 +342,12 @@ export default class Save {
 
     }
 
+    /**
+     * Unlocks Amiibos for this save
+     * @function unlockAmiibos
+     * @memberOf Save
+     * @instance
+     */
     async unlockAmiibos () {
 
         await new Promise(async (resolve) => {
@@ -276,6 +360,13 @@ export default class Save {
 
     }
 
+    /**
+     * Load courses and store them in {@link Save#courses}
+     * @function importJpeg
+     * @memberOf Save
+     * @instance
+     * @returns {Object.<string,Course>}
+     */
     async loadCourses () {
 
         let promises = [];
@@ -307,6 +398,12 @@ export default class Save {
 
     }
 
+    /**
+     * Synchronous version of {@link Save#loadCourses}
+     * @function loadCoursesSync
+     * @memberOf Save
+     * @instance
+     */
     loadCoursesSync () {
 
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
@@ -325,7 +422,50 @@ export default class Save {
 
     }
 
-    async addCourse (courseDataPath) {
+    /**
+     * Stores a course in this save
+     * @function addCourse
+     * @memberOf Save
+     * @instance
+     * @param {Course} course - course to be stored in save
+     * @returns {number} course slot ID
+     * @throws {Error} Save must have an empty slot
+     */
+    async addCourse (course) {
+
+        let emptySlotName = "";
+        let emptySlot = -1;
+        for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+            let courseName = `course${i.pad(3)}`;
+            if (!this.courses[courseName]) {
+                emptySlotName = courseName;
+                emptySlot = i;
+                break;
+            }
+        }
+        if (emptySlot === -1) {
+            throw new Error("No empty slot inside save");
+        }
+        let cemuSavePath = path.join(this.pathToSave, emptySlotName);
+        await course.writeToSave(emptySlot, cemuSavePath);
+        this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
+        this.courses[emptySlotName] = course;
+        await this.writeCrc();
+        return emptySlot;
+
+    }
+
+    /**
+     * Stores a course from fs in this save
+     * @function addCourseFromFs
+     * @memberOf Save
+     * @instance
+     * @param {Course} courseDataPath - course to be stored in save
+     * @returns {number} course slot ID
+     * @throws {Error} courseDataPath must exist
+     * @throws {Error} Save must have an empty slot
+     */
+    async addCourseFromFs (courseDataPath) {
 
         if (this.courses === {}) {
             await this.loadCourses();
@@ -364,6 +504,15 @@ export default class Save {
 
     }
 
+    /**
+     * Deletes a course from this save
+     * @function deleteCourse
+     * @memberOf Save
+     * @instance
+     * @param {Course} courseId - ID of course to be deleted
+     * @returns {Promise<void>}
+     * @throws {Error} course with courseId must exist
+     */
     async deleteCourse (courseId) {
 
         if (this.courses === {}) {
@@ -385,15 +534,6 @@ export default class Save {
             });
         } catch (err) {
             throw err;
-        }
-
-    }
-
-    loadCourseElements () {
-
-        for (let key in this.courses) {
-            //noinspection JSUnfilteredForInLoop
-            this.courses[key].loadElements();
         }
 
     }

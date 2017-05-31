@@ -1,9 +1,9 @@
-import Promise from "bluebird"
-import jimp    from "jimp"
-import crc32   from "buffer-crc32"
+import Promise   from "bluebird"
+import * as jimp from "jimp"
+import crc32     from "buffer-crc32"
 
-import fs   from "fs"
-import path from "path"
+import * as fs   from "fs"
+import * as path from "path"
 
 const TNL_SIZE = 0xC800;
 const TNL_JPEG_MAX_SIZE = 0xC7F8;
@@ -17,11 +17,17 @@ const TNL_ASPECT_RATIO = [
 ];
 const TNL_ASPECT_RATIO_THRESHOLD = [ 3.5, 0.3 ];
 
-export default class Tnl {
-
+class Image {
     constructor (pathToFile) {
         this.pathToFile = path.resolve(pathToFile);
         if (!fs.existsSync(this.pathToFile)) throw new Error(`No such file exists:\n${this.pathToFile}`);
+    }
+}
+
+export class Tnl extends Image {
+
+    constructor (pathToFile) {
+        super(pathToFile);
     }
 
     async toJpeg () {
@@ -45,7 +51,32 @@ export default class Tnl {
 
     }
 
-    async fromJpeg (isWide, doClip = false) {
+    async isBroken () {
+
+        return new Promise((resolve) => {
+            fs.readFile(this.pathToFile, (err, data) => {
+                if (err) throw err;
+                let length = data.readUInt32BE(4);
+                let jpeg = data.slice(8, 8 + length);
+                let count = 0;
+                try {
+                    for (let i = 0; i < jpeg.length; i+=4) {
+                        if (jpeg.readUInt32BE(i) === 0xA2800A28) {
+                            count++;
+                        }
+                    }
+                } catch (err) {}
+                resolve((count*4 / jpeg.length) > 0.5);
+            })
+        });
+
+    }
+
+}
+
+export class Jpeg {
+
+    async toTnl (isWide, doClip = false) {
 
         return new Promise(async (resolve, reject) => {
 
@@ -128,27 +159,6 @@ export default class Tnl {
             let tnl = Buffer.concat([crcBuffer, fileWithoutCrc], TNL_SIZE);
             resolve(tnl);
 
-        });
-
-    }
-
-    async isBroken () {
-
-        return new Promise((resolve) => {
-            fs.readFile(this.pathToFile, (err, data) => {
-                if (err) throw err;
-                let length = data.readUInt32BE(4);
-                let jpeg = data.slice(8, 8 + length);
-                let count = 0;
-                try {
-                    for (let i = 0; i < jpeg.length; i+=4) {
-                        if (jpeg.readUInt32BE(i) === 0xA2800A28) {
-                            count++;
-                        }
-                    }
-                } catch (err) {}
-                resolve((count*4 / jpeg.length) > 0.5);
-            })
         });
 
     }
