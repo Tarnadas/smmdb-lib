@@ -386,7 +386,7 @@ export default class Course {
 
     /**
      * Write JPEG thumbnail to fs
-     * @function writeThumbnail
+     * @function exportThumbnail
      * @memberOf Course
      * @instance
      * @returns {Promise.<void>}
@@ -419,7 +419,7 @@ export default class Course {
 
     /**
      * Synchronous version of {@link Course#exportThumbnail}
-     * @function writeThumbnailSync
+     * @function exportThumbnailSync
      * @memberOf Course
      * @instance
      * @throws {Error} course must be part of a {@link Save}
@@ -472,10 +472,10 @@ export default class Course {
 
     /**
      * Deserializes a course object with compliance to {@link https://github.com/Tarnadas/smm-protobuf}
-     * @function serialize
+     * @function deserialize
      * @memberOf Course
      * @instance
-     * @param {Buffer|Uint8Array} buffer
+     * @param {Buffer|Uint8Array} buffer - Node Buffer or Uint8Array to be converted to a {@link Course}
      * @returns {Course}
      */
     static deserialize (buffer) {

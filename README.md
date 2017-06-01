@@ -82,6 +82,8 @@ const fs  = require("fs");
 
 [Thumbnail Manipulation](tutorial/thumbnail_manipulation.md)
 
+[Serialization](tutorial/serialization.md)
+
 ## Documentation
 
 [Course File Structure](documentation/course_file.md)

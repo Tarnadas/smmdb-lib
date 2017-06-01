@@ -58,11 +58,11 @@
     * [.setThumbnail(pathToThumbnail)](#Course+setThumbnail) ⇒ <code>null</code>
     * [.isThumbnailBroken()](#Course+isThumbnailBroken) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [.writeThumbnail()](#Course+writeThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.writeThumbnail()](#Course+writeThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.writeThumbnailSync()](#Course+writeThumbnailSync)
+    * [.exportThumbnail()](#Course+exportThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.exportThumbnailSync()](#Course+exportThumbnailSync)
     * [.serialize()](#Course+serialize) ⇒ <code>Promise.&lt;Buffer&gt;</code>
     * [.serializeGzipped()](#Course+serializeGzipped) ⇒ <code>Promise.&lt;Buffer&gt;</code>
-    * [.serialize(buffer)](#Course+serialize) ⇒ [<code>Course</code>](#Course)
+    * [.deserialize(buffer)](#Course+deserialize) ⇒ [<code>Course</code>](#Course)
 
 <a name="new_Course_new"></a>
 
@@ -200,9 +200,9 @@ Write TNL thumbnail to fs
 
 - <code>Error</code> course must be part of a [Save](#Save)
 
-<a name="Course+writeThumbnail"></a>
+<a name="Course+exportThumbnail"></a>
 
-### course.writeThumbnail() ⇒ <code>Promise.&lt;void&gt;</code>
+### course.exportThumbnail() ⇒ <code>Promise.&lt;void&gt;</code>
 Write JPEG thumbnail to fs
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
@@ -211,10 +211,10 @@ Write JPEG thumbnail to fs
 - <code>Error</code> course must be part of a [Save](#Save)
 - <code>Error</code> thumbnail must not be null
 
-<a name="Course+writeThumbnailSync"></a>
+<a name="Course+exportThumbnailSync"></a>
 
-### course.writeThumbnailSync()
-Synchronous version of [Course#exportThumbnail](Course#exportThumbnail)
+### course.exportThumbnailSync()
+Synchronous version of [exportThumbnail](#Course+exportThumbnail)
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 **Throws**:
@@ -234,16 +234,16 @@ Serializes a course object with compliance to [https://github.com/Tarnadas/smm-p
 Serializes and gzips
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
-<a name="Course+serialize"></a>
+<a name="Course+deserialize"></a>
 
-### course.serialize(buffer) ⇒ [<code>Course</code>](#Course)
+### course.deserialize(buffer) ⇒ [<code>Course</code>](#Course)
 Deserializes a course object with compliance to [https://github.com/Tarnadas/smm-protobuf](https://github.com/Tarnadas/smm-protobuf)
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 
-| Param | Type |
-| --- | --- |
-| buffer | <code>Buffer</code> \| <code>Uint8Array</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| buffer | <code>Buffer</code> \| <code>Uint8Array</code> | Node Buffer or Uint8Array to be converted to a [Course](#Course) |
 
 <a name="Save"></a>
 
