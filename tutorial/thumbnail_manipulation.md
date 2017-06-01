@@ -23,7 +23,7 @@ let jpeg = smm.loadImage("path/to/your/jpeg/file");
 ```
 Do the conversion with
 ```js
-let tnl = await jpeg.fromJpeg([isWide, [doCrop = false]]);
+let tnl = await jpeg.toTnl([isWide, [doCrop = false]]);
 ```
 If ```isWide === true```, thumbnail0 will be created, otherwise thumbnail1.
 
@@ -44,7 +44,7 @@ fs.writeFileSync("path/to/newly/created/jpeg", tnl);
 
 To convert all tnl files inside your save to jpeg, call
 ```js
-save.exportJpeg();
+save.exportThumbnail();
 ```
 Navigate to your save folder and find jpeg files inside course folders.
 
@@ -52,6 +52,6 @@ Navigate to your save folder and find jpeg files inside course folders.
 
 To convert all jpeg files inside your save to tnl, call
 ```js
-save.importJpeg();
+save.importThumbnail();
 ```
 Files inside course folders must be named ```thumbnail0.jpg``` or ```thumbnail1.jpg```.

@@ -24,12 +24,23 @@ class Image {
     }
 }
 
+/**
+ * A TNL file
+ * @class Tnl
+ */
 export class Tnl extends Image {
 
     constructor (pathToFile) {
         super(pathToFile);
     }
 
+    /**
+     * Convert to JPEG
+     * @function toJpeg
+     * @memberOf Tnl
+     * @instance
+     * @returns {Promise.<Buffer|ArrayBuffer>}
+     */
     async toJpeg () {
 
         return new Promise((resolve) => {
@@ -43,6 +54,13 @@ export class Tnl extends Image {
 
     }
 
+    /**
+     * Synchronous version of {@link Tnl.toJpeg}
+     * @function toJpegSync
+     * @memberOf Tnl
+     * @instance
+     * @returns {Buffer|ArrayBuffer}
+     */
     toJpegSync () {
 
         let data = fs.readFileSync(this.pathToFile);
@@ -51,6 +69,13 @@ export class Tnl extends Image {
 
     }
 
+    /**
+     * Check if TNL thumbnail is broken and needs fix
+     * @function isBroken
+     * @memberOf Tnl
+     * @instance
+     * @returns {Promise.<boolean>}
+     */
     async isBroken () {
 
         return new Promise((resolve) => {
@@ -74,8 +99,23 @@ export class Tnl extends Image {
 
 }
 
-export class Jpeg {
+/**
+ * A JPEG file
+ * @class Jpeg
+ */
+export class Jpeg extends Image {
 
+    constructor (pathToFile) {
+        super(pathToFile);
+    }
+
+    /**
+     * Convert to TNL
+     * @function toTnl
+     * @memberOf Jpeg
+     * @instance
+     * @returns {Promise.<Buffer|ArrayBuffer>}
+     */
     async toTnl (isWide, doClip = false) {
 
         return new Promise(async (resolve, reject) => {

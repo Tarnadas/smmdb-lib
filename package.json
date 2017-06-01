@@ -4,8 +4,10 @@
   "description": "This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu",
   "main": "lib",
   "scripts": {
-    "compile": "babel src --out-dir lib&& node compile",
-    "test": "npm run compile&& node test/test"
+    "compile": "node compile",
+    "transpile": "babel src --out-dir lib",
+    "prepare": "npm run compile&& npm run transpile",
+    "test": "npm run transpile&& node test/test"
   },
   "author": "Mario Reder",
   "license": "MIT",
@@ -16,7 +18,6 @@
     "copy-dir": "^0.3.0",
     "jimp": "^0.2.27",
     "protobufjs": "^6.7.3",
-    "require-json": "0.0.1",
     "rimraf": "^2.6.1",
     "smm-protobuf": "https://github.com/Tarnadas/smm-protobuf"
   },

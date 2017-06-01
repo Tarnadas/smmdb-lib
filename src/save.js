@@ -8,7 +8,7 @@ import * as path from "path"
 
 import {
     loadCourse, loadCourseSync
-} from "./course"
+} from "."
 import {
     Tnl, Jpeg
 } from "./tnl"
@@ -28,11 +28,12 @@ const SAVE_CRC_POST_BUF = Buffer.alloc(4);
 
 const slotToIndex = Symbol();
 
+//
+// @param {string} pathToSave - path to Super Mario Maker save on fs
+// @param {Buffer} data - Node buffer of save.dat file
 /**
  * Represents a Super Mario Maker save
  * @class Save
- * @param pathToSave
- * @param data
  */
 export default class Save {
 
@@ -123,7 +124,7 @@ export default class Save {
      */
     async reorder () {
 
-        await new Promise(async (resolve) => {
+        return await new Promise(async (resolve) => {
             try {
                 // rename course folders
                 let promises = [];
@@ -234,13 +235,13 @@ export default class Save {
     }
 
     /**
-     * Exports all course thumbnails as jpeg within course folders
-     * @function exportJpeg
+     * Exports all course thumbnails as JPEG within course folders
+     * @function exportThumbnail
      * @memberOf Save
      * @instance
      * @returns {Promise.<void>}
      */
-    async exportJpeg () {
+    async exportThumbnail () {
 
         let promises = [];
         if (this.courses === {}) {
@@ -248,7 +249,7 @@ export default class Save {
         }
         for (let key in this.courses) {
             promises.push(new Promise(async (resolve) => {
-                await this.courses[key].exportJpeg();
+                await this.courses[key].exportThumbnail();
                 resolve();
             }));
         }
@@ -257,46 +258,30 @@ export default class Save {
     }
 
     /**
-     * Synchronous version of {@link Save#exportJpeg}
-     * @function exportJpegSync
+     * Synchronous version of {@link Save#exportThumbnail}
+     * @function exportThumbnailSync
      * @memberOf Save
      * @instance
      */
-    exportJpegSync () {
+    exportThumbnailSync () {
 
-        for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-            let coursePath = path.resolve(`${this.pathToSave}/course${i.pad(3)}/`);
-            let exists = true;
-            try {
-                fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
-            } catch (err) {
-                exists = false;
-            }
-            if (exists) {
-                try {
-                    let tnl = new Tnl(coursePath + "/thumbnail0.tnl");
-                    let jpeg = tnl.toJpegSync();
-                    fs.writeFileSync(coursePath + "/thumbnail0.jpg", jpeg)
-                } catch (err) {
-                }
-                try {
-                    let tnl = new Tnl(coursePath + "/thumbnail1.tnl");
-                    let jpeg = tnl.toJpegSync();
-                    fs.writeFileSync(coursePath + "/thumbnail1.jpg", jpeg);
-                } catch (err) {
-                }
-            }
+        if (this.courses === {}) {
+            this.loadCoursesSync();
+        }
+        for (let key in this.courses) {
+            this.courses[key].exportThumbnailSync();
         }
 
     }
 
     /**
-     * Exports all jpeg thumbnails as tnl within course folders
-     * @function importJpeg
+     * Exports all JPEG thumbnails as TNL within course folders
+     * @function importThumbnail
      * @memberOf Save
      * @instance
+     * @returns {Promise.<void>}
      */
-    async importJpeg () {
+    async importThumbnail () {
 
         let promises = [];
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
@@ -338,7 +323,7 @@ export default class Save {
                 resolve();
             }));
         }
-        await Promise.all(promises);
+        return await Promise.all(promises);
 
     }
 
@@ -347,10 +332,11 @@ export default class Save {
      * @function unlockAmiibos
      * @memberOf Save
      * @instance
+     * @returns {Promise.<void>}
      */
     async unlockAmiibos () {
 
-        await new Promise(async (resolve) => {
+        return await new Promise(async (resolve) => {
             for (let i = 0; i < SAVE_AMIIBO_LENGTH; i++) {
                 this.data.writeUInt8(0xFF, SAVE_AMIIBO_OFFSET + i);
             }
@@ -362,7 +348,7 @@ export default class Save {
 
     /**
      * Load courses and store them in {@link Save#courses}
-     * @function importJpeg
+     * @function loadCourses
      * @memberOf Save
      * @instance
      * @returns {Object.<string,Course>}
@@ -403,6 +389,7 @@ export default class Save {
      * @function loadCoursesSync
      * @memberOf Save
      * @instance
+     * @returns {Object.<string,Course>}
      */
     loadCoursesSync () {
 

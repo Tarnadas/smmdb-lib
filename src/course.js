@@ -18,28 +18,30 @@ const sound = fs.readFileSync(path.join(__dirname, "../data/sound.bwv"));
 const root = protobuf.Root.fromJSON(proto);
 const smmCourse = root.lookupType('SMMCourse');
 
-const COURSE_SIZE = 0x15000;
+export const COURSE_CONSTANTS = {
+    COURSE_SIZE: 0x15000,
 
-const COURSE_CRC_LENGTH = 0x10;
-const COURSE_CRC_PRE_BUF  = Buffer.from("000000000000000B", "hex");
-const COURSE_CRC_POST_BUF = Buffer.alloc(4);
+    COURSE_CRC_LENGTH: 0x10,
+    COURSE_CRC_PRE_BUF: Buffer.from("000000000000000B", "hex"),
+    COURSE_CRC_POST_BUF: Buffer.alloc(4),
 
-const COURSE_NAME_OFFSET = 0x29;
-const COURSE_NAME_LENGTH = 0x40;
+    COURSE_NAME_OFFSET: 0x29,
+    COURSE_NAME_LENGTH: 0x40,
 
-const COURSE_MAKER_OFFSET = 0x92;
-const COURSE_MAKER_LENGTH = 0x14;
+    COURSE_MAKER_OFFSET: 0x92,
+    COURSE_MAKER_LENGTH: 0x14,
 
-const COURSE_GAME_STYLE_OFFSET = 0x6A;
-const COURSE_GAME_STYLE = root.lookupEnum('SMMCourse.GameStyle').values;
+    COURSE_GAME_STYLE_OFFSET: 0x6A,
+    COURSE_GAME_STYLE: root.lookupEnum('SMMCourse.GameStyle').values,
 
-const COURSE_THEME_OFFSET = 0x6D;
-const COURSE_THEME = root.lookupEnum('SMMCourse.CourseTheme').values;
-const COURSE_THEME_BY_ID = root.lookupEnum('SMMCourse.CourseTheme').valuesById;
+    COURSE_THEME_OFFSET: 0x6D,
+    COURSE_THEME: root.lookupEnum('SMMCourse.CourseTheme').values,
+    COURSE_THEME_BY_ID: root.lookupEnum('SMMCourse.CourseTheme').valuesById,
 
-const COURSE_BLOCK_DATA_OFFSET = 0x1B0;
-const COURSE_BLOCK_DATA_LENGTH = 0x20;
-const COURSE_BLOCK_DATA_END = 0x145F0;
+    COURSE_BLOCK_DATA_OFFSET: 0x1B0,
+    COURSE_BLOCK_DATA_LENGTH: 0x20,
+    COURSE_BLOCK_DATA_END: 0x145F0
+};
 
 const courseId      = Symbol();
 const coursePath    = Symbol();
@@ -48,23 +50,23 @@ const courseDataSub = Symbol();
 const tnl           = Symbol();
 const tnlPreview    = Symbol();
 
+// @param id
+// @param data
+// @param dataSub
+// @param path
+// @param title
+// @param maker
+// @param gameStyle
+// @param courseTheme
 /**
  * Represents a Super Mario Maker course
  * @class Course
- * @param id
- * @param data
- * @param dataSub
- * @param path
- * @param title
- * @param maker
- * @param gameStyle
- * @param courseTheme
  */
 export default class Course {
 
     constructor (id, data, dataSub, path, title, maker, gameStyle, courseTheme) {
 
-        if (!fs.existsSync(path)) {
+        if (!!path && !fs.existsSync(path)) {
             throw new Error("Path does not exists: " + path);
         }
         this[courseId] = id;
@@ -94,7 +96,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.gameStyle = COURSE_GAME_STYLE[gameStyle];
+        this.gameStyle = COURSE_CONSTANTS.COURSE_GAME_STYLE[gameStyle];
         
         /**
          * Course theme
@@ -102,7 +104,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.courseTheme = COURSE_THEME[COURSE_THEME_BY_ID[courseTheme]];
+        this.courseTheme = COURSE_CONSTANTS.COURSE_THEME[COURSE_CONSTANTS.COURSE_THEME_BY_ID[courseTheme]];
         
         /**
          * Blocks of main course
@@ -111,12 +113,14 @@ export default class Course {
          * @instance
          */
         this.blocks = [];
-        for (let offset = COURSE_BLOCK_DATA_OFFSET; offset < COURSE_BLOCK_DATA_END; offset += COURSE_BLOCK_DATA_LENGTH) {
-            let blockData = this[courseData].slice(offset, offset + COURSE_BLOCK_DATA_LENGTH);
-            if (blockData.readUInt32BE(28) === 0) {
-                break;
+        if (!!this[courseData]) {
+            for (let offset = COURSE_CONSTANTS.COURSE_BLOCK_DATA_OFFSET; offset < COURSE_CONSTANTS.COURSE_BLOCK_DATA_END; offset += COURSE_CONSTANTS.COURSE_BLOCK_DATA_LENGTH) {
+                let blockData = this[courseData].slice(offset, offset + COURSE_CONSTANTS.COURSE_BLOCK_DATA_LENGTH);
+                if (blockData.readUInt32BE(28) === 0) {
+                    break;
+                }
+                this.blocks.push(new Block(blockData));
             }
-            this.blocks.push(new Block(blockData));
         }
         
         /**
@@ -126,12 +130,14 @@ export default class Course {
          * @instance
          */
         this.blocksSub = [];
-        for (let offset = COURSE_BLOCK_DATA_OFFSET; offset < COURSE_BLOCK_DATA_END; offset += COURSE_BLOCK_DATA_LENGTH) {
-            let blockData = this[courseDataSub].slice(offset, offset + COURSE_BLOCK_DATA_LENGTH);
-            if (blockData.readUInt32BE(28) === 0) {
-                break;
+        if (!!this[courseDataSub]) {
+            for (let offset = COURSE_CONSTANTS.COURSE_BLOCK_DATA_OFFSET; offset < COURSE_CONSTANTS.COURSE_BLOCK_DATA_END; offset += COURSE_CONSTANTS.COURSE_BLOCK_DATA_LENGTH) {
+                let blockData = this[courseDataSub].slice(offset, offset + COURSE_CONSTANTS.COURSE_BLOCK_DATA_LENGTH);
+                if (blockData.readUInt32BE(28) === 0) {
+                    break;
+                }
+                this.blocksSub.push(new Block(blockData));
             }
-            this.blocksSub.push(new Block(blockData));
         }
         
         /**
@@ -149,14 +155,20 @@ export default class Course {
 
     }
 
+    static fromObject (obj) {
+        let course = new Course();
+        Object.assign(course, obj);
+        return course;
+    }
+
     /**
      * Writes course to fs inside save folder.
      * This function should not be called directly. Instead call save.addCourse(course)
      * @function writeToSave
      * @memberOf Course
      * @instance
-     * @param id - course ID inside save
-     * @param pathToCourse - path on fs to course
+     * @param {number} id - course ID inside save
+     * @param {string} pathToCourse - path to course on fs
      */
     writeToSave (id, pathToCourse) {
 
@@ -185,8 +197,8 @@ export default class Course {
                     let fileWithoutCrc = this[courseData].slice(16);
                     let crc = Buffer.alloc(4);
                     crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
-                    let crcBuffer = Buffer.concat([COURSE_CRC_PRE_BUF, crc, COURSE_CRC_POST_BUF], COURSE_CRC_LENGTH);
-                    this[courseData] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_SIZE);
+                    let crcBuffer = Buffer.concat([COURSE_CONSTANTS.COURSE_CRC_PRE_BUF, crc, COURSE_CONSTANTS.COURSE_CRC_POST_BUF], COURSE_CONSTANTS.COURSE_CRC_LENGTH);
+                    this[courseData] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_CONSTANTS.COURSE_SIZE);
                     fs.writeFileSync(path.resolve(`${this[coursePath]}/course_data.cdt`), this[courseData]);
                     resolve();
                 } catch (err) {
@@ -198,8 +210,8 @@ export default class Course {
                     let fileWithoutCrc = this[courseDataSub].slice(16);
                     let crc = Buffer.alloc(4);
                     crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
-                    let crcBuffer = Buffer.concat([COURSE_CRC_PRE_BUF, crc, COURSE_CRC_POST_BUF], COURSE_CRC_LENGTH);
-                    this[courseDataSub] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_SIZE);
+                    let crcBuffer = Buffer.concat([COURSE_CONSTANTS.COURSE_CRC_PRE_BUF, crc, COURSE_CONSTANTS.COURSE_CRC_POST_BUF], COURSE_CONSTANTS.COURSE_CRC_LENGTH);
+                    this[courseDataSub] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_CONSTANTS.COURSE_SIZE);
                     fs.writeFileSync(path.resolve(`${this[coursePath]}/course_data_sub.cdt`), this[courseDataSub]);
                     resolve();
                 } catch (err) {
@@ -220,7 +232,7 @@ export default class Course {
      * @returns {Promise.<void>}
      */
     async setTitle (title, writeCrc = true) {
-        for (let i = COURSE_NAME_OFFSET, j = 0; i < COURSE_NAME_OFFSET + COURSE_NAME_LENGTH; i+=2, j++) {
+        for (let i = COURSE_CONSTANTS.COURSE_NAME_OFFSET, j = 0; i < COURSE_CONSTANTS.COURSE_NAME_OFFSET + COURSE_CONSTANTS.COURSE_NAME_LENGTH; i+=2, j++) {
             if (j < title.length) {
                 this[courseData].write(title.charAt(j), i, 'utf16le');
                 this[courseDataSub].write(title.charAt(j), i, 'utf16le');
@@ -229,7 +241,7 @@ export default class Course {
                 this[courseDataSub].writeUInt16BE(0, i);
             }
         }
-        this.title = title.substr(0, COURSE_NAME_LENGTH / 2);
+        this.title = title.substr(0, COURSE_CONSTANTS.COURSE_NAME_LENGTH / 2);
         if (writeCrc) {
             return await this.writeCrc();
         }
@@ -245,7 +257,7 @@ export default class Course {
      * @returns {Promise.<void>}
      */
     async setMaker (makerName, writeCrc = true) {
-        for (let i = COURSE_MAKER_OFFSET, j = 0; i < COURSE_MAKER_OFFSET + COURSE_MAKER_LENGTH; i+=2, j++) {
+        for (let i = COURSE_CONSTANTS.COURSE_MAKER_OFFSET, j = 0; i < COURSE_CONSTANTS.COURSE_MAKER_OFFSET + COURSE_CONSTANTS.COURSE_MAKER_LENGTH; i+=2, j++) {
             if (j < makerName.length) {
                 this[courseData].write(makerName.charAt(j), i, 'utf16le');
                 this[courseDataSub].write(makerName.charAt(j), i, 'utf16le');
@@ -254,7 +266,7 @@ export default class Course {
                 this[courseDataSub].writeUInt16BE(0, i);
             }
         }
-        this.maker = makerName.substr(0, COURSE_MAKER_LENGTH / 2);
+        this.maker = makerName.substr(0, COURSE_CONSTANTS.COURSE_MAKER_LENGTH / 2);
         if (writeCrc) {
             await this.writeCrc();
         }
@@ -331,31 +343,6 @@ export default class Course {
     }
 
     /**
-     * Write thumbnail to fs
-     * @function writeThumbnail
-     * @memberOf Course
-     * @instance
-     * @returns {Promise.<void>}
-     * @throws {Error} course must be part of a {@link Save}
-     */
-    async writeThumbnail () {
-        
-        return await Promise.all([
-            new Promise(resolve => {
-                fs.writeFile(path.join(this[coursePath], 'thumbnail0.tnl'), this[tnl], () => {
-                    resolve();
-                });
-            }),
-            new Promise(resolve => {
-                fs.writeFile(path.join(this[coursePath], 'thumbnail1.tnl'), this[tnlPreview], () => {
-                    resolve();
-                });
-            })
-        ]);
-        
-    }
-
-    /**
      * Check if this course's thumbnail is broken
      * @function isThumbnailBroken
      * @memberOf Course
@@ -373,7 +360,32 @@ export default class Course {
     }
 
     /**
-     * Write thumbnail to fs
+     * Write TNL thumbnail to fs
+     * @function writeThumbnail
+     * @memberOf Course
+     * @instance
+     * @returns {Promise.<void>}
+     * @throws {Error} course must be part of a {@link Save}
+     */
+    async writeThumbnail () {
+
+        return await Promise.all([
+            new Promise(resolve => {
+                fs.writeFile(path.join(this[coursePath], 'thumbnail0.tnl'), this[tnl], () => {
+                    resolve();
+                });
+            }),
+            new Promise(resolve => {
+                fs.writeFile(path.join(this[coursePath], 'thumbnail1.tnl'), this[tnlPreview], () => {
+                    resolve();
+                });
+            })
+        ]);
+
+    }
+
+    /**
+     * Write JPEG thumbnail to fs
      * @function writeThumbnail
      * @memberOf Course
      * @instance
@@ -406,9 +418,14 @@ export default class Course {
     }
 
     /**
-     *
+     * Synchronous version of {@link Course#exportThumbnail}
+     * @function writeThumbnailSync
+     * @memberOf Course
+     * @instance
+     * @throws {Error} course must be part of a {@link Save}
+     * @throws {Error} thumbnail must not be null
      */
-    exportJpegSync () {
+    exportThumbnailSync () {
 
         if (!this[coursePath]) throw new Error("Course does not exist on file system");
         if (!this[tnl] && !this.thumbnail) throw new Error("Could not find thumbnail");
@@ -421,8 +438,11 @@ export default class Course {
     }
 
     /**
-     *
-     * @returns {Promise<Buffer>}
+     * Serializes a course object with compliance to {@link https://github.com/Tarnadas/smm-protobuf}
+     * @function serialize
+     * @memberOf Course
+     * @instance
+     * @returns {Promise.<Buffer>}
      */
     async serialize () {
         if (!!this[tnl] && !this.thumbnail) {
@@ -432,8 +452,11 @@ export default class Course {
     }
 
     /**
-     *
-     * @returns {Promise.<*>}
+     * Serializes and gzips
+     * @function serializeGzipped
+     * @memberOf Course
+     * @instance
+     * @returns {Promise.<Buffer>}
      */
     async serializeGzipped () {
         if (!!this[tnl] && !this.thumbnail) {
@@ -448,14 +471,17 @@ export default class Course {
     }
 
     /**
-     *
-     * @param buffer
-     * @returns {*|boolean}
+     * Deserializes a course object with compliance to {@link https://github.com/Tarnadas/smm-protobuf}
+     * @function serialize
+     * @memberOf Course
+     * @instance
+     * @param {Buffer|Uint8Array} buffer
+     * @returns {Course}
      */
     static deserialize (buffer) {
         let obj = smmCourse.toObject(smmCourse.decode(Buffer.from(buffer)), {
             arrays: true
         });
-        return Object.setPrototypeOf(obj, this.prototype);
+        return this.fromObject(obj);
     }
 }

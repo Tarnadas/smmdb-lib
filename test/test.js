@@ -13,20 +13,21 @@ const path = require("path");
 
     save.loadCoursesSync();
     //save.exportJpeg();
-    //await save.importJpeg();
-    //await save.exportJpeg();
+    await save.importThumbnail();
+    await save.exportThumbnail();
     //await save.unlockAmiibos();
 
+    //console.log(save.courses);
     let course = save.courses.course001;
     let serialized = await course.serialize();
     let deserialized = smm.deserialize(serialized);
     //console.log(deserialized);
     //console.log(course);
-    console.log(Object.is(JSON.parse(JSON.stringify(course)), deserialized));
+    //console.log(Object.is(JSON.parse(JSON.stringify(course)), JSON.parse(JSON.stringify(deserialized))));
     //console.log(await course.serializeGzipped());
     //console.log(JSON.stringify(course).length);
-    fs.writeFileSync(`${__dirname}/course001.json`, JSON.stringify(course, null, 2));
-    fs.writeFileSync(`${__dirname}/course001s.json`, JSON.stringify(deserialized, null, 2));
+    //fs.writeFileSync(`${__dirname}/course001.json`, JSON.stringify(course, null, 2));
+    //fs.writeFileSync(`${__dirname}/course001s.json`, JSON.stringify(deserialized, null, 2));
 
     //save.loadCourseElements(); // for whole save folder
     //courses["course001"].loadElements(); // for single course
