@@ -7,7 +7,7 @@ import * as fs   from "fs"
 import * as path from "path"
 import * as zlib from "zlib"
 
-import Block from "./block"
+import Block, { BLOCK_CONSTANTS } from "./block"
 import Sound from "./sound"
 import {
     Tnl, Jpeg
@@ -19,28 +19,50 @@ const root = protobuf.Root.fromJSON(proto);
 const smmCourse = root.lookupType('SMMCourse');
 
 export const COURSE_CONSTANTS = {
-    COURSE_SIZE: 0x15000,
+    SIZE: 0x15000,
 
-    COURSE_CRC_LENGTH: 0x10,
-    COURSE_CRC_PRE_BUF: Buffer.from("000000000000000B", "hex"),
-    COURSE_CRC_POST_BUF: Buffer.alloc(4),
+    CRC_LENGTH: 0x10,
+    CRC_PRE_BUF: Buffer.from("000000000000000B", "hex"),
+    CRC_POST_BUF: Buffer.alloc(4),
 
-    COURSE_NAME_OFFSET: 0x29,
-    COURSE_NAME_LENGTH: 0x40,
+    NAME_OFFSET: 0x29,
+    NAME_LENGTH: 0x40,
 
-    COURSE_MAKER_OFFSET: 0x92,
-    COURSE_MAKER_LENGTH: 0x14,
+    MAKER_OFFSET: 0x92,
+    MAKER_LENGTH: 0x14,
 
-    COURSE_GAME_STYLE_OFFSET: 0x6A,
-    COURSE_GAME_STYLE: root.lookupEnum('SMMCourse.GameStyle').values,
+    GAME_STYLE_OFFSET: 0x6A,
+    GAME_STYLE: root.lookupEnum('SMMCourse.GameStyle').values,
 
-    COURSE_THEME_OFFSET: 0x6D,
-    COURSE_THEME: root.lookupEnum('SMMCourse.CourseTheme').values,
-    COURSE_THEME_BY_ID: root.lookupEnum('SMMCourse.CourseTheme').valuesById,
+    THEME_OFFSET: 0x6D,
+    THEME: root.lookupEnum('SMMCourse.CourseTheme').values,
+    THEME_BY_ID: root.lookupEnum('SMMCourse.CourseTheme').valuesById,
 
-    COURSE_BLOCK_DATA_OFFSET: 0x1B0,
-    COURSE_BLOCK_DATA_LENGTH: 0x20,
-    COURSE_BLOCK_DATA_END: 0x145F0
+    BLOCK_AMOUNT_OFFSET: 0xEE, // uint_16
+
+    HEADER_OFFSET: 0xF0,
+    HEADER_DEFAULT: Buffer.from(
+        `00 00 00 00 00 00 00 00 00 00 01 01 06 00 08 40 
+        06 00 08 40 00 00 00 00 45 FF FF FF FF FF FF FF
+        00 00 00 50 00 00 00 00 00 50 08 01 06 00 08 40 
+        06 00 00 40 00 00 00 00 25 FF FF FF FF FF FF FF
+        00 00 01 90 00 00 00 00 00 A0 03 03 06 00 08 40
+        06 00 00 40 00 00 00 00 26 FF FF FF FF FF FF FF
+        00 00 09 10 00 00 00 00 00 50 0D 02 06 00 08 40
+        06 00 00 40 00 00 00 00 1A FF FF FF FF FF FF FF
+        00 00 09 10 00 00 00 00 01 40 0A 0B 06 00 08 40
+        06 00 00 40 00 00 00 00 1B FF FF FF FF FF FF FF
+        00 00 03 70 00 00 00 00 00 F0 09 01 06 00 08 40
+        06 00 00 40 00 00 00 00 31 FF FF FF FF FF FF FF`.replace(/\s+/g, ''), "hex"
+    ),
+    HEADER_LENGTH: 0x60,
+
+    START_Y_OFFSET_0: 0x2B, //uint_8
+    START_Y_OFFSET_1: 0x48, //uint_16
+    START_MULTIPLIER: 0xA0,
+
+    SOUND_OFFSET: 0x145F0,
+    SOUND_LENGTH: 0x960
 };
 
 const courseId      = Symbol();
@@ -50,14 +72,6 @@ const courseDataSub = Symbol();
 const tnl           = Symbol();
 const tnlPreview    = Symbol();
 
-// @param id
-// @param data
-// @param dataSub
-// @param path
-// @param title
-// @param maker
-// @param gameStyle
-// @param courseTheme
 /**
  * Represents a Super Mario Maker course
  * @class Course
@@ -96,7 +110,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.gameStyle = COURSE_CONSTANTS.COURSE_GAME_STYLE[gameStyle];
+        this.gameStyle = COURSE_CONSTANTS.GAME_STYLE[gameStyle];
         
         /**
          * Course theme
@@ -104,50 +118,56 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.courseTheme = COURSE_CONSTANTS.COURSE_THEME[COURSE_CONSTANTS.COURSE_THEME_BY_ID[courseTheme]];
-        
-        /**
-         * Blocks of main course
-         * @member {Array<Block>} blocks
-         * @memberOf Course
-         * @instance
-         */
-        this.blocks = [];
+        this.courseTheme = COURSE_CONSTANTS.THEME[COURSE_CONSTANTS.THEME_BY_ID[courseTheme]];
+
         if (!!this[courseData]) {
-            for (let offset = COURSE_CONSTANTS.COURSE_BLOCK_DATA_OFFSET; offset < COURSE_CONSTANTS.COURSE_BLOCK_DATA_END; offset += COURSE_CONSTANTS.COURSE_BLOCK_DATA_LENGTH) {
-                let blockData = this[courseData].slice(offset, offset + COURSE_CONSTANTS.COURSE_BLOCK_DATA_LENGTH);
+
+            this.startY = this[courseData].readUInt8(COURSE_CONSTANTS.HEADER_OFFSET + COURSE_CONSTANTS.START_Y_OFFSET_0) - 1;
+
+            this.finishX = this[courseData].readUInt8(COURSE_CONSTANTS.HEADER_OFFSET + COURSE_CONSTANTS.START_Y_OFFSET_0) - 1;
+
+            /**
+             * Blocks of main course
+             * @member {Array<Block>} blocks
+             * @memberOf Course
+             * @instance
+             */
+            this.blocks = [];
+            let blockAmount = this[courseData].readUInt32BE(COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET) - 6;
+            for (let i = 0, offset = COURSE_CONSTANTS.HEADER_OFFSET + COURSE_CONSTANTS.HEADER_LENGTH; i < blockAmount; i++, offset += BLOCK_CONSTANTS.SIZE) {
+                let blockData = this[courseData].slice(offset, offset + BLOCK_CONSTANTS.SIZE);
                 if (blockData.readUInt32BE(28) === 0) {
                     break;
                 }
                 this.blocks.push(new Block(blockData));
             }
-        }
-        
-        /**
-         * Blocks of sub course
-         * @member {Array<Block>} blocksSub
-         * @memberOf Course
-         * @instance
-         */
-        this.blocksSub = [];
-        if (!!this[courseDataSub]) {
-            for (let offset = COURSE_CONSTANTS.COURSE_BLOCK_DATA_OFFSET; offset < COURSE_CONSTANTS.COURSE_BLOCK_DATA_END; offset += COURSE_CONSTANTS.COURSE_BLOCK_DATA_LENGTH) {
-                let blockData = this[courseDataSub].slice(offset, offset + COURSE_CONSTANTS.COURSE_BLOCK_DATA_LENGTH);
+
+            /**
+             * Blocks of sub course
+             * @member {Array<Block>} blocksSub
+             * @memberOf Course
+             * @instance
+             */
+            this.blocksSub = [];
+            blockAmount = this[courseDataSub].readUInt32BE(COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
+            for (let i = 0, offset = COURSE_CONSTANTS.HEADER_OFFSET; i < blockAmount; i++, offset += BLOCK_CONSTANTS.SIZE) {
+                let blockData = this[courseDataSub].slice(offset, offset + BLOCK_CONSTANTS.SIZE);
                 if (blockData.readUInt32BE(28) === 0) {
                     break;
                 }
                 this.blocksSub.push(new Block(blockData));
             }
+
+            /**
+             * Course sounds
+             * @member {Array<Sound>} sounds
+             * @memberOf Course
+             * @instance
+             */
+            this.sounds = [];
+            // TODO add sounds
         }
-        
-        /**
-         * Course sounds
-         * @member {Array<Sound>} sounds
-         * @memberOf Course
-         * @instance
-         */
-        this.sounds = [];
-        // TODO add sounds
+
         try {
             [this[tnl], this[tnlPreview]] = this.loadTnl();
         } catch (err) {
@@ -155,10 +175,24 @@ export default class Course {
 
     }
 
-    static fromObject (obj) {
+    static async fromObject (obj) {
+
         let course = new Course();
         Object.assign(course, obj);
+
+        this[courseData] = Buffer.alloc(COURSE_CONSTANTS.HEADER_OFFSET);
+        console.log(course.blocks);
+        this[courseData].writeUInt16BE(course.blocks.length, COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
+        let header = Buffer.alloc(COURSE_CONSTANTS.HEADER_LENGTH);
+        COURSE_CONSTANTS.HEADER_DEFAULT.copy(header);
+        header.writeUInt8(course.startY, COURSE_CONSTANTS.START_Y_OFFSET_0);
+        header.writeUInt16BE((course.startY + 1) * COURSE_CONSTANTS.START_MULTIPLIER, COURSE_CONSTANTS.START_Y_OFFSET_0);
+        this[courseData] = Buffer.concat([this[courseData], header]);
+
+        //this[courseDataSub] = Buffer.alloc(COURSE_CONSTANTS.SIZE);
+
         return course;
+
     }
 
     /**
@@ -187,9 +221,10 @@ export default class Course {
      * @function writeCrc
      * @memberOf Course
      * @instance
+     * @param {boolean} writeToFs - should file on fs be overwritten with new CRC checksum
      * @returns {Promise.<void>}
      */
-    async writeCrc () {
+    async writeCrc (writeToFs) {
 
         return await Promise.all([
             new Promise (async (resolve, reject) => {
@@ -197,9 +232,11 @@ export default class Course {
                     let fileWithoutCrc = this[courseData].slice(16);
                     let crc = Buffer.alloc(4);
                     crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
-                    let crcBuffer = Buffer.concat([COURSE_CONSTANTS.COURSE_CRC_PRE_BUF, crc, COURSE_CONSTANTS.COURSE_CRC_POST_BUF], COURSE_CONSTANTS.COURSE_CRC_LENGTH);
-                    this[courseData] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_CONSTANTS.COURSE_SIZE);
-                    fs.writeFileSync(path.resolve(`${this[coursePath]}/course_data.cdt`), this[courseData]);
+                    let crcBuffer = Buffer.concat([COURSE_CONSTANTS.CRC_PRE_BUF, crc, COURSE_CONSTANTS.CRC_POST_BUF], COURSE_CONSTANTS.CRC_LENGTH);
+                    this[courseData] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_CONSTANTS.SIZE);
+                    if (writeToFs) {
+                        fs.writeFileSync(path.resolve(`${this[coursePath]}/course_data.cdt`), this[courseData]);
+                    }
                     resolve();
                 } catch (err) {
                     reject(err);
@@ -210,9 +247,11 @@ export default class Course {
                     let fileWithoutCrc = this[courseDataSub].slice(16);
                     let crc = Buffer.alloc(4);
                     crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
-                    let crcBuffer = Buffer.concat([COURSE_CONSTANTS.COURSE_CRC_PRE_BUF, crc, COURSE_CONSTANTS.COURSE_CRC_POST_BUF], COURSE_CONSTANTS.COURSE_CRC_LENGTH);
-                    this[courseDataSub] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_CONSTANTS.COURSE_SIZE);
-                    fs.writeFileSync(path.resolve(`${this[coursePath]}/course_data_sub.cdt`), this[courseDataSub]);
+                    let crcBuffer = Buffer.concat([COURSE_CONSTANTS.CRC_PRE_BUF, crc, COURSE_CONSTANTS.CRC_POST_BUF], COURSE_CONSTANTS.CRC_LENGTH);
+                    this[courseDataSub] = Buffer.concat([crcBuffer, fileWithoutCrc], COURSE_CONSTANTS.SIZE);
+                    if (writeToFs) {
+                        fs.writeFileSync(path.resolve(`${this[coursePath]}/course_data_sub.cdt`), this[courseDataSub]);
+                    }
                     resolve();
                 } catch (err) {
                     reject(err);
@@ -232,7 +271,7 @@ export default class Course {
      * @returns {Promise.<void>}
      */
     async setTitle (title, writeCrc = true) {
-        for (let i = COURSE_CONSTANTS.COURSE_NAME_OFFSET, j = 0; i < COURSE_CONSTANTS.COURSE_NAME_OFFSET + COURSE_CONSTANTS.COURSE_NAME_LENGTH; i+=2, j++) {
+        for (let i = COURSE_CONSTANTS.NAME_OFFSET, j = 0; i < COURSE_CONSTANTS.NAME_OFFSET + COURSE_CONSTANTS.NAME_LENGTH; i+=2, j++) {
             if (j < title.length) {
                 this[courseData].write(title.charAt(j), i, 'utf16le');
                 this[courseDataSub].write(title.charAt(j), i, 'utf16le');
@@ -241,7 +280,7 @@ export default class Course {
                 this[courseDataSub].writeUInt16BE(0, i);
             }
         }
-        this.title = title.substr(0, COURSE_CONSTANTS.COURSE_NAME_LENGTH / 2);
+        this.title = title.substr(0, COURSE_CONSTANTS.NAME_LENGTH / 2);
         if (writeCrc) {
             return await this.writeCrc();
         }
@@ -257,7 +296,7 @@ export default class Course {
      * @returns {Promise.<void>}
      */
     async setMaker (makerName, writeCrc = true) {
-        for (let i = COURSE_CONSTANTS.COURSE_MAKER_OFFSET, j = 0; i < COURSE_CONSTANTS.COURSE_MAKER_OFFSET + COURSE_CONSTANTS.COURSE_MAKER_LENGTH; i+=2, j++) {
+        for (let i = COURSE_CONSTANTS.MAKER_OFFSET, j = 0; i < COURSE_CONSTANTS.MAKER_OFFSET + COURSE_CONSTANTS.MAKER_LENGTH; i+=2, j++) {
             if (j < makerName.length) {
                 this[courseData].write(makerName.charAt(j), i, 'utf16le');
                 this[courseDataSub].write(makerName.charAt(j), i, 'utf16le');
@@ -266,7 +305,7 @@ export default class Course {
                 this[courseDataSub].writeUInt16BE(0, i);
             }
         }
-        this.maker = makerName.substr(0, COURSE_CONSTANTS.COURSE_MAKER_LENGTH / 2);
+        this.maker = makerName.substr(0, COURSE_CONSTANTS.MAKER_LENGTH / 2);
         if (writeCrc) {
             await this.writeCrc();
         }

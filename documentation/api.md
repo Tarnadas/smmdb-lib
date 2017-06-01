@@ -49,7 +49,7 @@
     * [.blocksSub](#Course+blocksSub) : <code>Array.&lt;Block&gt;</code>
     * [.sounds](#Course+sounds) : <code>Array.&lt;Sound&gt;</code>
     * [.writeToSave(id, pathToCourse)](#Course+writeToSave)
-    * [.writeCrc()](#Course+writeCrc) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.writeCrc(writeToFs)](#Course+writeCrc) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.setTitle(title, [writeCrc])](#Course+setTitle) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.setMaker(makerName, [writeCrc])](#Course+setMaker) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.loadTnl()](#Course+loadTnl) ⇒ [<code>Array.&lt;Tnl&gt;</code>](#Tnl)
@@ -126,10 +126,15 @@ This function should not be called directly. Instead call save.addCourse(course)
 
 <a name="Course+writeCrc"></a>
 
-### course.writeCrc() ⇒ <code>Promise.&lt;void&gt;</code>
+### course.writeCrc(writeToFs) ⇒ <code>Promise.&lt;void&gt;</code>
 Writes crc checksum of course to fs
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| writeToFs | <code>boolean</code> | should file on fs be overwritten with new CRC checksum |
+
 <a name="Course+setTitle"></a>
 
 ### course.setTitle(title, [writeCrc]) ⇒ <code>Promise.&lt;void&gt;</code>
