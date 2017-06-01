@@ -182,13 +182,18 @@ export default class Course {
 
         this[courseData] = Buffer.alloc(COURSE_CONSTANTS.HEADER_OFFSET);
         console.log(course.blocks);
-        this[courseData].writeUInt16BE(course.blocks.length, COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
+        this[courseData].writeUInt16BE(course.blocks.length + 6, COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
         let header = Buffer.alloc(COURSE_CONSTANTS.HEADER_LENGTH);
         COURSE_CONSTANTS.HEADER_DEFAULT.copy(header);
         header.writeUInt8(course.startY, COURSE_CONSTANTS.START_Y_OFFSET_0);
         header.writeUInt16BE((course.startY + 1) * COURSE_CONSTANTS.START_MULTIPLIER, COURSE_CONSTANTS.START_Y_OFFSET_0);
         this[courseData] = Buffer.concat([this[courseData], header]);
-
+        let blockBuffer = Buffer.alloc(0);
+        for (let i = 0, i < course.blocks.length, i++) {
+            let buf = course.blocks[i].toBuffer();
+            
+        }
+        
         //this[courseDataSub] = Buffer.alloc(COURSE_CONSTANTS.SIZE);
 
         return course;
