@@ -19,7 +19,7 @@
     "jimp": "^0.2.27",
     "protobufjs": "^6.7.3",
     "rimraf": "^2.6.1",
-    "smm-protobuf": "https://github.com/Tarnadas/smm-protobuf"
+    "smm-protobuf": "git+https://github.com/Tarnadas/smm-protobuf.git"
   },
   "repository": {
     "type": "git",

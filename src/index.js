@@ -69,30 +69,8 @@ export async function loadCourse (coursePath, courseId) {
                     resolve(data);
                 });
             });
-            let titleBuf = data.slice(COURSE_CONSTANTS.COURSE_NAME_OFFSET, COURSE_CONSTANTS.COURSE_NAME_OFFSET + COURSE_CONSTANTS.COURSE_NAME_LENGTH);
-            let title = "";
-            for (let i = 0; i < COURSE_CONSTANTS.COURSE_NAME_LENGTH; i+=2) {
-                let charBuf = Buffer.allocUnsafe(2);
-                charBuf.writeUInt16BE(titleBuf.readUInt16BE(i), 0);
-                if (charBuf.readUInt16BE(0) === 0) {
-                    break;
-                }
-                title += charBuf.toString('utf16le');
-            }
-            let makerBuf = data.slice(COURSE_CONSTANTS.COURSE_MAKER_OFFSET, COURSE_CONSTANTS.COURSE_MAKER_OFFSET + COURSE_CONSTANTS.COURSE_MAKER_LENGTH);
-            let maker = "";
-            for (let i =  0; i < COURSE_CONSTANTS.COURSE_MAKER_LENGTH; i+=2) {
-                let charBuf = Buffer.allocUnsafe(2);
-                charBuf.writeUInt16BE(makerBuf.readUInt16BE(i), 0);
-                if (charBuf.readUInt16BE(0) === 0) {
-                    break;
-                }
-                maker += charBuf.toString('utf16le');
-            }
-            let gameStyle = data.slice(COURSE_CONSTANTS.COURSE_GAME_STYLE_OFFSET, COURSE_CONSTANTS.COURSE_GAME_STYLE_OFFSET + 2).toString();
-            let courseTheme = data.readUInt8(COURSE_CONSTANTS.COURSE_THEME_OFFSET);
             try {
-                let course = new Course(courseId, data, dataSub, coursePath, title, maker, gameStyle, courseTheme);
+                let course = new Course(courseId, data, dataSub, coursePath);
                 resolve(course);
             } catch (err) {
                 reject(err);
@@ -113,29 +91,7 @@ export function loadCourseSync (coursePath, courseId) {
 
     let data = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
     let dataSub = fs.readFileSync(path.resolve(`${coursePath}/course_data_sub.cdt`));
-    let titleBuf = data.slice(COURSE_CONSTANTS.COURSE_NAME_OFFSET, COURSE_CONSTANTS.COURSE_NAME_OFFSET + COURSE_CONSTANTS.COURSE_NAME_LENGTH);
-    let title = "";
-    for (let i = 0; i < COURSE_CONSTANTS.COURSE_NAME_LENGTH; i+=2) {
-        let charBuf = Buffer.allocUnsafe(2);
-        charBuf.writeUInt16BE(titleBuf.readUInt16BE(i), 0);
-        if (charBuf.readUInt16BE(0) === 0) {
-            break;
-        }
-        title += charBuf.toString('utf16le');
-    }
-    let makerBuf = data.slice(COURSE_CONSTANTS.COURSE_MAKER_OFFSET, COURSE_CONSTANTS.COURSE_MAKER_OFFSET + COURSE_CONSTANTS.COURSE_MAKER_LENGTH);
-    let maker = "";
-    for (let i =  0; i < COURSE_CONSTANTS.COURSE_MAKER_LENGTH; i+=2) {
-        let charBuf = Buffer.allocUnsafe(2);
-        charBuf.writeUInt16BE(makerBuf.readUInt16BE(i), 0);
-        if (charBuf.readUInt16BE(0) === 0) {
-            break;
-        }
-        maker += charBuf.toString('utf16le');
-    }
-    let gameStyle = data.slice(COURSE_CONSTANTS.COURSE_GAME_STYLE_OFFSET, COURSE_CONSTANTS.COURSE_GAME_STYLE_OFFSET + 2).toString();
-    let courseTheme = data.readUInt8(COURSE_CONSTANTS.COURSE_THEME_OFFSET);
-    return new Course(courseId, data, dataSub, coursePath, title, maker, gameStyle, courseTheme);
+    return new Course(courseId, data, dataSub, coursePath);
 
 }
 

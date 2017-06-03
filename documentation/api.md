@@ -45,9 +45,16 @@
     * [.maker](#Course+maker) : <code>string</code>
     * [.gameStyle](#Course+gameStyle) : <code>number</code>
     * [.courseTheme](#Course+courseTheme) : <code>number</code>
+    * [.courseThemeSub](#Course+courseThemeSub) : <code>number</code>
+    * [.time](#Course+time) : <code>number</code>
+    * [.autoScroll](#Course+autoScroll) : <code>number</code>
+    * [.autoScroll](#Course+autoScroll) : <code>number</code>
+    * [.width](#Course+width) : <code>number</code>
+    * [.widthSub](#Course+widthSub) : <code>number</code>
     * [.blocks](#Course+blocks) : <code>Array.&lt;Block&gt;</code>
     * [.blocksSub](#Course+blocksSub) : <code>Array.&lt;Block&gt;</code>
     * [.sounds](#Course+sounds) : <code>Array.&lt;Sound&gt;</code>
+    * [.soundsSub](#Course+soundsSub) : <code>Array.&lt;Sound&gt;</code>
     * [.writeToSave(id, pathToCourse)](#Course+writeToSave)
     * [.writeCrc(writeToFs)](#Course+writeCrc) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.setTitle(title, [writeCrc])](#Course+setTitle) ⇒ <code>Promise.&lt;void&gt;</code>
@@ -62,7 +69,7 @@
     * [.exportThumbnailSync()](#Course+exportThumbnailSync)
     * [.serialize()](#Course+serialize) ⇒ <code>Promise.&lt;Buffer&gt;</code>
     * [.serializeGzipped()](#Course+serializeGzipped) ⇒ <code>Promise.&lt;Buffer&gt;</code>
-    * [.deserialize(buffer)](#Course+deserialize) ⇒ [<code>Course</code>](#Course)
+    * [.deserialize(buffer)](#Course+deserialize) ⇒ [<code>Promise.&lt;Course&gt;</code>](#Course)
 
 <a name="new_Course_new"></a>
 
@@ -93,6 +100,42 @@ Game style of course
 Course theme
 
 **Kind**: instance property of [<code>Course</code>](#Course)  
+<a name="Course+courseThemeSub"></a>
+
+### course.courseThemeSub : <code>number</code>
+Course theme sub
+
+**Kind**: instance property of [<code>Course</code>](#Course)  
+<a name="Course+time"></a>
+
+### course.time : <code>number</code>
+Completion time
+
+**Kind**: instance property of [<code>Course</code>](#Course)  
+<a name="Course+autoScroll"></a>
+
+### course.autoScroll : <code>number</code>
+Course auto scroll
+
+**Kind**: instance property of [<code>Course</code>](#Course)  
+<a name="Course+autoScroll"></a>
+
+### course.autoScroll : <code>number</code>
+CourseSub auto scroll
+
+**Kind**: instance property of [<code>Course</code>](#Course)  
+<a name="Course+width"></a>
+
+### course.width : <code>number</code>
+Course width
+
+**Kind**: instance property of [<code>Course</code>](#Course)  
+<a name="Course+widthSub"></a>
+
+### course.widthSub : <code>number</code>
+CourseSub width
+
+**Kind**: instance property of [<code>Course</code>](#Course)  
 <a name="Course+blocks"></a>
 
 ### course.blocks : <code>Array.&lt;Block&gt;</code>
@@ -108,6 +151,12 @@ Blocks of sub course
 <a name="Course+sounds"></a>
 
 ### course.sounds : <code>Array.&lt;Sound&gt;</code>
+Course sounds
+
+**Kind**: instance property of [<code>Course</code>](#Course)  
+<a name="Course+soundsSub"></a>
+
+### course.soundsSub : <code>Array.&lt;Sound&gt;</code>
 Course sounds
 
 **Kind**: instance property of [<code>Course</code>](#Course)  
@@ -241,7 +290,7 @@ Serializes and gzips
 **Kind**: instance method of [<code>Course</code>](#Course)  
 <a name="Course+deserialize"></a>
 
-### course.deserialize(buffer) ⇒ [<code>Course</code>](#Course)
+### course.deserialize(buffer) ⇒ [<code>Promise.&lt;Course&gt;</code>](#Course)
 Deserializes a course object with compliance to [https://github.com/Tarnadas/smm-protobuf](https://github.com/Tarnadas/smm-protobuf)
 
 **Kind**: instance method of [<code>Course</code>](#Course)  

@@ -25,6 +25,9 @@ export const COURSE_CONSTANTS = {
     CRC_PRE_BUF: Buffer.from("000000000000000B", "hex"),
     CRC_POST_BUF: Buffer.alloc(4),
 
+    TIMESTAMP_0_OFFSET: 0x1,
+    TIMESTAMP_1_OFFSET: 0x14,
+
     NAME_OFFSET: 0x29,
     NAME_LENGTH: 0x40,
 
@@ -33,33 +36,23 @@ export const COURSE_CONSTANTS = {
 
     GAME_STYLE_OFFSET: 0x6A,
     GAME_STYLE: root.lookupEnum('SMMCourse.GameStyle').values,
+    GAME_STYLE_BY_ID: root.lookupEnum('SMMCourse.GameStyle').valuesById,
 
     THEME_OFFSET: 0x6D,
     THEME: root.lookupEnum('SMMCourse.CourseTheme').values,
     THEME_BY_ID: root.lookupEnum('SMMCourse.CourseTheme').valuesById,
 
+    TIME_OFFSET: 0x70,
+
+    AUTO_SCROLL_OFFSET: 0x72,
+    AUTO_SCROLL: root.lookupEnum('SMMCourse.AutoScroll').values,
+    AUTO_SCROLL_BY_ID: root.lookupEnum('SMMCourse.AutoScroll').valuesById,
+
+    WIDTH_OFFSET: 0x76,
+
     BLOCK_AMOUNT_OFFSET: 0xEE, // uint_16
 
-    HEADER_OFFSET: 0xF0,
-    HEADER_DEFAULT: Buffer.from(
-        `00 00 00 00 00 00 00 00 00 00 01 01 06 00 08 40 
-        06 00 08 40 00 00 00 00 45 FF FF FF FF FF FF FF
-        00 00 00 50 00 00 00 00 00 50 08 01 06 00 08 40 
-        06 00 00 40 00 00 00 00 25 FF FF FF FF FF FF FF
-        00 00 01 90 00 00 00 00 00 A0 03 03 06 00 08 40
-        06 00 00 40 00 00 00 00 26 FF FF FF FF FF FF FF
-        00 00 09 10 00 00 00 00 00 50 0D 02 06 00 08 40
-        06 00 00 40 00 00 00 00 1A FF FF FF FF FF FF FF
-        00 00 09 10 00 00 00 00 01 40 0A 0B 06 00 08 40
-        06 00 00 40 00 00 00 00 1B FF FF FF FF FF FF FF
-        00 00 03 70 00 00 00 00 00 F0 09 01 06 00 08 40
-        06 00 00 40 00 00 00 00 31 FF FF FF FF FF FF FF`.replace(/\s+/g, ''), "hex"
-    ),
-    HEADER_LENGTH: 0x60,
-
-    START_Y_OFFSET_0: 0x2B, //uint_8
-    START_Y_OFFSET_1: 0x48, //uint_16
-    START_MULTIPLIER: 0xA0,
+    BLOCKS_OFFSET: 0xF0,
 
     SOUND_OFFSET: 0x145F0,
     SOUND_LENGTH: 0x960
@@ -78,7 +71,7 @@ const tnlPreview    = Symbol();
  */
 export default class Course {
 
-    constructor (id, data, dataSub, path, title, maker, gameStyle, courseTheme) {
+    constructor (id, data, dataSub, path) {
 
         if (!!path && !fs.existsSync(path)) {
             throw new Error("Path does not exists: " + path);
@@ -87,14 +80,29 @@ export default class Course {
         this[courseData] = data;
         this[courseDataSub] = dataSub;
         this[coursePath] = path;
-        
+
+        if (!!path) {
+            [this[tnl], this[tnlPreview]] = this.loadTnl();
+        }
+
+        if (!this[courseData]) return this;
+
         /**
          * Title of course
          * @member {string} title
          * @memberOf Course
          * @instance
          */
-        this.title = title;
+        this.title = "";
+        let titleBuf = data.slice(COURSE_CONSTANTS.NAME_OFFSET, COURSE_CONSTANTS.NAME_OFFSET + COURSE_CONSTANTS.NAME_LENGTH);
+        for (let i = 0; i < COURSE_CONSTANTS.NAME_LENGTH; i+=2) {
+            let charBuf = Buffer.allocUnsafe(2);
+            charBuf.writeUInt16BE(titleBuf.readUInt16BE(i), 0);
+            if (charBuf.readUInt16BE(0) === 0) {
+                break;
+            }
+            this.title += charBuf.toString('utf16le');
+        }
         
         /**
          * Maker name
@@ -102,7 +110,16 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.maker = maker;
+        this.maker = "";
+        let makerBuf = data.slice(COURSE_CONSTANTS.MAKER_OFFSET, COURSE_CONSTANTS.MAKER_OFFSET + COURSE_CONSTANTS.MAKER_LENGTH);
+        for (let i =  0; i < COURSE_CONSTANTS.MAKER_LENGTH; i+=2) {
+            let charBuf = Buffer.allocUnsafe(2);
+            charBuf.writeUInt16BE(makerBuf.readUInt16BE(i), 0);
+            if (charBuf.readUInt16BE(0) === 0) {
+                break;
+            }
+            this.maker += charBuf.toString('utf16le');
+        }
         
         /**
          * Game style of course
@@ -110,68 +127,106 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.gameStyle = COURSE_CONSTANTS.GAME_STYLE[gameStyle];
-        
+        this.gameStyle = COURSE_CONSTANTS.GAME_STYLE[data.slice(COURSE_CONSTANTS.GAME_STYLE_OFFSET, COURSE_CONSTANTS.GAME_STYLE_OFFSET + 2).toString()];
+
         /**
          * Course theme
          * @member {number} courseTheme
          * @memberOf Course
          * @instance
          */
-        this.courseTheme = COURSE_CONSTANTS.THEME[COURSE_CONSTANTS.THEME_BY_ID[courseTheme]];
+        this.courseTheme = data.readUInt8(COURSE_CONSTANTS.THEME_OFFSET);
 
-        if (!!this[courseData]) {
+        /**
+         * Course theme sub
+         * @member {number} courseThemeSub
+         * @memberOf Course
+         * @instance
+         */
+        this.courseThemeSub = dataSub.readUInt8(COURSE_CONSTANTS.THEME_OFFSET);
 
-            this.startY = this[courseData].readUInt8(COURSE_CONSTANTS.HEADER_OFFSET + COURSE_CONSTANTS.START_Y_OFFSET_0) - 1;
+        /**
+         * Completion time
+         * @member {number} time
+         * @memberOf Course
+         * @instance
+         */
+        this.time = data.readUInt16BE(COURSE_CONSTANTS.TIME_OFFSET);
 
-            this.finishX = this[courseData].readUInt8(COURSE_CONSTANTS.HEADER_OFFSET + COURSE_CONSTANTS.START_Y_OFFSET_0) - 1;
+        /**
+         * Course auto scroll
+         * @member {number} autoScroll
+         * @memberOf Course
+         * @instance
+         */
+        this.autoScroll = data.readUInt8(COURSE_CONSTANTS.AUTO_SCROLL_OFFSET);
 
-            /**
-             * Blocks of main course
-             * @member {Array<Block>} blocks
-             * @memberOf Course
-             * @instance
-             */
-            this.blocks = [];
-            let blockAmount = this[courseData].readUInt32BE(COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET) - 6;
-            for (let i = 0, offset = COURSE_CONSTANTS.HEADER_OFFSET + COURSE_CONSTANTS.HEADER_LENGTH; i < blockAmount; i++, offset += BLOCK_CONSTANTS.SIZE) {
-                let blockData = this[courseData].slice(offset, offset + BLOCK_CONSTANTS.SIZE);
-                if (blockData.readUInt32BE(28) === 0) {
-                    break;
-                }
-                this.blocks.push(new Block(blockData));
-            }
+        /**
+         * CourseSub auto scroll
+         * @member {number} autoScroll
+         * @memberOf Course
+         * @instance
+         */
+        this.autoScrollSub = dataSub.readUInt8(COURSE_CONSTANTS.AUTO_SCROLL_OFFSET);
 
-            /**
-             * Blocks of sub course
-             * @member {Array<Block>} blocksSub
-             * @memberOf Course
-             * @instance
-             */
-            this.blocksSub = [];
-            blockAmount = this[courseDataSub].readUInt32BE(COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
-            for (let i = 0, offset = COURSE_CONSTANTS.HEADER_OFFSET; i < blockAmount; i++, offset += BLOCK_CONSTANTS.SIZE) {
-                let blockData = this[courseDataSub].slice(offset, offset + BLOCK_CONSTANTS.SIZE);
-                if (blockData.readUInt32BE(28) === 0) {
-                    break;
-                }
-                this.blocksSub.push(new Block(blockData));
-            }
+        /**
+         * Course width
+         * @member {number} width
+         * @memberOf Course
+         * @instance
+         */
+        this.width = data.readUInt16BE(COURSE_CONSTANTS.WIDTH_OFFSET);
 
-            /**
-             * Course sounds
-             * @member {Array<Sound>} sounds
-             * @memberOf Course
-             * @instance
-             */
-            this.sounds = [];
-            // TODO add sounds
+        /**
+         * CourseSub width
+         * @member {number} widthSub
+         * @memberOf Course
+         * @instance
+         */
+        this.widthSub = dataSub.readUInt16BE(COURSE_CONSTANTS.WIDTH_OFFSET);
+
+        /**
+         * Blocks of main course
+         * @member {Array<Block>} blocks
+         * @memberOf Course
+         * @instance
+         */
+        this.blocks = [];
+        let blockAmount = this[courseData].readUInt16BE(COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
+        for (let i = 0, offset = COURSE_CONSTANTS.BLOCKS_OFFSET; i < blockAmount; i++, offset += BLOCK_CONSTANTS.SIZE) {
+            let blockData = this[courseData].slice(offset, offset + BLOCK_CONSTANTS.SIZE);
+            this.blocks.push(new Block(blockData));
         }
 
-        try {
-            [this[tnl], this[tnlPreview]] = this.loadTnl();
-        } catch (err) {
+        /**
+         * Blocks of sub course
+         * @member {Array<Block>} blocksSub
+         * @memberOf Course
+         * @instance
+         */
+        this.blocksSub = [];
+        blockAmount = this[courseDataSub].readUInt16BE(COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
+        for (let i = 0, offset = COURSE_CONSTANTS.BLOCKS_OFFSET; i < blockAmount; i++, offset += BLOCK_CONSTANTS.SIZE) {
+            let blockData = this[courseDataSub].slice(offset, offset + BLOCK_CONSTANTS.SIZE);
+            this.blocksSub.push(new Block(blockData));
         }
+
+        /**
+         * Course sounds
+         * @member {Array<Sound>} sounds
+         * @memberOf Course
+         * @instance
+         */
+        this.sounds = [];
+
+        /**
+         * Course sounds
+         * @member {Array<Sound>} soundsSub
+         * @memberOf Course
+         * @instance
+         */
+        this.soundsSub = [];
+        // TODO add sounds
 
     }
 
@@ -180,21 +235,49 @@ export default class Course {
         let course = new Course();
         Object.assign(course, obj);
 
-        this[courseData] = Buffer.alloc(COURSE_CONSTANTS.HEADER_OFFSET);
-        console.log(course.blocks);
-        this[courseData].writeUInt16BE(course.blocks.length + 6, COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
-        let header = Buffer.alloc(COURSE_CONSTANTS.HEADER_LENGTH);
-        COURSE_CONSTANTS.HEADER_DEFAULT.copy(header);
-        header.writeUInt8(course.startY, COURSE_CONSTANTS.START_Y_OFFSET_0);
-        header.writeUInt16BE((course.startY + 1) * COURSE_CONSTANTS.START_MULTIPLIER, COURSE_CONSTANTS.START_Y_OFFSET_0);
-        this[courseData] = Buffer.concat([this[courseData], header]);
-        let blockBuffer = Buffer.alloc(0);
-        for (let i = 0, i < course.blocks.length, i++) {
-            let buf = course.blocks[i].toBuffer();
-            
+        let data        = [courseData, courseDataSub];
+        let courseTheme = ['courseTheme', 'courseThemeSub'];
+        let autoScroll  = ['autoScroll', 'autoScrollSub'];
+        let width       = ['width', 'widthSub'];
+        let blocks      = ['blocks', 'blocksSub'];
+        let sounds      = ['sounds', 'soundsSub'];
+        for (let i = 0; i < data.length; i++) {
+            // meta
+            course[data[i]] = Buffer.alloc(COURSE_CONSTANTS.BLOCKS_OFFSET);
+            course[data[i]].writeUInt8(0xB, 7);
+            course[data[i]].writeUInt16BE(course.blocks.length, COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
+            course[data[i]].write(course.title, COURSE_CONSTANTS.NAME_OFFSET, 'utf16le');
+            course[data[i]].write(course.maker, COURSE_CONSTANTS.MAKER_OFFSET, 'utf16le');
+            course[data[i]].write(COURSE_CONSTANTS.GAME_STYLE_BY_ID[course.gameStyle], COURSE_CONSTANTS.GAME_STYLE_OFFSET);
+            course[data[i]].writeUInt8(course[courseTheme[i]], COURSE_CONSTANTS.THEME_OFFSET);
+            course[data[i]].writeUInt16BE(course.time, COURSE_CONSTANTS.TIME_OFFSET);
+            course[data[i]].writeUInt8(course[autoScroll[i]], COURSE_CONSTANTS.AUTO_SCROLL_OFFSET);
+            course[data[i]].writeUInt16BE(course[width[i]], COURSE_CONSTANTS.WIDTH_OFFSET);
+
+            // blocks
+            let blockBuffer = Buffer.alloc(0);
+            for (let j = 0; j < course[blocks[i]].length; j++) {
+                blockBuffer = Buffer.concat([blockBuffer, course[blocks[i]][j].blockData]);
+            }
+            course[data[i]] = Buffer.concat([course[data[i]], blockBuffer], COURSE_CONSTANTS.SOUND_OFFSET);
+
+            // sounds
+            let soundBuffer = Buffer.alloc(0);
+            for (let j = 0; i < course[sounds[i]].length; j++) {
+                soundBuffer = Buffer.concat([soundBuffer, course[sounds[i]]][j]);
+            }
+            let soundDefault = Buffer.from("FFFF00FFFF000000", "hex");
+            for (let j = COURSE_CONSTANTS.SOUND_OFFSET + soundBuffer.length; j < COURSE_CONSTANTS.SOUND_OFFSET + COURSE_CONSTANTS.SOUND_LENGTH; j += 8) {
+                soundBuffer = Buffer.concat([soundBuffer, soundDefault]);
+            }
+            course[data[i]] = Buffer.concat([course[data[i]], soundBuffer], COURSE_CONSTANTS.SIZE);
         }
-        
-        //this[courseDataSub] = Buffer.alloc(COURSE_CONSTANTS.SIZE);
+        await course.writeCrc();
+
+        let jpeg = new Jpeg(course.thumbnail);
+        course[tnl] = await jpeg.toTnl(true);
+        jpeg = new Jpeg(course.thumbnailPreview);
+        course[tnlPreview] = await jpeg.toTnl(false);
 
         return course;
 
@@ -213,6 +296,9 @@ export default class Course {
 
         this[courseId] = id;
         this[coursePath] = pathToCourse;
+        if (!fs.existsSync(this[coursePath])){
+            fs.mkdirSync(this[coursePath]);
+        }
         fs.writeFileSync(path.resolve(`${this[coursePath]}/course_data.cdt`), this[courseData]);
         fs.writeFileSync(path.resolve(`${this[coursePath]}/course_data_sub.cdt`), this[courseDataSub]);
         fs.writeFileSync(path.resolve(`${this[coursePath]}/sound.bwv`), sound);
@@ -229,7 +315,7 @@ export default class Course {
      * @param {boolean} writeToFs - should file on fs be overwritten with new CRC checksum
      * @returns {Promise.<void>}
      */
-    async writeCrc (writeToFs) {
+    async writeCrc (writeToFs = false) {
 
         return await Promise.all([
             new Promise (async (resolve, reject) => {
@@ -346,6 +432,7 @@ export default class Course {
             this.thumbnail = await this[tnl].toJpeg();
             this.thumbnailPreview = await this[tnlPreview].toJpeg();
         } catch (err) {
+            console.log(err);
         }
         return null;
 
@@ -520,12 +607,12 @@ export default class Course {
      * @memberOf Course
      * @instance
      * @param {Buffer|Uint8Array} buffer - Node Buffer or Uint8Array to be converted to a {@link Course}
-     * @returns {Course}
+     * @returns {Promise<Course>}
      */
-    static deserialize (buffer) {
+    static async deserialize (buffer) {
         let obj = smmCourse.toObject(smmCourse.decode(Buffer.from(buffer)), {
             arrays: true
         });
-        return this.fromObject(obj);
+        return await this.fromObject(obj);
     }
 }
