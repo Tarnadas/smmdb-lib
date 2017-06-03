@@ -17,7 +17,7 @@
 <dt><a href="#loadSave">loadSave(pathToSave)</a> ⇒ <code><a href="#Save">Promise.&lt;Save&gt;</a></code></dt>
 <dd><p>Loads a save from fs</p>
 </dd>
-<dt><a href="#loadSave">loadSave(pathToSave)</a> ⇒ <code><a href="#Save">Save</a></code></dt>
+<dt><a href="#loadSaveSync">loadSaveSync(pathToSave)</a> ⇒ <code><a href="#Save">Save</a></code></dt>
 <dd><p>Synchronous version of <a href="#loadSave">loadSave</a></p>
 </dd>
 <dt><a href="#loadCourse">loadCourse(coursePath, [courseId])</a> ⇒ <code><a href="#Course">Promise.&lt;Course&gt;</a></code></dt>
@@ -48,7 +48,7 @@
     * [.courseThemeSub](#Course+courseThemeSub) : <code>number</code>
     * [.time](#Course+time) : <code>number</code>
     * [.autoScroll](#Course+autoScroll) : <code>number</code>
-    * [.autoScroll](#Course+autoScroll) : <code>number</code>
+    * [.autoScrollSub](#Course+autoScrollSub) : <code>number</code>
     * [.width](#Course+width) : <code>number</code>
     * [.widthSub](#Course+widthSub) : <code>number</code>
     * [.blocks](#Course+blocks) : <code>Array.&lt;Block&gt;</code>
@@ -118,9 +118,9 @@ Completion time
 Course auto scroll
 
 **Kind**: instance property of [<code>Course</code>](#Course)  
-<a name="Course+autoScroll"></a>
+<a name="Course+autoScrollSub"></a>
 
-### course.autoScroll : <code>number</code>
+### course.autoScrollSub : <code>number</code>
 CourseSub auto scroll
 
 **Kind**: instance property of [<code>Course</code>](#Course)  
@@ -320,7 +320,7 @@ Deserializes a course object with compliance to [https://github.com/Tarnadas/smm
     * [.loadCourses()](#Save+loadCourses) ⇒ <code>Object.&lt;string, Course&gt;</code>
     * [.loadCoursesSync()](#Save+loadCoursesSync) ⇒ <code>Object.&lt;string, Course&gt;</code>
     * [.addCourse(course)](#Save+addCourse) ⇒ <code>number</code>
-    * [.addCourseFromFs(courseDataPath)](#Save+addCourseFromFs) ⇒ <code>number</code>
+    * [.addCourseFromFs(coursePath)](#Save+addCourseFromFs) ⇒ <code>number</code>
     * [.deleteCourse(courseId)](#Save+deleteCourse) ⇒ <code>Promise.&lt;void&gt;</code>
 
 <a name="new_Save_new"></a>
@@ -343,6 +343,8 @@ Node buffer of save.dat file
 <a name="Save+courses"></a>
 
 ### save.courses : <code>Object.&lt;string, Course&gt;</code>
+Courses belonging to this save
+
 **Kind**: instance property of [<code>Save</code>](#Save)  
 <a name="Save+writeCrc"></a>
 
@@ -422,7 +424,7 @@ Stores a course in this save
 
 <a name="Save+addCourseFromFs"></a>
 
-### save.addCourseFromFs(courseDataPath) ⇒ <code>number</code>
+### save.addCourseFromFs(coursePath) ⇒ <code>number</code>
 Stores a course from fs in this save
 
 **Kind**: instance method of [<code>Save</code>](#Save)  
@@ -435,7 +437,7 @@ Stores a course from fs in this save
 
 | Param | Type | Description |
 | --- | --- | --- |
-| courseDataPath | [<code>Course</code>](#Course) | course to be stored in save |
+| coursePath | <code>string</code> | course to be stored in save |
 
 <a name="Save+deleteCourse"></a>
 
@@ -450,7 +452,7 @@ Deletes a course from this save
 
 | Param | Type | Description |
 | --- | --- | --- |
-| courseId | [<code>Course</code>](#Course) | ID of course to be deleted |
+| courseId | <code>number</code> | ID of course to be deleted |
 
 <a name="Tnl"></a>
 
@@ -521,9 +523,9 @@ Loads a save from fs
 | --- | --- | --- |
 | pathToSave | <code>string</code> | path to save on fs |
 
-<a name="loadSave"></a>
+<a name="loadSaveSync"></a>
 
-## loadSave(pathToSave) ⇒ [<code>Save</code>](#Save)
+## loadSaveSync(pathToSave) ⇒ [<code>Save</code>](#Save)
 Synchronous version of [loadSave](#loadSave)
 
 **Kind**: global function  

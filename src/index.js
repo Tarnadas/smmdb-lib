@@ -32,7 +32,7 @@ export async function loadSave(pathToSave) {
 
 /**
  * Synchronous version of {@link loadSave}
- * @function loadSave
+ * @function loadSaveSync
  * @param {string} pathToSave - path to save on fs
  * @return {Save}
  * @throws {Error} pathToSave must exist and must have read/write privileges

@@ -56,6 +56,7 @@ export default class Save {
         this.data = data;
 
         /**
+         * Courses belonging to this save
          * @member {Object.<string,Course>} courses
          * @memberOf Save
          * @instance
@@ -447,18 +448,18 @@ export default class Save {
      * @function addCourseFromFs
      * @memberOf Save
      * @instance
-     * @param {Course} courseDataPath - course to be stored in save
+     * @param {string} coursePath - course to be stored in save
      * @returns {number} course slot ID
      * @throws {Error} courseDataPath must exist
      * @throws {Error} Save must have an empty slot
      */
-    async addCourseFromFs (courseDataPath) {
+    async addCourseFromFs (coursePath) {
 
         if (this.courses === {}) {
             await this.loadCourses();
         }
-        if (!fs.existsSync(courseDataPath)) {
-            throw new Error("Path does not exist: " + courseDataPath);
+        if (!fs.existsSync(coursePath)) {
+            throw new Error("Path does not exist: " + coursePath);
         }
         let emptySlotName = "";
         let emptySlot = -1;
@@ -478,7 +479,7 @@ export default class Save {
             return await new Promise((resolve) => {
                 rimraf(cemuSavePath, async () => {
                     fs.mkdirSync(cemuSavePath);
-                    copydir.sync(courseDataPath, cemuSavePath);
+                    copydir.sync(coursePath, cemuSavePath);
                     this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
                     this.courses[emptySlotName] = await loadCourse(cemuSavePath, emptySlot);
                     await this.writeCrc();
@@ -496,7 +497,7 @@ export default class Save {
      * @function deleteCourse
      * @memberOf Save
      * @instance
-     * @param {Course} courseId - ID of course to be deleted
+     * @param {number} courseId - ID of course to be deleted
      * @returns {Promise<void>}
      * @throws {Error} course with courseId must exist
      */

@@ -163,7 +163,7 @@ export default class Course {
 
         /**
          * CourseSub auto scroll
-         * @member {number} autoScroll
+         * @member {number} autoScrollSub
          * @memberOf Course
          * @instance
          */
