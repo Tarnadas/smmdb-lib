@@ -8,7 +8,7 @@ import * as path from "path"
 import * as zlib from "zlib"
 
 import Block, { BLOCK_CONSTANTS } from "./block"
-import Sound from "./sound"
+import Sound, { SOUND_CONSTANTS } from "./sound"
 import {
     Tnl, Jpeg
 } from "./tnl"
@@ -55,7 +55,7 @@ export const COURSE_CONSTANTS = {
     BLOCKS_OFFSET: 0xF0,
 
     SOUND_OFFSET: 0x145F0,
-    SOUND_LENGTH: 0x960
+    SOUND_END_OFFSET: 0x14F50
 };
 
 const courseId      = Symbol();
@@ -218,6 +218,12 @@ export default class Course {
          * @instance
          */
         this.sounds = [];
+        for (let offset = COURSE_CONSTANTS.SOUND_OFFSET; offset < COURSE_CONSTANTS.SOUND_END_OFFSET; offset += SOUND_CONSTANTS.SIZE) {
+            if (this[courseData].readUInt8(offset) !== 0xFF) {
+                let soundData = this[courseData].slice(offset, offset + SOUND_CONSTANTS.SIZE);
+                this.sounds.push(new Sound(soundData));
+            }
+        }
 
         /**
          * Course sounds
@@ -226,7 +232,12 @@ export default class Course {
          * @instance
          */
         this.soundsSub = [];
-        // TODO add sounds
+        for (let offset = COURSE_CONSTANTS.SOUND_OFFSET; offset < COURSE_CONSTANTS.SOUND_END_OFFSET; offset += SOUND_CONSTANTS.SIZE) {
+            if (this[courseDataSub].readUInt8(offset) !== 0xFF) {
+                let soundData = this[courseDataSub].slice(offset, offset + SOUND_CONSTANTS.SIZE);
+                this.soundsSub.push(new Sound(soundData));
+            }
+        }
 
     }
 
@@ -263,12 +274,11 @@ export default class Course {
 
             // sounds
             let soundBuffer = Buffer.alloc(0);
-            for (let j = 0; i < course[sounds[i]].length; j++) {
-                soundBuffer = Buffer.concat([soundBuffer, course[sounds[i]]][j]);
+            for (let j = 0; j < course[sounds[i]].length; j++) {
+                soundBuffer = Buffer.concat([soundBuffer, Sound.toBuffer(course[sounds[i]][j])]);
             }
-            let soundDefault = Buffer.from("FFFF00FFFF000000", "hex");
-            for (let j = COURSE_CONSTANTS.SOUND_OFFSET + soundBuffer.length; j < COURSE_CONSTANTS.SOUND_OFFSET + COURSE_CONSTANTS.SOUND_LENGTH; j += 8) {
-                soundBuffer = Buffer.concat([soundBuffer, soundDefault]);
+            for (let j = COURSE_CONSTANTS.SOUND_OFFSET + soundBuffer.length; j < COURSE_CONSTANTS.SOUND_END_OFFSET; j += 8) {
+                soundBuffer = Buffer.concat([soundBuffer, SOUND_CONSTANTS.SOUND_DEFAULT]);
             }
             course[data[i]] = Buffer.concat([course[data[i]], soundBuffer], COURSE_CONSTANTS.SIZE);
         }
