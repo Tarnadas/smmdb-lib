@@ -1,9 +1,9 @@
-import Promise from "bluebird"
-import jimp    from "jimp"
-import crc32   from "buffer-crc32"
+import Promise   from "bluebird"
+import * as jimp from "jimp"
+import crc32     from "buffer-crc32"
 
-import fs   from "fs"
-import path from "path"
+import * as fs   from "fs"
+import * as path from "path"
 
 const TNL_SIZE = 0xC800;
 const TNL_JPEG_MAX_SIZE = 0xC7F8;
@@ -17,50 +17,127 @@ const TNL_ASPECT_RATIO = [
 ];
 const TNL_ASPECT_RATIO_THRESHOLD = [ 3.5, 0.3 ];
 
-export default class Tnl {
-
-    constructor (pathToFile) {
-        this.pathToFile = path.resolve(pathToFile);
-        if (!fs.existsSync(this.pathToFile)) throw new Error(`No such file exists:\n${this.pathToFile}`);
+class Image {
+    constructor (data) {
+        if (data instanceof Buffer) {
+            this.data = data;
+        } else {
+            this.pathToFile = path.resolve(data);
+            if (!fs.existsSync(this.pathToFile)) throw new Error(`No such file exists:\n${this.pathToFile}`);
+        }
     }
-
-    async toJpeg () {
-
-        return new Promise((resolve) => {
+    async readFile () {
+        this.data = await new Promise((resolve) => {
             fs.readFile(this.pathToFile, (err, data) => {
                 if (err) throw err;
-                let length = data.readUInt32BE(4);
-                let jpeg = data.slice(8, 8 + length);
-                resolve(jpeg);
-            })
+                resolve(data);
+            });
         });
+    }
+}
+
+/**
+ * A TNL file
+ * @class Tnl
+ */
+export class Tnl extends Image {
+
+    constructor (data) {
+        super(data);
+    }
+
+    /**
+     * Convert to JPEG
+     * @function toJpeg
+     * @memberOf Tnl
+     * @instance
+     * @returns {Promise.<Buffer|ArrayBuffer>}
+     */
+    async toJpeg () {
+
+        if (!this.data) {
+            await this.readFile();
+        }
+        let length = this.data.readUInt32BE(4);
+        return this.data.slice(8, 8 + length);
 
     }
 
+    /**
+     * Synchronous version of {@link Tnl.toJpeg}
+     * @function toJpegSync
+     * @memberOf Tnl
+     * @instance
+     * @returns {Buffer|ArrayBuffer}
+     */
     toJpegSync () {
 
-        let data = fs.readFileSync(this.pathToFile);
-        let length = data.readUInt32BE(4);
-        return data.slice(8, 8 + length);
+        if (!this.data) {
+            this.data = fs.readFileSync(this.pathToFile);
+        }
+        let length = this.data.readUInt32BE(4);
+        return this.data.slice(8, 8 + length);
 
     }
 
-    async fromJpeg (isWide, doClip = false) {
+    /**
+     * Check if TNL thumbnail is broken and needs fix
+     * @function isBroken
+     * @memberOf Tnl
+     * @instance
+     * @returns {Promise.<boolean>}
+     */
+    async isBroken () {
+
+        if (!this.data) {
+            await this.readFile();
+        }
+        let length = this.data.readUInt32BE(4);
+        let jpeg = this.data.slice(8, 8 + length);
+        let count = 0;
+        try {
+            for (let i = 0; i < jpeg.length; i+=4) {
+                if (jpeg.readUInt32BE(i) === 0xA2800A28) {
+                    count++;
+                }
+            }
+        } catch (err) {}
+        return (count*4 / jpeg.length) > 0.5;
+
+    }
+
+}
+
+/**
+ * A JPEG file
+ * @class Jpeg
+ */
+export class Jpeg extends Image {
+
+    constructor (pathToFile) {
+        super(pathToFile);
+    }
+
+    /**
+     * Convert to TNL
+     * @function toTnl
+     * @memberOf Jpeg
+     * @instance
+     * @returns {Promise.<Buffer|ArrayBuffer>}
+     */
+    async toTnl (isWide, doClip = false) {
 
         return new Promise(async (resolve, reject) => {
 
             let sizeOK = false;
-            let data = await new Promise((resolve) => {
-                fs.readFile(this.pathToFile, (err, data) => {
-                    if (err) throw err;
-                    resolve(data);
-                });
-            });
-            if (data.length <= TNL_JPEG_MAX_SIZE) {
+            if (!this.data) {
+                await this.readFile();
+            }
+            if (this.data.length <= TNL_JPEG_MAX_SIZE) {
                 sizeOK = true;
             }
 
-            let image = await jimp.read(this.pathToFile);
+            let image = await jimp.read(this.data);
             let skipPreprocessing = false;
             if (sizeOK && (image.bitmap.width === TNL_DIMENSION[0][0] && image.bitmap.height === TNL_DIMENSION[0][1] ||
                 image.bitmap.width === TNL_DIMENSION[1][0] && image.bitmap.height === TNL_DIMENSION[1][1])) {
@@ -95,19 +172,19 @@ export default class Tnl {
                     }
                 }
 
-                let quality = 80;
-                data = await new Promise((resolve) => {
+                let quality = 95;
+                this.data = await new Promise((resolve) => {
                     image.quality(quality);
                     image.getBuffer(jimp.MIME_JPEG, (err, buffer) => { resolve(buffer); });
                 });
 
                 // lower quality until it fits
-                while (data.length > TNL_JPEG_MAX_SIZE) {
+                while (this.data.length > TNL_JPEG_MAX_SIZE) {
                     quality -= 5;
                     if (quality < 0) {
                         reject("File could not be transformed into jpeg with lowest quality setting.");
                     }
-                    data = await new Promise((resolve) => {
+                    this.data = await new Promise((resolve) => {
                         image.quality(quality);
                         image.getBuffer(jimp.MIME_JPEG, (err, buffer) => { resolve(buffer); });
                     });
@@ -116,11 +193,11 @@ export default class Tnl {
 
             // wrap tnl data around jpeg
             let length = Buffer.alloc(4);
-            length.writeUInt32BE(data.length, 0);
+            length.writeUInt32BE(this.data.length, 0);
 
-            let padding = Buffer.alloc(0xC800 - data.length - 8);
+            let padding = Buffer.alloc(0xC800 - this.data.length - 8);
 
-            let fileWithoutCrc = Buffer.concat([length, data, padding], 0xC800 - 4);
+            let fileWithoutCrc = Buffer.concat([length, this.data, padding], 0xC800 - 4);
 
             let crcBuffer = Buffer.alloc(4);
             crcBuffer.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
@@ -128,27 +205,6 @@ export default class Tnl {
             let tnl = Buffer.concat([crcBuffer, fileWithoutCrc], TNL_SIZE);
             resolve(tnl);
 
-        });
-
-    }
-
-    async isBroken () {
-
-        return new Promise((resolve) => {
-            fs.readFile(this.pathToFile, (err, data) => {
-                if (err) throw err;
-                let length = data.readUInt32BE(4);
-                let jpeg = data.slice(8, 8 + length);
-                let count = 0;
-                try {
-                    for (let i = 0; i < jpeg.length; i+=4) {
-                        if (jpeg.readUInt32BE(i) === 0xA2800A28) {
-                            count++;
-                        }
-                    }
-                } catch (err) {}
-                resolve((count*4 / jpeg.length) > 0.5);
-            })
         });
 
     }
