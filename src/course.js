@@ -2,11 +2,16 @@ import Promise    from "bluebird"
 import crc32      from "buffer-crc32"
 import protobuf   from "protobufjs"
 import * as proto from "smm-protobuf/proto/bundle.json"
+import fileType   from "file-type"
+import readChunk  from "read-chunk"
+import { unzip }  from "cross-unzip"
+import tmp        from "tmp"
 
 import * as fs   from "fs"
 import * as path from "path"
 import * as zlib from "zlib"
 
+import { loadCourse } from "."
 import Block, { BLOCK_CONSTANTS } from "./block"
 import Sound, { SOUND_CONSTANTS } from "./sound"
 import {
@@ -413,7 +418,7 @@ export default class Course {
     }
 
     /**
-     * Load tnl thumbnails from fs.
+     * Load TNL thumbnails from fs.
      * Implicitly called by constructor
      * @function loadTnl
      * @memberOf Course
@@ -423,8 +428,8 @@ export default class Course {
     loadTnl () {
 
         return [
-            new Tnl(this[coursePath] + "/thumbnail0.tnl"),
-            new Tnl(this[coursePath] + "/thumbnail1.tnl")
+            (new Tnl(this[coursePath] + "/thumbnail0.tnl")).data,
+            (new Tnl(this[coursePath] + "/thumbnail1.tnl")).data
         ];
 
     }
@@ -470,14 +475,14 @@ export default class Course {
      * @memberOf Course
      * @instance
      * @param {string} pathToThumbnail - path to new thumbnail on fs
-     * @returns {null}
+     * @returns {Promise.<void>}
      */
     async setThumbnail (pathToThumbnail) {
 
         let jpeg = new Jpeg(path.resolve(pathToThumbnail));
-        this[tnl] = await jpeg.toTnl(true);
+        this[tnl] = new Tnl(await jpeg.toTnl(true));
         this.thumbnail = await this[tnl].toJpeg();
-        this[tnlPreview] = await jpeg.toTnl(false);
+        this[tnlPreview] = new Tnl(await jpeg.toTnl(false));
         this.thumbnailPreview = await this[tnlPreview].toJpeg();
         return null;
 
@@ -512,12 +517,12 @@ export default class Course {
 
         return await Promise.all([
             new Promise(resolve => {
-                fs.writeFile(path.join(this[coursePath], 'thumbnail0.tnl'), this[tnl], () => {
+                fs.writeFile(path.join(this[coursePath], 'thumbnail0.tnl'), this[tnl].data, () => {
                     resolve();
                 });
             }),
             new Promise(resolve => {
-                fs.writeFile(path.join(this[coursePath], 'thumbnail1.tnl'), this[tnlPreview], () => {
+                fs.writeFile(path.join(this[coursePath], 'thumbnail1.tnl'), this[tnlPreview].data, () => {
                     resolve();
                 });
             })
@@ -576,6 +581,65 @@ export default class Course {
         fs.writeFileSync(this[coursePath] + "/thumbnail0.jpg", this.thumbnail);
         fs.writeFileSync(this[coursePath] + "/thumbnail1.jpg", this.thumbnailPreview);
 
+    }
+
+    /**
+     * Decompresses a file and loads all included courses into an array
+     * @function decompress
+     * @memberOf Course
+     * @instance
+     * @param {string} filePath - path of compressed file
+     * @returns {Array.<Course>}
+     */
+    static async decompress (filePath) {
+        let mime = fileType(readChunk.sync(filePath, 0, 4100)).mime;
+        if (mime !== 'application/x-rar-compressed' && mime !== 'application/zip' && mime !== 'application/x-7z-compressed' && mime !== 'application/x-tar') {
+            throw new Error("Could not decompress file! Unknown format: " + mime)
+        }
+
+        // decompress
+        let tmpDir = await new Promise((resolve, reject) => {
+            tmp.dir({ unsafeCleanup: true }, (err, path) => {
+                if (err) reject(err);
+                resolve(path);
+            })
+        });
+        await new Promise((resolve, reject) => {
+            unzip(filePath, tmpDir, err => {
+                if (err) reject(err);
+                resolve();
+            });
+        });
+
+        // get course folders
+        let courseFolders = [];
+        let getCourseFolders = async (filePath) => {
+            await new Promise((resolve) => {
+                fs.readdir(filePath, async (err, files) => {
+                    if (err) throw err;
+                    for (let i = 0; i < files.length; i++) {
+                        let isFolder = /^[^.]+$/.test(files[i]);
+                        let isCourseFolder = /[c|C]ourse\d{3}$/.test(files[i]);
+                        if (isCourseFolder) {
+                            courseFolders.push(path.join(filePath, files[i]));
+                        } else if (isFolder) {
+                            await getCourseFolders(path.join(filePath, files[i]));
+                        }
+                    }
+
+                    resolve();
+                })
+            })
+        };
+        await getCourseFolders(tmpDir);
+
+        // load courses
+        let courses = [];
+        for (let i = 0; i < courseFolders.length; i++) {
+            courses.push(await loadCourse(courseFolders[i]));
+        }
+        //rimraf(tmpDir, () => {});
+        return courses;
     }
 
     /**

@@ -276,7 +276,7 @@ export default class Save {
     }
 
     /**
-     * Exports all JPEG thumbnails as TNL within course folders
+     * Imports all JPEG thumbnails as TNL within course folders
      * @function importThumbnail
      * @memberOf Save
      * @instance

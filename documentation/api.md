@@ -26,8 +26,11 @@
 <dt><a href="#loadCourseSync">loadCourseSync(coursePath, [courseId])</a> ⇒ <code><a href="#Course">Course</a></code></dt>
 <dd><p>Synchronous version of <a href="#loadCourse">loadCourse</a></p>
 </dd>
-<dt><a href="#deserialize">deserialize(buffer)</a> ⇒ <code><a href="#Course">Course</a></code></dt>
-<dd><p>Deserializes a Node buffer or Uint8Array</p>
+<dt><a href="#decompress">decompress(filePath)</a> ⇒ <code>Promise.&lt;Array.&lt;Course&gt;&gt;</code></dt>
+<dd><p>Decompresses a file and loads all included courses into an array</p>
+</dd>
+<dt><a href="#deserialize">deserialize(buffer)</a> ⇒ <code><a href="#Course">Promise.&lt;Course&gt;</a></code></dt>
+<dd><p>Deserializes a course object with compliance to <a href="https://github.com/Tarnadas/smm-protobuf">https://github.com/Tarnadas/smm-protobuf</a></p>
 </dd>
 <dt><a href="#loadImage">loadImage(pathToFile)</a> ⇒ <code><a href="#Tnl">Tnl</a></code> | <code><a href="#Jpeg">Jpeg</a></code></dt>
 <dd><p>Load JPEG or TNL image</p>
@@ -62,12 +65,13 @@
     * [.loadTnl()](#Course+loadTnl) ⇒ [<code>Array.&lt;Tnl&gt;</code>](#Tnl)
     * [.loadThumbnail()](#Course+loadThumbnail) ⇒ <code>null</code>
     * [.loadThumbnailSync()](#Course+loadThumbnailSync)
-    * [.setThumbnail(pathToThumbnail)](#Course+setThumbnail) ⇒ <code>null</code>
+    * [.setThumbnail(pathToThumbnail)](#Course+setThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.isThumbnailBroken()](#Course+isThumbnailBroken) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [.writeThumbnail()](#Course+writeThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.exportThumbnail()](#Course+exportThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.exportThumbnailSync()](#Course+exportThumbnailSync)
     * [.serialize()](#Course+serialize) ⇒ <code>Promise.&lt;Buffer&gt;</code>
+    * [.decompress(filePath)](#Course+decompress) ⇒ [<code>Array.&lt;Course&gt;</code>](#Course)
     * [.serializeGzipped()](#Course+serializeGzipped) ⇒ <code>Promise.&lt;Buffer&gt;</code>
     * [.deserialize(buffer)](#Course+deserialize) ⇒ [<code>Promise.&lt;Course&gt;</code>](#Course)
 
@@ -211,7 +215,7 @@ Sets a new maker for this course and optionally recalculates crc checksum
 <a name="Course+loadTnl"></a>
 
 ### course.loadTnl() ⇒ [<code>Array.&lt;Tnl&gt;</code>](#Tnl)
-Load tnl thumbnails from fs.
+Load TNL thumbnails from fs.
 Implicitly called by constructor
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
@@ -229,7 +233,7 @@ Synchronous version of [loadThumbnail](#Course+loadThumbnail)
 **Kind**: instance method of [<code>Course</code>](#Course)  
 <a name="Course+setThumbnail"></a>
 
-### course.setThumbnail(pathToThumbnail) ⇒ <code>null</code>
+### course.setThumbnail(pathToThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
 Change thumbnail of this course
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
@@ -282,6 +286,17 @@ Synchronous version of [exportThumbnail](#Course+exportThumbnail)
 Serializes a course object with compliance to [https://github.com/Tarnadas/smm-protobuf](https://github.com/Tarnadas/smm-protobuf)
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
+<a name="Course+decompress"></a>
+
+### course.decompress(filePath) ⇒ [<code>Array.&lt;Course&gt;</code>](#Course)
+Decompresses a file and loads all included courses into an array
+
+**Kind**: instance method of [<code>Course</code>](#Course)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| filePath | <code>string</code> | path of compressed file |
+
 <a name="Course+serializeGzipped"></a>
 
 ### course.serializeGzipped() ⇒ <code>Promise.&lt;Buffer&gt;</code>
@@ -385,7 +400,7 @@ Synchronous version of [exportThumbnail](#Save+exportThumbnail)
 <a name="Save+importThumbnail"></a>
 
 ### save.importThumbnail() ⇒ <code>Promise.&lt;void&gt;</code>
-Exports all JPEG thumbnails as TNL within course folders
+Imports all JPEG thumbnails as TNL within course folders
 
 **Kind**: instance method of [<code>Save</code>](#Save)  
 <a name="Save+unlockAmiibos"></a>
@@ -562,16 +577,27 @@ Synchronous version of [loadCourse](#loadCourse)
 | coursePath | <code>string</code> | path to course on fs |
 | [courseId] | <code>number</code> | course ID inside save |
 
-<a name="deserialize"></a>
+<a name="decompress"></a>
 
-## deserialize(buffer) ⇒ [<code>Course</code>](#Course)
-Deserializes a Node buffer or Uint8Array
+## decompress(filePath) ⇒ <code>Promise.&lt;Array.&lt;Course&gt;&gt;</code>
+Decompresses a file and loads all included courses into an array
 
 **Kind**: global function  
 
-| Param | Type |
-| --- | --- |
-| buffer | <code>Buffer</code> \| <code>Uint8Array</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| filePath | <code>string</code> | path of compresses file |
+
+<a name="deserialize"></a>
+
+## deserialize(buffer) ⇒ [<code>Promise.&lt;Course&gt;</code>](#Course)
+Deserializes a course object with compliance to [https://github.com/Tarnadas/smm-protobuf](https://github.com/Tarnadas/smm-protobuf)
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| buffer | <code>Buffer</code> \| <code>Uint8Array</code> | Node Buffer or Uint8Array to be converted to a [Course](#Course) |
 
 <a name="loadImage"></a>
 

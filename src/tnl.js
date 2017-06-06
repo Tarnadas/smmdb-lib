@@ -191,7 +191,7 @@ export class Jpeg extends Image {
                 }
             }
 
-            // wrap tnl data around jpeg
+            // wrap TNL data around JPEG
             let length = Buffer.alloc(4);
             length.writeUInt32BE(this.data.length, 0);
 
