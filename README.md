@@ -22,32 +22,62 @@ const smm = require("cemu-smm");
 const fs  = require("fs");
   
 (async () => {
-  // let us load our SMM save file
+    
+  /**
+   * save manipulation
+   */
   let save = await smm.loadSave("path/to/your/cemu/save/mlc01/emulatorSave/updateID");
   
   // reorder our course folders to match actual ingame appearance
-  save.reorder();
+  await save.reorder();
   
   // recalculate crc checksum and write to 'save.dat'
   // this always has to be done when changing bytes, e.g. in a Hex Editor
   // internally done by reorder(), so unnecessary right here
   await save.writeCrc();
   
-  // import all jpg files and create tnl files in their respective course folder
-  save.importJpeg();
+  // import all JPEG files and create TNL files in their respective course folder
+  await save.importThumbnail();
   
-  // extract all tnl files to jpeg in their respective course folder
-  save.exportJpeg();
+  // extract all TNL files to JPEG in their respective course folder
+  await save.exportThumbnail();
   
-  // load course folders inside save folder and write result to file in readable format
+  
+  
+  /**
+   * course manipulation
+   */
   let courses = await save.loadCourses();
-  fs.writeFileSync(`${__dirname}/courses.json`, JSON.stringify(courses, null, 2));
+  let course = courses.course000;
+  await course.setTitle("New Awesome Title");
+  await course.setMaker("New Awesome Maker");
+  await course.setThumbnail("path/to/image");
+  // write to fs / save course
+  course.writeToSave();
   
-  // load course block data and write result to file in readable format
-  //save.loadCourseElements(); // load whole save folder
-  fs.writeFileSync(`${__dirname}/course001.json`, JSON.stringify(courses["course001"].getElements(), null, 2));
+  // serialization
+  let serialized = await course.serialize();
+  // or gzip + serialize
+  //let serialized = await course.serializeGzipped();
+  // send serialized data to server
+  await require("request-promise").post({
+    url: "http://url.of.server",
+    formData: {
+      course: serialized
+    }
+  });
   
-  // convert tnl to jpeg
+  // deserialization
+  let response = await require("request-promise")("http://url.of.server/?query-string-to-receive-course-file");
+  let deserialized = await smm.deserialize(response);
+  // we could for example add the deserialized course to our save
+  await save.addCourse(deserialized);
+  
+  
+  
+  /**
+   * image manipulation
+   */
   let tnl = smm.loadImage("path/to/your/tnl/file");
   let jpeg = await tnl.toJpeg();
   fs.writeFileSync("path/to/newly/created/jpeg", jpeg);
@@ -56,15 +86,15 @@ const fs  = require("fs");
   jpeg = smm.loadImage("path/to/your/jpeg/file");
   
   // default conversion
-  tnl = await jpeg.fromJpeg();
+  tnl = await jpeg.toTnl();
   fs.writeFileSync("path/to/newly/created/tnl", tnl);
     
   // to wide
-  tnl = await jpeg.fromJpeg(true);
+  tnl = await jpeg.toTnl(true);
   fs.writeFileSync("path/to/newly/created/tnl", tnl);
     
   // to 4:3
-  tnl = await jpeg.fromJpeg(false);
+  tnl = await jpeg.toTnl(false);
   fs.writeFileSync("path/to/newly/created/tnl", tnl);
   
 })();

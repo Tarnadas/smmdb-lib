@@ -96,13 +96,23 @@ export function loadCourseSync (coursePath, courseId) {
 }
 
 /**
- * Deserializes a Node buffer or Uint8Array
- * @function deserialize
- * @param {Buffer | Uint8Array} buffer
- * @returns {Course}
+ * Decompresses a file and loads all included courses into an array
+ * @function decompress
+ * @param {string} filePath - path of compresses file
+ * @returns {Promise.<Array.<Course>>}
  */
-export function deserialize (buffer) {
-    return Course.deserialize(buffer);
+export async function decompress (filePath) {
+    return await Course.decompress(filePath);
+}
+
+/**
+ * Deserializes a course object with compliance to {@link https://github.com/Tarnadas/smm-protobuf}
+ * @function deserialize
+ * @param {Buffer|Uint8Array} buffer - Node Buffer or Uint8Array to be converted to a {@link Course}
+ * @returns {Promise.<Course>}
+ */
+export async function deserialize (buffer) {
+    return await Course.deserialize(buffer);
 }
 
 /**

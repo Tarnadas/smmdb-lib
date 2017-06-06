@@ -21,9 +21,9 @@ const fs  = require("fs");
   
   // deserialization
   let response = await rp("http://some-server-that-sends-serialized-courses.com");
-  let deserializedCourse = smm.deserialize(response);
+  let deserializedCourse = await smm.deserialize(response);
   // we could for example add the deserialized course to our save
-  save.addCourse(deserializedCourse);
+  await save.addCourse(deserializedCourse);
   
 })();
 ```
