@@ -33,6 +33,11 @@ class Image {
                 resolve(data);
             });
         });
+        return this;
+    }
+    readFileSync () {
+        this.data = fs.readFileSync(this.pathToFile);
+        return this;
     }
 }
 

@@ -88,6 +88,7 @@ export default class Course {
 
         if (!!path) {
             [this[tnl], this[tnlPreview]] = this.loadTnl();
+            this.loadThumbnailSync();
         }
 
         if (!this[courseData]) return this;
@@ -428,8 +429,8 @@ export default class Course {
     loadTnl () {
 
         return [
-            (new Tnl(this[coursePath] + "/thumbnail0.tnl")).data,
-            (new Tnl(this[coursePath] + "/thumbnail1.tnl")).data
+            (new Tnl(this[coursePath] + "/thumbnail0.tnl")).readFileSync().data,
+            (new Tnl(this[coursePath] + "/thumbnail1.tnl")).readFileSync().data
         ];
 
     }
@@ -444,8 +445,8 @@ export default class Course {
     async loadThumbnail () {
 
         try {
-            this.thumbnail = await this[tnl].toJpeg();
-            this.thumbnailPreview = await this[tnlPreview].toJpeg();
+            this.thumbnail = await new Tnl(this[tnl]).toJpeg();
+            this.thumbnailPreview = await new Tnl(this[tnlPreview]).toJpeg();
         } catch (err) {
             console.log(err);
         }
@@ -462,9 +463,10 @@ export default class Course {
     loadThumbnailSync () {
 
         try {
-            this.thumbnail = this[tnl].toJpegSync();
-            this.thumbnailPreview = this[tnlPreview].toJpegSync();
+            this.thumbnail = new Tnl(this[tnl]).toJpegSync();
+            this.thumbnailPreview = new Tnl(this[tnlPreview]).toJpegSync();
         } catch (err) {
+            console.log(err);
         }
 
     }
