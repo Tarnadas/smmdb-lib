@@ -686,6 +686,9 @@ export default class Course {
      * @returns {Promise<Course>}
      */
     static async deserialize (buffer) {
+        try {
+            buffer = await zlib.inflateSync(buffer);
+        } catch (err) {}
         let obj = smmCourse.toObject(smmCourse.decode(Buffer.from(buffer)), {
             arrays: true
         });
