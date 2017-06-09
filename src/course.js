@@ -88,6 +88,7 @@ export default class Course {
 
         if (!!path) {
             [this[tnl], this[tnlPreview]] = this.loadTnl();
+            this.loadThumbnailSync();
         }
 
         if (!this[courseData]) return this;
@@ -428,8 +429,8 @@ export default class Course {
     loadTnl () {
 
         return [
-            (new Tnl(this[coursePath] + "/thumbnail0.tnl")).data,
-            (new Tnl(this[coursePath] + "/thumbnail1.tnl")).data
+            (new Tnl(this[coursePath] + "/thumbnail0.tnl")).readFileSync().data,
+            (new Tnl(this[coursePath] + "/thumbnail1.tnl")).readFileSync().data
         ];
 
     }
@@ -444,8 +445,8 @@ export default class Course {
     async loadThumbnail () {
 
         try {
-            this.thumbnail = await this[tnl].toJpeg();
-            this.thumbnailPreview = await this[tnlPreview].toJpeg();
+            this.thumbnail = await new Tnl(this[tnl]).toJpeg();
+            this.thumbnailPreview = await new Tnl(this[tnlPreview]).toJpeg();
         } catch (err) {
             console.log(err);
         }
@@ -462,9 +463,10 @@ export default class Course {
     loadThumbnailSync () {
 
         try {
-            this.thumbnail = this[tnl].toJpegSync();
-            this.thumbnailPreview = this[tnlPreview].toJpegSync();
+            this.thumbnail = new Tnl(this[tnl]).toJpegSync();
+            this.thumbnailPreview = new Tnl(this[tnlPreview]).toJpegSync();
         } catch (err) {
+            console.log(err);
         }
 
     }
@@ -475,14 +477,20 @@ export default class Course {
      * @memberOf Course
      * @instance
      * @param {string} pathToThumbnail - path to new thumbnail on fs
+     * @param {string} [pathToThumbnailPreview] - path to new thumbnailPreview on fs
      * @returns {Promise.<void>}
      */
-    async setThumbnail (pathToThumbnail) {
+    async setThumbnail (pathToThumbnail, pathToThumbnailPreview) {
 
         let jpeg = new Jpeg(path.resolve(pathToThumbnail));
         this[tnl] = new Tnl(await jpeg.toTnl(true));
         this.thumbnail = await this[tnl].toJpeg();
-        this[tnlPreview] = new Tnl(await jpeg.toTnl(false));
+        if (!!pathToThumbnailPreview) {
+            jpeg = new Jpeg(path.resolve(pathToThumbnailPreview));
+        } else {
+            jpeg = new Jpeg(path.resolve(pathToThumbnail));
+        }
+        this[tnlPreview] = new Tnl(await jpeg.toTnl(false, true));
         this.thumbnailPreview = await this[tnlPreview].toJpeg();
         return null;
 
@@ -498,7 +506,10 @@ export default class Course {
     async isThumbnailBroken () {
 
         try {
-            return await this[tnlPreview].isBroken();
+            if (!!this[tnl] && !this.thumbnail) {
+                await this.loadThumbnail();
+            }
+            return await (new Jpeg(this.thumbnailPreview)).isBroken();
         } catch (err) {
             return true;
         }
@@ -684,6 +695,9 @@ export default class Course {
      * @returns {Promise<Course>}
      */
     static async deserialize (buffer) {
+        try {
+            buffer = zlib.inflateSync(buffer);
+        } catch (err) {}
         let obj = smmCourse.toObject(smmCourse.decode(Buffer.from(buffer)), {
             arrays: true
         });

@@ -127,9 +127,10 @@ export function loadImage(pathToFile) {
     let ending = split[split.length - 1];
     if (ending === 'tnl') {
         return new Tnl(pathToFile);
-    } else if (ending === 'jpg' || ending === 'jpeg') {
-        return new Jpeg(pathToFile);
+    //} else if (ending === 'jpg' || ending === 'jpeg') {
+        //return new Jpeg(pathToFile);
     } else {
-        throw new Error("image must either be jpeg or tnl ");
+        //throw new Error("image must either be jpeg or tnl ");
+        return new Jpeg(pathToFile);
     }
 }

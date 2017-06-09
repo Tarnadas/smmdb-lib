@@ -1,6 +1,6 @@
 {
   "name": "cemu-smm",
-  "version": "2.1.1",
+  "version": "2.1.4",
   "description": "This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu",
   "main": "lib",
   "scripts": {
@@ -17,7 +17,7 @@
     "buffer-crc32": "latest",
     "copy-dir": "^0.3.0",
     "cross-unzip": "^0.2.1",
-    "file-type": "^4.3.0",
+    "file-type": "^4.4.0",
     "jimp": "^0.2.27",
     "protobufjs": "^6.7.3",
     "read-chunk": "^2.0.0",
@@ -34,13 +34,12 @@
     "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",
     "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.4.0",
+    "babel-preset-env": "^1.5.2",
     "babel-preset-es2015": "^6.24.1",
     "jsdoc-babel": "^0.3.0",
     "jsdoc-to-markdown": "^3.0.0",
     "request": "^2.81.0",
     "request-promise": "^4.2.1",
-    "smm-api": "^1.0.1",
-    "unzip-response": "^3.0.0"
+    "smm-api": "^1.0.1"
   }
 }

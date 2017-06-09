@@ -65,7 +65,7 @@
     * [.loadTnl()](#Course+loadTnl) ⇒ [<code>Array.&lt;Tnl&gt;</code>](#Tnl)
     * [.loadThumbnail()](#Course+loadThumbnail) ⇒ <code>null</code>
     * [.loadThumbnailSync()](#Course+loadThumbnailSync)
-    * [.setThumbnail(pathToThumbnail)](#Course+setThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.setThumbnail(pathToThumbnail, [pathToThumbnailPreview])](#Course+setThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.isThumbnailBroken()](#Course+isThumbnailBroken) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [.writeThumbnail()](#Course+writeThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.exportThumbnail()](#Course+exportThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
@@ -233,7 +233,7 @@ Synchronous version of [loadThumbnail](#Course+loadThumbnail)
 **Kind**: instance method of [<code>Course</code>](#Course)  
 <a name="Course+setThumbnail"></a>
 
-### course.setThumbnail(pathToThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
+### course.setThumbnail(pathToThumbnail, [pathToThumbnailPreview]) ⇒ <code>Promise.&lt;void&gt;</code>
 Change thumbnail of this course
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
@@ -241,6 +241,7 @@ Change thumbnail of this course
 | Param | Type | Description |
 | --- | --- | --- |
 | pathToThumbnail | <code>string</code> | path to new thumbnail on fs |
+| [pathToThumbnailPreview] | <code>string</code> | path to new thumbnailPreview on fs |
 
 <a name="Course+isThumbnailBroken"></a>
 

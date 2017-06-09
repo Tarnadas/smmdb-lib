@@ -33,6 +33,11 @@ class Image {
                 resolve(data);
             });
         });
+        return this;
+    }
+    readFileSync () {
+        this.data = fs.readFileSync(this.pathToFile);
+        return this;
     }
 }
 
@@ -138,22 +143,23 @@ export class Jpeg extends Image {
             }
 
             let image = await jimp.read(this.data);
+            image.autocrop();
             let skipPreprocessing = false;
-            if (sizeOK && (image.bitmap.width === TNL_DIMENSION[0][0] && image.bitmap.height === TNL_DIMENSION[0][1] ||
-                image.bitmap.width === TNL_DIMENSION[1][0] && image.bitmap.height === TNL_DIMENSION[1][1])) {
+            if (sizeOK && ((isWide || isWide == null) && (image.bitmap.width === TNL_DIMENSION[0][0] && image.bitmap.height === TNL_DIMENSION[0][1]) ||
+                ((!isWide || isWide == null) && image.bitmap.width === TNL_DIMENSION[1][0] && image.bitmap.height === TNL_DIMENSION[1][1]))) {
                 skipPreprocessing = true;
             }
 
             // image pre-processing
             if (!skipPreprocessing) {
-                if (isWide === null) {
+                if (isWide == null) {
                     let aspectRatio = image.bitmap.width / image.bitmap.height;
                     if (aspectRatio > TNL_ASPECT_RATIO[0] - TNL_ASPECT_RATIO_THRESHOLD[0] && aspectRatio < TNL_ASPECT_RATIO[0] + TNL_ASPECT_RATIO_THRESHOLD[0]) {
                         isWide = true;
                     } else if (aspectRatio > TNL_ASPECT_RATIO[1] - TNL_ASPECT_RATIO_THRESHOLD[1] && aspectRatio < TNL_ASPECT_RATIO[1] + TNL_ASPECT_RATIO_THRESHOLD[1]) {
                         isWide = false;
                     }
-                    if (isWide === null) {
+                    if (isWide == null) {
                         isWide = TNL_ASPECT_RATIO[0] - TNL_ASPECT_RATIO_THRESHOLD[0] - aspectRatio <= TNL_ASPECT_RATIO[1] + TNL_ASPECT_RATIO_THRESHOLD[1] + aspectRatio;
                     }
                 }
@@ -162,13 +168,35 @@ export class Jpeg extends Image {
                     if (doClip) {
                         image.cover(TNL_DIMENSION[0][0], TNL_DIMENSION[0][1]);
                     } else {
-                        image.contain(TNL_DIMENSION[0][0], TNL_DIMENSION[0][1]);
+                        let aspectRatio = image.bitmap.width / image.bitmap.height;
+                        let width = aspectRatio < TNL_ASPECT_RATIO[0] ? (
+                            aspectRatio * TNL_DIMENSION[0][0] / TNL_ASPECT_RATIO[0]
+                        ) : (
+                            TNL_DIMENSION[0][0]
+                        );
+                        let height = aspectRatio > TNL_ASPECT_RATIO[0] ? (
+                            TNL_ASPECT_RATIO[0] * TNL_DIMENSION[0][1] / aspectRatio
+                        ) : (
+                            TNL_DIMENSION[0][1]
+                        );
+                        image.contain(width, height);
                     }
                 } else {
                     if (doClip) {
                         image.cover(TNL_DIMENSION[1][0], TNL_DIMENSION[1][1]);
                     } else {
-                        image.contain(TNL_DIMENSION[1][0], TNL_DIMENSION[1][1]);
+                        let aspectRatio = image.bitmap.width / image.bitmap.height;
+                        let width = aspectRatio < TNL_ASPECT_RATIO[1] ? (
+                            aspectRatio * TNL_DIMENSION[1][0] / TNL_ASPECT_RATIO[1]
+                        ) : (
+                            TNL_DIMENSION[1][0]
+                        );
+                        let height = aspectRatio > TNL_ASPECT_RATIO[1] ? (
+                            TNL_ASPECT_RATIO[1] * TNL_DIMENSION[1][1] / aspectRatio
+                        ) : (
+                            TNL_DIMENSION[1][1]
+                        );
+                        image.contain(width, height);
                     }
                 }
 
@@ -206,6 +234,30 @@ export class Jpeg extends Image {
             resolve(tnl);
 
         });
+
+    }
+
+    /**
+     * Check if JPEG thumbnail is broken and needs fix
+     * @function isBroken
+     * @memberOf Jpeg
+     * @instance
+     * @returns {Promise.<boolean>}
+     */
+    async isBroken () {
+
+        if (!this.data) {
+            await this.readFile();
+        }
+        let count = 0;
+        try {
+            for (let i = 0; i < this.data.length; i+=4) {
+                if (this.data.readUInt32BE(i) === 0xA2800A28) {
+                    count++;
+                }
+            }
+        } catch (err) {}
+        return (count*4 / this.data.length) > 0.5;
 
     }
 
