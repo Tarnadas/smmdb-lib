@@ -143,22 +143,23 @@ export class Jpeg extends Image {
             }
 
             let image = await jimp.read(this.data);
+            image.autocrop();
             let skipPreprocessing = false;
-            if (sizeOK && (image.bitmap.width === TNL_DIMENSION[0][0] && image.bitmap.height === TNL_DIMENSION[0][1] ||
-                image.bitmap.width === TNL_DIMENSION[1][0] && image.bitmap.height === TNL_DIMENSION[1][1])) {
+            if (sizeOK && ((isWide || isWide == null) && (image.bitmap.width === TNL_DIMENSION[0][0] && image.bitmap.height === TNL_DIMENSION[0][1]) ||
+                ((!isWide || isWide == null) && image.bitmap.width === TNL_DIMENSION[1][0] && image.bitmap.height === TNL_DIMENSION[1][1]))) {
                 skipPreprocessing = true;
             }
 
             // image pre-processing
             if (!skipPreprocessing) {
-                if (isWide === null) {
+                if (isWide == null) {
                     let aspectRatio = image.bitmap.width / image.bitmap.height;
                     if (aspectRatio > TNL_ASPECT_RATIO[0] - TNL_ASPECT_RATIO_THRESHOLD[0] && aspectRatio < TNL_ASPECT_RATIO[0] + TNL_ASPECT_RATIO_THRESHOLD[0]) {
                         isWide = true;
                     } else if (aspectRatio > TNL_ASPECT_RATIO[1] - TNL_ASPECT_RATIO_THRESHOLD[1] && aspectRatio < TNL_ASPECT_RATIO[1] + TNL_ASPECT_RATIO_THRESHOLD[1]) {
                         isWide = false;
                     }
-                    if (isWide === null) {
+                    if (isWide == null) {
                         isWide = TNL_ASPECT_RATIO[0] - TNL_ASPECT_RATIO_THRESHOLD[0] - aspectRatio <= TNL_ASPECT_RATIO[1] + TNL_ASPECT_RATIO_THRESHOLD[1] + aspectRatio;
                     }
                 }

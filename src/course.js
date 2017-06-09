@@ -477,13 +477,17 @@ export default class Course {
      * @memberOf Course
      * @instance
      * @param {string} pathToThumbnail - path to new thumbnail on fs
+     * @param {string} [pathToThumbnailPreview] - path to new thumbnailPreview on fs
      * @returns {Promise.<void>}
      */
-    async setThumbnail (pathToThumbnail) {
+    async setThumbnail (pathToThumbnail, pathToThumbnailPreview) {
 
         let jpeg = new Jpeg(path.resolve(pathToThumbnail));
         this[tnl] = new Tnl(await jpeg.toTnl(true));
         this.thumbnail = await this[tnl].toJpeg();
+        if (!!pathToThumbnailPreview) {
+            jpeg = new Jpeg(path.resolve(pathToThumbnailPreview));
+        }
         this[tnlPreview] = new Tnl(await jpeg.toTnl(false));
         this.thumbnailPreview = await this[tnlPreview].toJpeg();
         return null;
@@ -687,7 +691,7 @@ export default class Course {
      */
     static async deserialize (buffer) {
         try {
-            buffer = await zlib.inflateSync(buffer);
+            buffer = zlib.inflateSync(buffer);
         } catch (err) {}
         let obj = smmCourse.toObject(smmCourse.decode(Buffer.from(buffer)), {
             arrays: true
