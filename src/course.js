@@ -506,7 +506,10 @@ export default class Course {
     async isThumbnailBroken () {
 
         try {
-            return await this[tnlPreview].isBroken();
+            if (!!this[tnl] && !this.thumbnail) {
+                await this.loadThumbnail();
+            }
+            return await (new Jpeg(this.thumbnailPreview)).isBroken();
         } catch (err) {
             return true;
         }
