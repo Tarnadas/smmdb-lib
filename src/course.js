@@ -487,6 +487,8 @@ export default class Course {
         this.thumbnail = await this[tnl].toJpeg();
         if (!!pathToThumbnailPreview) {
             jpeg = new Jpeg(path.resolve(pathToThumbnailPreview));
+        } else {
+            jpeg = new Jpeg(path.resolve(pathToThumbnail));
         }
         this[tnlPreview] = new Tnl(await jpeg.toTnl(false));
         this.thumbnailPreview = await this[tnlPreview].toJpeg();
