@@ -679,7 +679,7 @@ export default class Course {
             await this.loadThumbnail();
         }
         return await new Promise((resolve, reject) => {
-            zlib.gzipSync(Buffer.from(JSON.parse(JSON.stringify(smmCourse.encode(this).finish()))), (err, buffer) => {
+            zlib.gzip(Buffer.from(JSON.parse(JSON.stringify(smmCourse.encode(this).finish()))), (err, buffer) => {
                 if (err) reject(err);
                 resolve(buffer);
             });
