@@ -512,6 +512,7 @@ Check if TNL thumbnail is broken and needs fix
 * [Jpeg](#Jpeg)
     * [new Jpeg()](#new_Jpeg_new)
     * [.toTnl()](#Jpeg+toTnl) ⇒ <code>Promise.&lt;(Buffer\|ArrayBuffer)&gt;</code>
+    * [.isBroken()](#Jpeg+isBroken) ⇒ <code>Promise.&lt;boolean&gt;</code>
 
 <a name="new_Jpeg_new"></a>
 
@@ -522,6 +523,12 @@ A JPEG file
 
 ### jpeg.toTnl() ⇒ <code>Promise.&lt;(Buffer\|ArrayBuffer)&gt;</code>
 Convert to TNL
+
+**Kind**: instance method of [<code>Jpeg</code>](#Jpeg)  
+<a name="Jpeg+isBroken"></a>
+
+### jpeg.isBroken() ⇒ <code>Promise.&lt;boolean&gt;</code>
+Check if JPEG thumbnail is broken and needs fix
 
 **Kind**: instance method of [<code>Jpeg</code>](#Jpeg)  
 <a name="loadSave"></a>

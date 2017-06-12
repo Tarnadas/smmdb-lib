@@ -4,10 +4,12 @@ import * as fs   from "fs"
 import * as path from "path"
 
 import Save   from "./save"
-import Course, { COURSE_CONSTANTS } from "./course"
+import Course from "./course"
 import {
     Tnl, Jpeg
 } from "./tnl"
+
+export const courseProto = Course.prototype;
 
 /**
  * Loads a save from fs

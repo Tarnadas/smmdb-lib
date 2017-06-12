@@ -679,7 +679,7 @@ export default class Course {
             await this.loadThumbnail();
         }
         return await new Promise((resolve, reject) => {
-            zlib.deflate(Buffer.from(JSON.parse(JSON.stringify(smmCourse.encode(this).finish()))), (err, buffer) => {
+            zlib.gzipSync(Buffer.from(JSON.parse(JSON.stringify(smmCourse.encode(this).finish()))), (err, buffer) => {
                 if (err) reject(err);
                 resolve(buffer);
             });
@@ -696,7 +696,7 @@ export default class Course {
      */
     static async deserialize (buffer) {
         try {
-            buffer = zlib.inflateSync(buffer);
+            buffer = zlib.gunzipSync(buffer);
         } catch (err) {}
         let obj = smmCourse.toObject(smmCourse.decode(Buffer.from(buffer)), {
             arrays: true
