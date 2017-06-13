@@ -7,6 +7,7 @@ import readChunk  from "read-chunk"
 //import { unzip }  from "cross-unzip"
 import Zip        from "node-7z"
 import tmp        from "tmp"
+import rimraf     from "rimraf"
 
 import * as fs   from "fs"
 import * as path from "path"
@@ -657,7 +658,7 @@ export default class Course {
         for (let i = 0; i < courseFolders.length; i++) {
             courses.push(await loadCourse(courseFolders[i]));
         }
-        //rimraf(tmpDir, () => {});
+        rimraf(tmpDir, () => {});
         return courses;
     }
 
