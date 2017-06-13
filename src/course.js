@@ -623,7 +623,12 @@ export default class Course {
             });
         });*/
         let zip = new Zip();
-        await zip.extractFull(filePath, tmpDir);
+        try {
+            await zip.extractFull(filePath, tmpDir);
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
 
         // get course folders
         let courseFolders = [];
