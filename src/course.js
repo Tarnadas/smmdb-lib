@@ -4,7 +4,8 @@ import protobuf   from "protobufjs"
 import * as proto from "smm-protobuf/proto/bundle.json"
 import fileType   from "file-type"
 import readChunk  from "read-chunk"
-import { unzip }  from "cross-unzip"
+//import { unzip }  from "cross-unzip"
+import Zip        from "node-7z"
 import tmp        from "tmp"
 
 import * as fs   from "fs"
@@ -615,12 +616,14 @@ export default class Course {
                 resolve(path);
             })
         });
-        await new Promise((resolve, reject) => {
+        /*await new Promise((resolve, reject) => {
             unzip(filePath, tmpDir, err => {
                 if (err) reject(err);
                 resolve();
             });
-        });
+        });*/
+        let zip = new Zip();
+        await zip.extractFull(filePath, tmpDir);
 
         // get course folders
         let courseFolders = [];
