@@ -27,7 +27,8 @@
 <dd><p>Synchronous version of <a href="#loadCourse">loadCourse</a></p>
 </dd>
 <dt><a href="#decompress">decompress(filePath)</a> ⇒ <code>Promise.&lt;Array.&lt;Course&gt;&gt;</code></dt>
-<dd><p>Decompresses a file and loads all included courses into an array</p>
+<dd><p>Decompresses a file and loads all included courses into an array.
+Requires p7zip for Unix and 7z.exe for Windows (Place exe in same folder as package.json or add to PATH)</p>
 </dd>
 <dt><a href="#deserialize">deserialize(buffer)</a> ⇒ <code><a href="#Course">Promise.&lt;Course&gt;</a></code></dt>
 <dd><p>Deserializes a course object with compliance to <a href="https://github.com/Tarnadas/smm-protobuf">https://github.com/Tarnadas/smm-protobuf</a></p>
@@ -54,8 +55,8 @@
     * [.autoScrollSub](#Course+autoScrollSub) : <code>number</code>
     * [.width](#Course+width) : <code>number</code>
     * [.widthSub](#Course+widthSub) : <code>number</code>
-    * [.blocks](#Course+blocks) : <code>Array.&lt;Block&gt;</code>
-    * [.blocksSub](#Course+blocksSub) : <code>Array.&lt;Block&gt;</code>
+    * [.tiles](#Course+tiles) : <code>Array.&lt;Tile&gt;</code>
+    * [.tilesSub](#Course+tilesSub) : <code>Array.&lt;Tile&gt;</code>
     * [.sounds](#Course+sounds) : <code>Array.&lt;Sound&gt;</code>
     * [.soundsSub](#Course+soundsSub) : <code>Array.&lt;Sound&gt;</code>
     * [.writeToSave(id, pathToCourse)](#Course+writeToSave)
@@ -140,16 +141,16 @@ Course width
 CourseSub width
 
 **Kind**: instance property of [<code>Course</code>](#Course)  
-<a name="Course+blocks"></a>
+<a name="Course+tiles"></a>
 
-### course.blocks : <code>Array.&lt;Block&gt;</code>
-Blocks of main course
+### course.tiles : <code>Array.&lt;Tile&gt;</code>
+Tiles of main course
 
 **Kind**: instance property of [<code>Course</code>](#Course)  
-<a name="Course+blocksSub"></a>
+<a name="Course+tilesSub"></a>
 
-### course.blocksSub : <code>Array.&lt;Block&gt;</code>
-Blocks of sub course
+### course.tilesSub : <code>Array.&lt;Tile&gt;</code>
+Tiles of sub course
 
 **Kind**: instance property of [<code>Course</code>](#Course)  
 <a name="Course+sounds"></a>
@@ -290,7 +291,8 @@ Serializes a course object with compliance to [https://github.com/Tarnadas/smm-p
 <a name="Course+decompress"></a>
 
 ### course.decompress(filePath) ⇒ [<code>Array.&lt;Course&gt;</code>](#Course)
-Decompresses a file and loads all included courses into an array
+Decompresses a file and loads all included courses into an array.
+Requires p7zip for Unix and 7z.exe for Windows (Place exe in same folder as package.json or add to PATH)
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 
@@ -588,7 +590,7 @@ Synchronous version of [loadCourse](#loadCourse)
 <a name="decompress"></a>
 
 ## decompress(filePath) ⇒ <code>Promise.&lt;Array.&lt;Course&gt;&gt;</code>
-Decompresses a file and loads all included courses into an array
+Decompresses a file and loads all included courses into an array.Requires p7zip for Unix and 7z.exe for Windows (Place exe in same folder as package.json or add to PATH)
 
 **Kind**: global function  
 

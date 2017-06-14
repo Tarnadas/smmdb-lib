@@ -1,4 +1,4 @@
-export const BLOCK_CONSTANTS = {
+export const TILE_CONSTANTS = {
     SIZE: 0x20,
 
     COORDINATE_MULTIPLIER: 0xA0,
@@ -43,7 +43,7 @@ const costume   = Symbol();
 const unknown0  = Symbol();
 const unknown1  = Symbol();
 
-export default class Block {
+export default class Tile {
     
     constructor (data) {
 
@@ -81,14 +81,14 @@ export default class Block {
             this[hasId] = true;
         }*/
 
-        this.blockData = data;
+        this.tileData = data;
         
     }
 
     toBuffer (lazy) {
 
         if (lazy) {
-            return this.blockData;
+            return this.tileData;
         }
 
     }

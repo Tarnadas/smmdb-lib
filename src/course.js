@@ -14,7 +14,7 @@ import * as path from "path"
 import * as zlib from "zlib"
 
 import { loadCourse } from "."
-import Block, { BLOCK_CONSTANTS } from "./block"
+import Tile, { TILE_CONSTANTS } from "./tile"
 import Sound, { SOUND_CONSTANTS } from "./sound"
 import {
     Tnl, Jpeg
@@ -57,9 +57,9 @@ export const COURSE_CONSTANTS = {
 
     WIDTH_OFFSET: 0x76,
 
-    BLOCK_AMOUNT_OFFSET: 0xEE, // uint_16
+    TILE_AMOUNT_OFFSET: 0xEE, // uint_16
 
-    BLOCKS_OFFSET: 0xF0,
+    TILES_OFFSET: 0xF0,
 
     SOUND_OFFSET: 0x145F0,
     SOUND_END_OFFSET: 0x14F50
@@ -194,29 +194,29 @@ export default class Course {
         this.widthSub = dataSub.readUInt16BE(COURSE_CONSTANTS.WIDTH_OFFSET);
 
         /**
-         * Blocks of main course
-         * @member {Array<Block>} blocks
+         * Tiles of main course
+         * @member {Array<Tile>} tiles
          * @memberOf Course
          * @instance
          */
-        this.blocks = [];
-        let blockAmount = this[courseData].readUInt16BE(COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
-        for (let i = 0, offset = COURSE_CONSTANTS.BLOCKS_OFFSET; i < blockAmount; i++, offset += BLOCK_CONSTANTS.SIZE) {
-            let blockData = this[courseData].slice(offset, offset + BLOCK_CONSTANTS.SIZE);
-            this.blocks.push(new Block(blockData));
+        this.tiles = [];
+        let tileAmount = this[courseData].readUInt16BE(COURSE_CONSTANTS.TILE_AMOUNT_OFFSET);
+        for (let i = 0, offset = COURSE_CONSTANTS.TILES_OFFSET; i < tileAmount; i++, offset +=TILE_CONSTANTS.SIZE) {
+            let tileData = this[courseData].slice(offset, offset + TILE_CONSTANTS.SIZE);
+            this.tiles.push(new Tile(tileData));
         }
 
         /**
-         * Blocks of sub course
-         * @member {Array<Block>} blocksSub
+         * Tiles of sub course
+         * @member {Array<Tile>} tilesSub
          * @memberOf Course
          * @instance
          */
-        this.blocksSub = [];
-        blockAmount = this[courseDataSub].readUInt16BE(COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
-        for (let i = 0, offset = COURSE_CONSTANTS.BLOCKS_OFFSET; i < blockAmount; i++, offset += BLOCK_CONSTANTS.SIZE) {
-            let blockData = this[courseDataSub].slice(offset, offset + BLOCK_CONSTANTS.SIZE);
-            this.blocksSub.push(new Block(blockData));
+        this.tilesSub = [];
+        tileAmount = this[courseDataSub].readUInt16BE(COURSE_CONSTANTS.TILE_AMOUNT_OFFSET);
+        for (let i = 0, offset = COURSE_CONSTANTS.TILES_OFFSET; i < tileAmount; i++, offset += TILE_CONSTANTS.SIZE) {
+            let tileData = this[courseDataSub].slice(offset, offset + TILE_CONSTANTS.SIZE);
+            this.tilesSub.push(new Tile(tileData));
         }
 
         /**
@@ -258,13 +258,13 @@ export default class Course {
         let courseTheme = ['courseTheme', 'courseThemeSub'];
         let autoScroll  = ['autoScroll', 'autoScrollSub'];
         let width       = ['width', 'widthSub'];
-        let blocks      = ['blocks', 'blocksSub'];
+        let tiles       = ['tiles', 'tilesSub'];
         let sounds      = ['sounds', 'soundsSub'];
         for (let i = 0; i < data.length; i++) {
             // meta
-            course[data[i]] = Buffer.alloc(COURSE_CONSTANTS.BLOCKS_OFFSET);
+            course[data[i]] = Buffer.alloc(COURSE_CONSTANTS.TILES_OFFSET);
             course[data[i]].writeUInt8(0xB, 7);
-            course[data[i]].writeUInt16BE(course.blocks.length, COURSE_CONSTANTS.BLOCK_AMOUNT_OFFSET);
+            course[data[i]].writeUInt16BE(course.tiles.length, COURSE_CONSTANTS.TILE_AMOUNT_OFFSET);
             course[data[i]].write(course.title, COURSE_CONSTANTS.NAME_OFFSET, 'utf16le');
             course[data[i]].write(course.maker, COURSE_CONSTANTS.MAKER_OFFSET, 'utf16le');
             course[data[i]].write(COURSE_CONSTANTS.GAME_STYLE_BY_ID[course.gameStyle], COURSE_CONSTANTS.GAME_STYLE_OFFSET);
@@ -273,12 +273,12 @@ export default class Course {
             course[data[i]].writeUInt8(course[autoScroll[i]], COURSE_CONSTANTS.AUTO_SCROLL_OFFSET);
             course[data[i]].writeUInt16BE(course[width[i]], COURSE_CONSTANTS.WIDTH_OFFSET);
 
-            // blocks
-            let blockBuffer = Buffer.alloc(0);
-            for (let j = 0; j < course[blocks[i]].length; j++) {
-                blockBuffer = Buffer.concat([blockBuffer, course[blocks[i]][j].blockData]);
+            // tiles
+            let tileBuffer = Buffer.alloc(0);
+            for (let j = 0; j < course[tiles[i]].length; j++) {
+                tileBuffer = Buffer.concat([tileBuffer, course[tiles[i]][j].tileData]);
             }
-            course[data[i]] = Buffer.concat([course[data[i]], blockBuffer], COURSE_CONSTANTS.SOUND_OFFSET);
+            course[data[i]] = Buffer.concat([course[data[i]], tileBuffer], COURSE_CONSTANTS.SOUND_OFFSET);
 
             // sounds
             let soundBuffer = Buffer.alloc(0);
@@ -597,7 +597,8 @@ export default class Course {
     }
 
     /**
-     * Decompresses a file and loads all included courses into an array
+     * Decompresses a file and loads all included courses into an array.
+     * Requires p7zip for Unix and 7z.exe for Windows (Place exe in same folder as package.json or add to PATH)
      * @function decompress
      * @memberOf Course
      * @instance
