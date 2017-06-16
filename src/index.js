@@ -56,28 +56,34 @@ export function loadSaveSync(pathToSave) {
  * @param {number} [courseId] - course ID inside save
  * @return {Promise.<Course>}
  */
-export async function loadCourse (coursePath, courseId) {
+export async function loadCourse (coursePath, courseId, isWiiU = true) {
 
     return new Promise ((resolve, reject) => {
-        fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
-            if (err || !data) {
-                reject(err);
-            }
-            let dataSub = await new Promise((resolve, reject) => {
-                fs.readFile(path.resolve(`${coursePath}/course_data_sub.cdt`), async (err, data) => {
-                    if (err || !data) {
-                        reject(err);
-                    }
-                    resolve(data);
+        if (isWiiU) {
+            fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
+                if (err || !data) {
+                    reject(err);
+                }
+                let dataSub = await new Promise((resolve, reject) => {
+                    fs.readFile(path.resolve(`${coursePath}/course_data_sub.cdt`), async (err, data) => {
+                        if (err || !data) {
+                            reject(err);
+                        }
+                        resolve(data);
+                    });
                 });
+                try {
+                    let course = new Course(true, courseId, data, dataSub, coursePath);
+                    resolve(course);
+                } catch (err) {
+                    reject(err);
+                }
             });
-            try {
-                let course = new Course(courseId, data, dataSub, coursePath);
-                resolve(course);
-            } catch (err) {
-                reject(err);
-            }
-        });
+        } else {
+            let data = fs.readFileSync(coursePath);
+            let course = new Course(false, courseId, data, null, coursePath);
+            resolve(course);
+        }
     });
 
 }

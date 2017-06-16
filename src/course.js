@@ -8,6 +8,7 @@ import readChunk  from "read-chunk"
 import Zip        from "node-7z"
 import tmp        from "tmp"
 import rimraf     from "rimraf"
+import bit        from 'bitwise'
 
 import * as fs   from "fs"
 import * as path from "path"
@@ -71,6 +72,7 @@ const courseData    = Symbol();
 const courseDataSub = Symbol();
 const tnl           = Symbol();
 const tnlPreview    = Symbol();
+const endiannessBE  = Symbol();
 
 /**
  * Represents a Super Mario Maker course
@@ -78,22 +80,32 @@ const tnlPreview    = Symbol();
  */
 export default class Course {
 
-    constructor (id, data, dataSub, path) {
+    constructor (isWiiU, id, data, dataSub, path) {
 
         if (!!path && !fs.existsSync(path)) {
             throw new Error("Path does not exists: " + path);
         }
         this[courseId] = id;
-        this[courseData] = data;
-        this[courseDataSub] = dataSub;
+        if (isWiiU) {
+            this[endiannessBE] = true;
+            this[courseData] = data;
+            this[courseDataSub] = dataSub;
+            if (!!path) {
+                [this[tnl], this[tnlPreview]] = this.loadTnl();
+                this.loadThumbnailSync();
+            }
+        } else {
+            this[endiannessBE] = false;
+            this[courseData] = data.slice(0x1C, 0x15000 + 0x1C);
+            this[courseDataSub] = data.slice(0x15000 + 0x1C, 2 * 0x15000 + 0x1C);
+            this.changeEndian();
+            // TODO convert 3DS thumbnail to jpeg
+            this.thumbnail = Buffer.alloc(0xABE0);//data.slice(2 * 0x15000 + 0x1C, 2 * 0x15000 + 0x1C + 0x157C0);
+            this.thumbnailPreview = Buffer.alloc(0xABE0);//data.slice(2 * 0x15000 + 0x1C, 2 * 0x15000 + 0x1C + 0x157C0);
+        }
         this[coursePath] = path;
 
-        if (!!path) {
-            [this[tnl], this[tnlPreview]] = this.loadTnl();
-            this.loadThumbnailSync();
-        }
-
-        if (!this[courseData]) return this;
+        if (!this[courseData] || !this[courseDataSub]) return this;
 
         /**
          * Title of course
@@ -102,7 +114,7 @@ export default class Course {
          * @instance
          */
         this.title = "";
-        let titleBuf = data.slice(COURSE_CONSTANTS.NAME_OFFSET, COURSE_CONSTANTS.NAME_OFFSET + COURSE_CONSTANTS.NAME_LENGTH);
+        let titleBuf = this[courseData].slice(COURSE_CONSTANTS.NAME_OFFSET, COURSE_CONSTANTS.NAME_OFFSET + COURSE_CONSTANTS.NAME_LENGTH);
         for (let i = 0; i < COURSE_CONSTANTS.NAME_LENGTH; i+=2) {
             let charBuf = Buffer.allocUnsafe(2);
             charBuf.writeUInt16BE(titleBuf.readUInt16BE(i), 0);
@@ -119,7 +131,7 @@ export default class Course {
          * @instance
          */
         this.maker = "";
-        let makerBuf = data.slice(COURSE_CONSTANTS.MAKER_OFFSET, COURSE_CONSTANTS.MAKER_OFFSET + COURSE_CONSTANTS.MAKER_LENGTH);
+        let makerBuf = this[courseData].slice(COURSE_CONSTANTS.MAKER_OFFSET, COURSE_CONSTANTS.MAKER_OFFSET + COURSE_CONSTANTS.MAKER_LENGTH);
         for (let i =  0; i < COURSE_CONSTANTS.MAKER_LENGTH; i+=2) {
             let charBuf = Buffer.allocUnsafe(2);
             charBuf.writeUInt16BE(makerBuf.readUInt16BE(i), 0);
@@ -135,7 +147,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.gameStyle = COURSE_CONSTANTS.GAME_STYLE[data.slice(COURSE_CONSTANTS.GAME_STYLE_OFFSET, COURSE_CONSTANTS.GAME_STYLE_OFFSET + 2).toString()];
+        this.gameStyle = COURSE_CONSTANTS.GAME_STYLE[this[courseData].slice(COURSE_CONSTANTS.GAME_STYLE_OFFSET, COURSE_CONSTANTS.GAME_STYLE_OFFSET + 2).toString()];
 
         /**
          * Course theme
@@ -143,7 +155,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.courseTheme = data.readUInt8(COURSE_CONSTANTS.THEME_OFFSET);
+        this.courseTheme = this[courseData].readUInt8(COURSE_CONSTANTS.THEME_OFFSET);
 
         /**
          * Course theme sub
@@ -151,7 +163,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.courseThemeSub = dataSub.readUInt8(COURSE_CONSTANTS.THEME_OFFSET);
+        this.courseThemeSub = this[courseDataSub].readUInt8(COURSE_CONSTANTS.THEME_OFFSET);
 
         /**
          * Completion time
@@ -159,7 +171,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.time = data.readUInt16BE(COURSE_CONSTANTS.TIME_OFFSET);
+        this.time = this[courseData].readUInt16BE(COURSE_CONSTANTS.TIME_OFFSET);
 
         /**
          * Course auto scroll
@@ -167,7 +179,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.autoScroll = data.readUInt8(COURSE_CONSTANTS.AUTO_SCROLL_OFFSET);
+        this.autoScroll = this[courseData].readUInt8(COURSE_CONSTANTS.AUTO_SCROLL_OFFSET);
 
         /**
          * CourseSub auto scroll
@@ -175,7 +187,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.autoScrollSub = dataSub.readUInt8(COURSE_CONSTANTS.AUTO_SCROLL_OFFSET);
+        this.autoScrollSub = this[courseDataSub].readUInt8(COURSE_CONSTANTS.AUTO_SCROLL_OFFSET);
 
         /**
          * Course width
@@ -183,7 +195,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.width = data.readUInt16BE(COURSE_CONSTANTS.WIDTH_OFFSET);
+        this.width = this[courseData].readUInt16BE(COURSE_CONSTANTS.WIDTH_OFFSET);
 
         /**
          * CourseSub width
@@ -191,7 +203,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.widthSub = dataSub.readUInt16BE(COURSE_CONSTANTS.WIDTH_OFFSET);
+        this.widthSub = this[courseDataSub].readUInt16BE(COURSE_CONSTANTS.WIDTH_OFFSET);
 
         /**
          * Tiles of main course
@@ -292,10 +304,12 @@ export default class Course {
         }
         await course.writeCrc();
 
-        let jpeg = new Jpeg(course.thumbnail);
-        course[tnl] = await jpeg.toTnl(true);
-        jpeg = new Jpeg(course.thumbnailPreview);
-        course[tnlPreview] = await jpeg.toTnl(false);
+        try {
+            let jpeg = new Jpeg(course.thumbnail);
+            course[tnl] = await jpeg.toTnl(true);
+            jpeg = new Jpeg(course.thumbnailPreview);
+            course[tnlPreview] = await jpeg.toTnl(false);
+        } catch (err) {}
 
         return course;
 
@@ -313,7 +327,9 @@ export default class Course {
     writeToSave (id, pathToCourse) {
 
         this[courseId] = id;
-        this[coursePath] = pathToCourse;
+        if (!!pathToCourse) {
+            this[coursePath] = pathToCourse;
+        }
         if (!fs.existsSync(this[coursePath])){
             fs.mkdirSync(this[coursePath]);
         }
@@ -367,6 +383,73 @@ export default class Course {
                 }
             })
         ]);
+
+    }
+
+    to3DS () {
+
+        if (this[endiannessBE]) {
+            this.changeEndian();
+        }
+        return Buffer.concat([
+            Buffer.alloc(0x1C),
+            this[courseData],
+            this[courseDataSub],
+            Buffer.alloc(0x157C0),
+            Buffer.alloc(0xCE4)
+        ]);
+
+    }
+
+    changeEndian () {
+
+        this[endiannessBE] = !this[endiannessBE];
+        let chEnd = (buf) => {
+            return Buffer.concat([
+                buf.slice(0x0, 0x4),
+                buf.slice(0x4, 0x8).swap32(),
+                buf.slice(0x8, 0x10),
+                buf.slice(0x10, 0x12).swap16(),
+                buf.slice(0x12, 0x28),
+                buf.slice(0x28, 0x6A).swap16(),
+                buf.slice(0x6A, 0x70),
+                buf.slice(0x70, 0x72).swap16(),
+                buf.slice(0x72, 0x74),
+                buf.slice(0x74, 0x78).swap32(),
+                buf.slice(0x78, 0xEC),
+                buf.slice(0xEC, 0xF0).swap32()
+            ].concat(Array.from((function * () {
+                for (let i = 0xF0; i < 0x145F0; i += 0x20) {
+                    yield buf.slice(i, i + 4).swap32();
+                    yield buf.slice(i + 4, i + 8).swap32();
+                    yield buf.slice(i + 8, i + 0xA).swap16();
+                    yield buf.slice(i + 0xA, i + 0xC);
+                    yield buf.slice(i + 0xC, i + 0x10).swap32();
+                    yield buf.slice(i + 0x10, i + 0x14).swap32();
+                    yield buf.slice(i + 0x14, i + 0x18).swap32();
+                    yield buf.slice(i + 0x18, i + 0x1A);
+                    yield buf.slice(i + 0x1A, i + 0x1C).swap16();
+                    yield buf.slice(i + 0x1C, i + 0x1E).swap16();
+                    yield buf.slice(i + 0x1E, i + 0x20);
+                }
+            })())).concat(Array.from((function * () {
+                for (let i = 0x145F0; i < 0x14F50; i += 0x8) {
+                    yield buf.slice(i, i + 0x8);
+                }
+            })())), 0x15000);
+        };
+        [this[courseData], this[courseDataSub]] = [
+            chEnd(this[courseData]), chEnd(this[courseDataSub])
+        ];
+        let crc0 = crc32.unsigned(this[courseData].slice(0x10));
+        let crc1 = crc32.unsigned(this[courseDataSub].slice(0x10));
+        if (this[endiannessBE]) {
+            this[courseData].writeUInt32BE(crc0, 8);
+            this[courseDataSub].writeUInt32BE(crc1, 8);
+        } else {
+            this[courseData].writeUInt32LE(crc0, 8);
+            this[courseDataSub].writeUInt32LE(crc1, 8);
+        }
 
     }
 
