@@ -18,7 +18,7 @@ import { loadCourse } from "."
 import Tile, { TILE_CONSTANTS } from "./tile"
 import Sound, { SOUND_CONSTANTS } from "./sound"
 import {
-    Tnl, Jpeg
+    Tnl, Jpeg, Image
 } from "./tnl"
 
 const sound = fs.readFileSync(path.join(__dirname, "../data/sound.bwv"));
@@ -63,7 +63,11 @@ export const COURSE_CONSTANTS = {
     TILES_OFFSET: 0xF0,
 
     SOUND_OFFSET: 0x145F0,
-    SOUND_END_OFFSET: 0x14F50
+    SOUND_END_OFFSET: 0x14F50,
+
+    DS_HEADER_CRC_OFFSET: 0x4F014,
+    DS_HEADER_LENGTH: 0x1C,
+    DS_FILE_LENGTH: 0x4301C
 };
 
 const courseId      = Symbol();
@@ -73,6 +77,7 @@ const courseDataSub = Symbol();
 const tnl           = Symbol();
 const tnlPreview    = Symbol();
 const endiannessBE  = Symbol();
+const image3DS      = Symbol();
 
 /**
  * Represents a Super Mario Maker course
@@ -98,10 +103,12 @@ export default class Course {
             this[endiannessBE] = false;
             this[courseData] = data.slice(0x1C, 0x15000 + 0x1C);
             this[courseDataSub] = data.slice(0x15000 + 0x1C, 2 * 0x15000 + 0x1C);
-            this.changeEndian();
+            this[image3DS] = new Image(data.slice(0x2A05C, 0x2A05C + 0x157C0));
+            this[image3DS].from3DS();
+            //this.changeEndian();
             // TODO convert 3DS thumbnail to jpeg
-            this.thumbnail = Buffer.alloc(0xABE0);//data.slice(2 * 0x15000 + 0x1C, 2 * 0x15000 + 0x1C + 0x157C0);
-            this.thumbnailPreview = Buffer.alloc(0xABE0);//data.slice(2 * 0x15000 + 0x1C, 2 * 0x15000 + 0x1C + 0x157C0);
+            //this.thumbnail = Buffer.alloc(0xABE0);//data.slice(2 * 0x15000 + 0x1C, 2 * 0x15000 + 0x1C + 0x157C0);
+            //this.thumbnailPreview = Buffer.alloc(0xABE0);//data.slice(2 * 0x15000 + 0x1C, 2 * 0x15000 + 0x1C + 0x157C0);
         }
         this[coursePath] = path;
 
@@ -386,18 +393,31 @@ export default class Course {
 
     }
 
+    setHeader (fileBuffer) {
+
+        let hash = 1;
+        for (let i = COURSE_CONSTANTS.DS_HEADER_LENGTH; i < fileBuffer.length; i+=2) {
+            hash += fileBuffer.readUInt16LE(i);
+        }
+        const crc = ((COURSE_CONSTANTS.DS_HEADER_CRC_OFFSET + hash) << 32) >>> 32;
+        fileBuffer.writeUInt32LE(crc, 0);
+
+    }
+
     to3DS () {
 
         if (this[endiannessBE]) {
             this.changeEndian();
         }
-        return Buffer.concat([
-            Buffer.alloc(0x1C),
+        let res = Buffer.concat([
+            Buffer.from('00000000043004007D000000DDBAFECA3BA0B2B86E55298B00C01000', 'hex'),
             this[courseData],
             this[courseDataSub],
             Buffer.alloc(0x157C0),
-            Buffer.alloc(0xCE4)
+            Buffer.alloc(0x3840)
         ]);
+        this.setHeader(res);
+        return res;
 
     }
 

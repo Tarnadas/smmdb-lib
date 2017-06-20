@@ -8,6 +8,8 @@ const http  = require("http");
 const fs    = require("fs");
 const path  = require("path");
 
+const Course = require("../lib/Course");
+
 (async () => {
 
     //let save = await smm.loadSave("C:/Users/Public/Games/Cemu/cemu_1.7.4/mlc01/emulatorSave/44fc5929");
@@ -17,9 +19,7 @@ const path  = require("path");
     //save.reorderSync();
     //await save.reorder();
 
-    let course = await smm.loadCourse(path.join(__dirname, 'course048'), 0, false);
-    //console.log(course);
-    //course.writeToSave(0, path.join(__dirname, 'coursetest'));
+    let course = await smm.loadCourse(path.join(__dirname, 'course037'), 0, false);
     fs.writeFileSync(path.join(__dirname, 'courseconverted'), course.to3DS());
 
     let benchmark = async () => {
