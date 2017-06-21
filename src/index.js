@@ -95,11 +95,16 @@ export async function loadCourse (coursePath, courseId, isWiiU = true) {
  * @param {number} [courseId] - course ID inside save
  * @returns {Course}
  */
-export function loadCourseSync (coursePath, courseId) {
+export function loadCourseSync (coursePath, courseId, isWiiU = true) {
 
-    let data = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
-    let dataSub = fs.readFileSync(path.resolve(`${coursePath}/course_data_sub.cdt`));
-    return new Course(courseId, data, dataSub, coursePath);
+    if (isWiiU) {
+        let data = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
+        let dataSub = fs.readFileSync(path.resolve(`${coursePath}/course_data_sub.cdt`));
+        return new Course(true, courseId, data, dataSub, coursePath);
+    } else {
+        let data = fs.readFileSync(coursePath);
+        return new Course(false, courseId, data, null, coursePath);
+    }
 
 }
 

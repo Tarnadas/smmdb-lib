@@ -1,27 +1,25 @@
-import Promise    from "bluebird"
-import crc32      from "buffer-crc32"
-import protobuf   from "protobufjs"
-import * as proto from "smm-protobuf/proto/bundle.json"
-import fileType   from "file-type"
-import readChunk  from "read-chunk"
-//import { unzip }  from "cross-unzip"
-import Zip        from "node-7z"
-import tmp        from "tmp"
-import rimraf     from "rimraf"
-import bit        from 'bitwise'
+import Promise    from 'bluebird'
+import crc32      from 'buffer-crc32'
+import protobuf   from 'protobufjs'
+import * as proto from 'smm-protobuf/proto/bundle.json'
+import fileType   from 'file-type'
+import readChunk  from 'read-chunk'
+import Zip        from 'node-7z'
+import tmp        from 'tmp'
+import rimraf     from 'rimraf'
 
-import * as fs   from "fs"
-import * as path from "path"
-import * as zlib from "zlib"
+import * as fs   from 'fs'
+import * as path from 'path'
+import * as zlib from 'zlib'
 
-import { loadCourse } from "."
-import Tile, { TILE_CONSTANTS } from "./tile"
-import Sound, { SOUND_CONSTANTS } from "./sound"
+import { loadCourse } from '.'
+import Tile, { TILE_CONSTANTS } from './tile'
+import Sound, { SOUND_CONSTANTS } from './sound'
 import {
     Tnl, Jpeg, Image
-} from "./tnl"
+} from './tnl'
 
-const sound = fs.readFileSync(path.join(__dirname, "../data/sound.bwv"));
+const sound = fs.readFileSync(path.join(__dirname, '../data/sound.bwv'));
 
 const root = protobuf.Root.fromJSON(proto);
 const smmCourse = root.lookupType('SMMCourse');
@@ -30,7 +28,7 @@ export const COURSE_CONSTANTS = {
     SIZE: 0x15000,
 
     CRC_LENGTH: 0x10,
-    CRC_PRE_BUF: Buffer.from("000000000000000B", "hex"),
+    CRC_PRE_BUF: Buffer.from('000000000000000B', 'hex'),
     CRC_POST_BUF: Buffer.alloc(4),
 
     TIMESTAMP_0_OFFSET: 0x1,
@@ -87,8 +85,9 @@ export default class Course {
 
     constructor (isWiiU, id, data, dataSub, path) {
 
+        if (isWiiU == null) return this;
         if (!!path && !fs.existsSync(path)) {
-            throw new Error("Path does not exists: " + path);
+            throw new Error('Path does not exists: ' + path);
         }
         this[courseId] = id;
         if (isWiiU) {
@@ -104,15 +103,24 @@ export default class Course {
             this[courseData] = data.slice(0x1C, 0x15000 + 0x1C);
             this[courseDataSub] = data.slice(0x15000 + 0x1C, 2 * 0x15000 + 0x1C);
             this[image3DS] = new Image(data.slice(0x2A05C, 0x2A05C + 0x157C0));
-            this[image3DS].from3DS();
-            //this.changeEndian();
-            // TODO convert 3DS thumbnail to jpeg
-            //this.thumbnail = Buffer.alloc(0xABE0);//data.slice(2 * 0x15000 + 0x1C, 2 * 0x15000 + 0x1C + 0x157C0);
-            //this.thumbnailPreview = Buffer.alloc(0xABE0);//data.slice(2 * 0x15000 + 0x1C, 2 * 0x15000 + 0x1C + 0x157C0);
+            this.changeEndian();
         }
         this[coursePath] = path;
 
         if (!this[courseData] || !this[courseDataSub]) return this;
+
+        const year   = this[courseData].readUInt16BE(0x10);
+        const month  = this[courseData].readUInt8(0x12);
+        const day    = this[courseData].readUInt8(0x13);
+        const hour   = this[courseData].readUInt8(0x14);
+        const minute = this[courseData].readUInt8(0x15);
+        /**
+         * Last modified unix timestamp
+         * @member {number}
+         * @memberOf Course
+         * @instance
+         */
+        this.modified = (new Date(`${year.pad(4)}-${month.pad(2)}-${day.pad(2)}T${hour.pad(2)}:${minute.pad(2)}+00:00`)).getTime() / 1000;
 
         /**
          * Title of course
@@ -120,7 +128,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.title = "";
+        this.title = '';
         let titleBuf = this[courseData].slice(COURSE_CONSTANTS.NAME_OFFSET, COURSE_CONSTANTS.NAME_OFFSET + COURSE_CONSTANTS.NAME_LENGTH);
         for (let i = 0; i < COURSE_CONSTANTS.NAME_LENGTH; i+=2) {
             let charBuf = Buffer.allocUnsafe(2);
@@ -137,7 +145,7 @@ export default class Course {
          * @memberOf Course
          * @instance
          */
-        this.maker = "";
+        this.maker = '';
         let makerBuf = this[courseData].slice(COURSE_CONSTANTS.MAKER_OFFSET, COURSE_CONSTANTS.MAKER_OFFSET + COURSE_CONSTANTS.MAKER_LENGTH);
         for (let i =  0; i < COURSE_CONSTANTS.MAKER_LENGTH; i+=2) {
             let charBuf = Buffer.allocUnsafe(2);
@@ -282,6 +290,12 @@ export default class Course {
         for (let i = 0; i < data.length; i++) {
             // meta
             course[data[i]] = Buffer.alloc(COURSE_CONSTANTS.TILES_OFFSET);
+            const modified = new Date(parseInt(course.modified, 10) * 1000);
+            course[data[i]].writeUInt16BE(modified.getUTCFullYear(), 0x10);
+            course[data[i]].writeUInt8(modified.getUTCMonth() + 1, 0x12);
+            course[data[i]].writeUInt8(modified.getUTCDate(), 0x13);
+            course[data[i]].writeUInt8(modified.getUTCHours(), 0x14);
+            course[data[i]].writeUInt8(modified.getUTCMinutes(), 0x15);
             course[data[i]].writeUInt8(0xB, 7);
             course[data[i]].writeUInt16BE(course.tiles.length, COURSE_CONSTANTS.TILE_AMOUNT_OFFSET);
             course[data[i]].write(course.title, COURSE_CONSTANTS.NAME_OFFSET, 'utf16le');
@@ -331,11 +345,14 @@ export default class Course {
      * @param {number} id - course ID inside save
      * @param {string} pathToCourse - path to course on fs
      */
-    writeToSave (id, pathToCourse) {
+    async writeToSave (id, pathToCourse) {
 
         this[courseId] = id;
         if (!!pathToCourse) {
             this[coursePath] = pathToCourse;
+        }
+        if (!this[tnl]) {
+            await this.loadThumbnail();
         }
         if (!fs.existsSync(this[coursePath])){
             fs.mkdirSync(this[coursePath]);
@@ -404,19 +421,22 @@ export default class Course {
 
     }
 
-    to3DS () {
+    async to3DS () {
 
-        if (this[endiannessBE]) {
-            this.changeEndian();
-        }
+        this.changeEndian();
         let res = Buffer.concat([
             Buffer.from('00000000043004007D000000DDBAFECA3BA0B2B86E55298B00C01000', 'hex'),
             this[courseData],
             this[courseDataSub],
-            Buffer.alloc(0x157C0),
-            Buffer.alloc(0x3840)
+            Buffer.alloc(0x40),
+            await (new Image(this.thumbnailPreview, this.thumbnail)).to3DS(),
+            Buffer.alloc(0x3800)
         ]);
+        res.writeUInt8(0x80, 0x2A023);
+        let crc = crc32(res.slice(0x2A020, 0x2A020 + 0x157C0 - 4)).readUInt32BE(0);
+        res.writeUInt32LE(crc, 0x2A01C);
         this.setHeader(res);
+        this.changeEndian();
         return res;
 
     }
@@ -549,11 +569,17 @@ export default class Course {
      */
     async loadThumbnail () {
 
-        try {
-            this.thumbnail = await new Tnl(this[tnl]).toJpeg();
-            this.thumbnailPreview = await new Tnl(this[tnlPreview]).toJpeg();
-        } catch (err) {
-            console.log(err);
+        if (!!this[image3DS]) {
+            [this.thumbnail, this.thumbnailPreview] = await this[image3DS].from3DS();
+            this[tnl] = await (new Jpeg(this.thumbnail)).toTnl();
+            this[tnlPreview] = await (new Jpeg(this.thumbnailPreview)).toTnl();
+        } else {
+            try {
+                this.thumbnail = await new Tnl(this[tnl]).toJpeg();
+                this.thumbnailPreview = await new Tnl(this[tnlPreview]).toJpeg();
+            } catch (err) {
+                console.log(err);
+            }
         }
         return null;
 
@@ -774,7 +800,7 @@ export default class Course {
      * @returns {Promise.<Buffer>}
      */
     async serialize () {
-        if (!!this[tnl] && !this.thumbnail) {
+        if (!this.thumbnail) {
             await this.loadThumbnail();
         }
         return Buffer.from(JSON.parse(JSON.stringify(smmCourse.encode(this).finish())));
@@ -788,7 +814,7 @@ export default class Course {
      * @returns {Promise.<Buffer>}
      */
     async serializeGzipped () {
-        if (!!this[tnl] && !this.thumbnail) {
+        if (!this.thumbnail) {
             await this.loadThumbnail();
         }
         return await new Promise((resolve, reject) => {
