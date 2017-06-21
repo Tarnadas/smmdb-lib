@@ -90,6 +90,7 @@ export default class Course {
             throw new Error('Path does not exists: ' + path);
         }
         this[courseId] = id;
+        this[coursePath] = path;
         if (isWiiU) {
             this[endiannessBE] = true;
             this[courseData] = data;
@@ -105,7 +106,6 @@ export default class Course {
             this[image3DS] = new Image(data.slice(0x2A05C, 0x2A05C + 0x157C0));
             this.changeEndian();
         }
-        this[coursePath] = path;
 
         if (!this[courseData] || !this[courseDataSub]) return this;
 
