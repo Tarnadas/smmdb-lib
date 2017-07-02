@@ -19,8 +19,10 @@ const Course = require("../lib/Course");
     //save.reorderSync();
     //await save.reorder();
 
-    let course = await smm.loadCourse(path.join(__dirname, 'course037'), 0, false);
-    fs.writeFileSync(path.join(__dirname, 'courseconverted'), course.to3DS());
+    let course = await smm.loadCourse(path.join(__dirname, 'courseconverted'), 0, false);
+    course = await smm.deserialize(await course.serialize());
+    await course.writeToSave(0, path.join(__dirname, 'coursetest'));
+    //fs.writeFileSync(path.join(__dirname, 'courseconverted'), await course.to3DS());
 
     let benchmark = async () => {
         let res = await new Promise(resolve => {
