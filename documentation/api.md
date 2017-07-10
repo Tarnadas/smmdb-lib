@@ -298,7 +298,7 @@ Requires p7zip for Unix and 7z.exe for Windows (Place exe in same folder as pack
 
 | Param | Type | Description |
 | --- | --- | --- |
-| filePath | <code>string</code> | path of compressed file |
+| filePath | <code>string</code> \| <code>Buffer</code> | path of compressed file |
 
 <a name="Course+serializeGzipped"></a>
 

@@ -276,6 +276,10 @@ export default class Course {
 
     }
 
+    getPath () {
+        return this[coursePath]
+    }
+
     static async fromObject (obj) {
 
         let course = new Course();
@@ -731,7 +735,7 @@ export default class Course {
      * @function decompress
      * @memberOf Course
      * @instance
-     * @param {string} filePath - path of compressed file
+     * @param {string | Buffer} filePath - path of compressed file
      * @returns {Array.<Course>}
      */
     static async decompress (filePath) {
@@ -747,12 +751,6 @@ export default class Course {
                 resolve(path);
             })
         });
-        /*await new Promise((resolve, reject) => {
-            unzip(filePath, tmpDir, err => {
-                if (err) reject(err);
-                resolve();
-            });
-        });*/
         let zip = new Zip();
         try {
             await zip.extractFull(filePath, tmpDir);
