@@ -19,7 +19,7 @@ import {
     Tnl, Jpeg, Image
 } from './tnl'
 
-const sound = fs.readFileSync(path.join(__dirname, '../data/sound.bwv'));
+const sound = Buffer.concat([Buffer.from('76246AAE', 'hex'), Buffer.alloc(0xD804)], 0xD808)
 
 const root = protobuf.Root.fromJSON(proto);
 const smmCourse = root.lookupType('SMMCourse');
