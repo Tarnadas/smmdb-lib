@@ -547,6 +547,19 @@ export default class Course {
         }
     }
 
+    async setModified (modified, writeCrc = true) {
+        const date = new Date(modified * 1000)
+        this[courseData].writeUInt16BE(0x10, date.getUTCFullYear());
+        this[courseData].writeUInt8(0x12, date.getUTCMonth());
+        this[courseData].writeUInt8(0x13, date.getUTCDate());
+        this[courseData].writeUInt8(0x14, date.getUTCHours());
+        this[courseData].writeUInt8(0x15, date.getUTCMinutes());
+        this.modified = modified;
+        if (writeCrc) {
+            await this.writeCrc();
+        }
+    }
+
     /**
      * Load TNL thumbnails from fs.
      * Implicitly called by constructor

@@ -66,7 +66,8 @@ Requires p7zip for Unix and 7z.exe for Windows (Place exe in same folder as pack
     * [.loadTnl()](#Course+loadTnl) ⇒ [<code>Array.&lt;Tnl&gt;</code>](#Tnl)
     * [.loadThumbnail()](#Course+loadThumbnail) ⇒ <code>null</code>
     * [.loadThumbnailSync()](#Course+loadThumbnailSync)
-    * [.setThumbnail(pathToThumbnail, [pathToThumbnailPreview])](#Course+setThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.setThumbnail(thumbnail, [isWide], [doClip])](#Course+setThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.setThumbnailFromFs(pathToThumbnail, [pathToThumbnailPreview])](#Course+setThumbnailFromFs) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.isThumbnailBroken()](#Course+isThumbnailBroken) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [.writeThumbnail()](#Course+writeThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.exportThumbnail()](#Course+exportThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
@@ -234,7 +235,20 @@ Synchronous version of [loadThumbnail](#Course+loadThumbnail)
 **Kind**: instance method of [<code>Course</code>](#Course)  
 <a name="Course+setThumbnail"></a>
 
-### course.setThumbnail(pathToThumbnail, [pathToThumbnailPreview]) ⇒ <code>Promise.&lt;void&gt;</code>
+### course.setThumbnail(thumbnail, [isWide], [doClip]) ⇒ <code>Promise.&lt;void&gt;</code>
+Change thumbnail of this course
+
+**Kind**: instance method of [<code>Course</code>](#Course)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| thumbnail | <code>Buffer</code> \| <code>ArrayBuffer</code> | thumbnail Buffer |
+| [isWide] | <code>boolean</code> | is thumbnail wide |
+| [doClip] | <code>boolean</code> | should thumbnail be clipped |
+
+<a name="Course+setThumbnailFromFs"></a>
+
+### course.setThumbnailFromFs(pathToThumbnail, [pathToThumbnailPreview]) ⇒ <code>Promise.&lt;void&gt;</code>
 Change thumbnail of this course
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
