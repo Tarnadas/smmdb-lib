@@ -607,23 +607,53 @@ export default class Course {
     }
 
     /**
-     * Change thumbnail of this course
-     * @function setThumbnail
-     * @memberOf Course
-     * @instance
-     * @param {string} pathToThumbnail - path to new thumbnail on fs
-     * @param {string} [pathToThumbnailPreview] - path to new thumbnailPreview on fs
-     * @returns {Promise.<void>}
-     */
-    async setThumbnail (pathToThumbnail, pathToThumbnailPreview) {
+    * Change thumbnail of this course
+    * @function setThumbnail
+    * @memberOf Course
+    * @instance
+    * @param {Buffer|ArrayBuffer} thumbnail - thumbnail Buffer
+     * @param {boolean} [isWide] - is thumbnail wide
+     * @param {boolean} [doClip] - should thumbnail be clipped
+    * @returns {Promise.<void>}
+    */
+    async setThumbnail (thumbnail, isWide, doClip) {
+
+        try {
+            let jpeg = new Jpeg(thumbnail);
+                if (isWide) {
+                this[tnl] = new Tnl(await jpeg.toTnl(true, doClip));
+                this.thumbnail = await this[tnl].toJpeg();
+                return this.thumbnail;
+            } else {
+                this[tnlPreview] = new Tnl(await jpeg.toTnl(false, doClip));
+                this.thumbnailPreview = await this[tnlPreview].toJpeg();
+                return this.thumbnailPreview;
+            }
+        } catch (err) {
+            console.log(err);
+        }
+        return null;
+
+    }
+
+    /**
+    * Change thumbnail of this course
+    * @function setThumbnailFromFs
+    * @memberOf Course
+    * @instance
+    * @param {string} pathToThumbnail - path to new thumbnail on fs
+    * @param {string} [pathToThumbnailPreview] - path to new thumbnailPreview on fs
+    * @returns {Promise.<void>}
+    */
+    async setThumbnailFromFs (pathToThumbnail, pathToThumbnailPreview) {
 
         let jpeg = new Jpeg(path.resolve(pathToThumbnail));
         this[tnl] = new Tnl(await jpeg.toTnl(true));
         this.thumbnail = await this[tnl].toJpeg();
-        if (!!pathToThumbnailPreview) {
-            jpeg = new Jpeg(path.resolve(pathToThumbnailPreview));
+        if (pathToThumbnailPreview) {
+        jpeg = new Jpeg(path.resolve(pathToThumbnailPreview));
         } else {
-            jpeg = new Jpeg(path.resolve(pathToThumbnail));
+        jpeg = new Jpeg(path.resolve(pathToThumbnail));
         }
         this[tnlPreview] = new Tnl(await jpeg.toTnl(false, true));
         this.thumbnailPreview = await this[tnlPreview].toJpeg();

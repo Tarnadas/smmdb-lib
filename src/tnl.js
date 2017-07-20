@@ -236,8 +236,8 @@ export class Tnl extends Image {
  */
 export class Jpeg extends Image {
 
-    constructor (pathToFile) {
-        super(pathToFile);
+    constructor (data) {
+        super(data);
     }
 
     /**
