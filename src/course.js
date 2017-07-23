@@ -798,7 +798,7 @@ export default class Course {
         try {
             await zip.extractFull(filePath, tmpDir);
         } catch (err) {
-            console.log(err);
+            console.error(err);
             return null;
         }
 
