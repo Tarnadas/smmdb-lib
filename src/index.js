@@ -6,7 +6,7 @@ import * as path from "path"
 import Save   from "./save"
 import Course from "./course"
 import {
-    Tnl, Jpeg
+  Tnl, Jpeg
 } from "./tnl"
 
 export const courseProto = Course.prototype;
@@ -19,17 +19,17 @@ export const courseProto = Course.prototype;
  * @throws {Error} pathToSave must exist and must have read/write privileges
  */
 export async function loadSave(pathToSave) {
-    return new Promise((resolve) => {
-        pathToSave = path.resolve(pathToSave);
-        if (!fs.existsSync(pathToSave)) throw new Error(`No such folder exists:\n${pathToSave}`);
-        fs.access(pathToSave, fs.constants.R_OK | fs.constants.W_OK, (err) => {
-            if (err) throw new Error("Please close your emulator before executing your script");
-        });
-        fs.readFile(path.resolve(`${pathToSave}/save.dat`), (err, data) => {
-            if (err) throw err;
-            resolve(new Save(pathToSave, data));
-        });
+  return new Promise((resolve) => {
+    pathToSave = path.resolve(pathToSave);
+    if (!fs.existsSync(pathToSave)) throw new Error(`No such folder exists:\n${pathToSave}`);
+    fs.access(pathToSave, fs.constants.R_OK | fs.constants.W_OK, (err) => {
+      if (err) throw new Error("Please close your emulator before executing your script");
     });
+    fs.readFile(path.resolve(`${pathToSave}/save.dat`), (err, data) => {
+      if (err) throw err;
+      resolve(new Save(pathToSave, data));
+    });
+  });
 }
 
 /**
@@ -40,13 +40,13 @@ export async function loadSave(pathToSave) {
  * @throws {Error} pathToSave must exist and must have read/write privileges
  */
 export function loadSaveSync(pathToSave) {
-    pathToSave = path.resolve(pathToSave);
-    if (!fs.existsSync(pathToSave)) throw new Error(`No such folder exists:\n${pathToSave}`);
-    fs.access(pathToSave, fs.constants.R_OK | fs.constants.W_OK, (err) => {
-        if (err) throw new Error("Please close your emulator before executing your script");
-    });
-    let data = fs.readFileSync(path.resolve(`${pathToSave}/save.dat`));
-    return new Save(pathToSave, data);
+  pathToSave = path.resolve(pathToSave);
+  if (!fs.existsSync(pathToSave)) throw new Error(`No such folder exists:\n${pathToSave}`);
+  fs.access(pathToSave, fs.constants.R_OK | fs.constants.W_OK, (err) => {
+    if (err) throw new Error("Please close your emulator before executing your script");
+  });
+  let data = fs.readFileSync(path.resolve(`${pathToSave}/save.dat`));
+  return new Save(pathToSave, data);
 }
 
 /**
@@ -58,33 +58,33 @@ export function loadSaveSync(pathToSave) {
  */
 export async function loadCourse (coursePath, courseId, isWiiU = true) {
 
-    return new Promise ((resolve, reject) => {
-        if (isWiiU) {
-            fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
-                if (err || !data) {
-                    reject(err);
-                }
-                let dataSub = await new Promise((resolve, reject) => {
-                    fs.readFile(path.resolve(`${coursePath}/course_data_sub.cdt`), async (err, data) => {
-                        if (err || !data) {
-                            reject(err);
-                        }
-                        resolve(data);
-                    });
-                });
-                try {
-                    let course = new Course(true, courseId, data, dataSub, coursePath);
-                    resolve(course);
-                } catch (err) {
-                    reject(err);
-                }
-            });
-        } else {
-            let data = fs.readFileSync(coursePath);
-            let course = new Course(false, courseId, data, null, coursePath);
-            resolve(course);
+  return new Promise ((resolve, reject) => {
+    if (isWiiU) {
+      fs.readFile(path.resolve(`${coursePath}/course_data.cdt`), async (err, data) => {
+        if (err || !data) {
+          reject(err);
         }
-    });
+        let dataSub = await new Promise((resolve, reject) => {
+          fs.readFile(path.resolve(`${coursePath}/course_data_sub.cdt`), async (err, data) => {
+            if (err || !data) {
+              reject(err);
+            }
+            resolve(data);
+          });
+        });
+        try {
+          let course = new Course(true, courseId, data, dataSub, coursePath);
+          resolve(course);
+        } catch (err) {
+          reject(err);
+        }
+      });
+    } else {
+      let data = fs.readFileSync(coursePath);
+      let course = new Course(false, courseId, data, null, coursePath);
+      resolve(course);
+    }
+  });
 
 }
 
@@ -97,14 +97,14 @@ export async function loadCourse (coursePath, courseId, isWiiU = true) {
  */
 export function loadCourseSync (coursePath, courseId, isWiiU = true) {
 
-    if (isWiiU) {
-        let data = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
-        let dataSub = fs.readFileSync(path.resolve(`${coursePath}/course_data_sub.cdt`));
-        return new Course(true, courseId, data, dataSub, coursePath);
-    } else {
-        let data = fs.readFileSync(coursePath);
-        return new Course(false, courseId, data, null, coursePath);
-    }
+  if (isWiiU) {
+    let data = fs.readFileSync(path.resolve(`${coursePath}/course_data.cdt`));
+    let dataSub = fs.readFileSync(path.resolve(`${coursePath}/course_data_sub.cdt`));
+    return new Course(true, courseId, data, dataSub, coursePath);
+  } else {
+    let data = fs.readFileSync(coursePath);
+    return new Course(false, courseId, data, null, coursePath);
+  }
 
 }
 
@@ -116,7 +116,7 @@ export function loadCourseSync (coursePath, courseId, isWiiU = true) {
  * @returns {Promise.<Array.<Course>>}
  */
 export async function decompress (filePath) {
-    return await Course.decompress(filePath);
+  return await Course.decompress(filePath);
 }
 
 /**
@@ -126,7 +126,7 @@ export async function decompress (filePath) {
  * @returns {Promise.<Course>}
  */
 export async function deserialize (buffer) {
-    return await Course.deserialize(buffer);
+  return await Course.deserialize(buffer);
 }
 
 /**
@@ -137,14 +137,14 @@ export async function deserialize (buffer) {
  * @throws {Error} pathToFile must exist, must have read/write privileges and file must be JPEG or TNL
  */
 export function loadImage(pathToFile) {
-    let split = pathToFile.split('.');
-    let ending = split[split.length - 1];
-    if (ending === 'tnl') {
-        return new Tnl(pathToFile);
+  let split = pathToFile.split('.');
+  let ending = split[split.length - 1];
+  if (ending === 'tnl') {
+    return new Tnl(pathToFile);
     //} else if (ending === 'jpg' || ending === 'jpeg') {
-        //return new Jpeg(pathToFile);
-    } else {
-        //throw new Error("image must either be jpeg or tnl ");
-        return new Jpeg(pathToFile);
-    }
+    //return new Jpeg(pathToFile);
+  } else {
+    //throw new Error("image must either be jpeg or tnl ");
+    return new Jpeg(pathToFile);
+  }
 }
