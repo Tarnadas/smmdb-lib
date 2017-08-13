@@ -429,48 +429,10 @@ export default class Course {
 
     const self = this;
     this.changeEndian();
-    const data = this.gameStyle !== 0 ? (
-      this[courseData]
-    ) : (
-      Buffer.concat([
-        this[courseData].slice(0, 0xF0),
-        ...Array.from((function * () {
-          for (let i = 0xF0; i < 0x145F0; i += 0x20) {
-            let tile = self[courseData].slice(i, i + 0x20);
-            const tileType = tile.readUInt8(0x18)
-            if (tileType === 0x2C) {
-              tile.writeUInt8(0x14, 0x18)
-              tile.writeUInt16BE(0xFFFF, 0x1E)
-            }
-            yield tile;
-          }
-        })()),
-        this[courseData].slice(0x145F0)
-      ])
-    )
-    const dataSub = this.gameStyle !== 0 ? (
-      this[courseDataSub]
-    ) : (
-      Buffer.concat([
-        this[courseDataSub].slice(0, 0xF0),
-        ...Array.from((function * () {
-          for (let i = 0xF0; i < 0x145F0; i += 0x20) {
-            let tile = self[courseDataSub].slice(i, i + 0x20);
-            const tileType = tile.readUInt8(0x18)
-            if (tileType === 0x2C) {
-              tile.writeUInt8(0x14, 0x18)
-              tile.writeUInt16BE(0xFFFF, 0x1E)
-            }
-            yield tile;
-          }
-        })()),
-        this[courseDataSub].slice(0x145F0)
-      ])
-    )
     let res = Buffer.concat([
       Buffer.from('00000000043004007D000000DDBAFECA3BA0B2B86E55298B00C01000', 'hex'),
-      data,
-      dataSub,
+      this[courseData],
+      this[courseDataSub],
       Buffer.alloc(0x40),
       await (new Image(this.thumbnailPreview, this.thumbnail)).to3DS(),
       Buffer.alloc(0x3800)
