@@ -134,8 +134,8 @@ export default class Save {
         for (let i in sti) {
           promises.push(new Promise((resolve) => {
             let value = sti[i];
-            let srcPath = path.resolve(`${this.pathToSave}/course${parseInt(i).pad(3)}`);
-            let dstPath = path.resolve(`${this.pathToSave}/course${value.pad(3)}_reorder`);
+            let srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`);
+            let dstPath = path.resolve(`${this.pathToSave}/course${String(value).padStart(3, '000')}_reorder`);
             fs.rename(srcPath, dstPath, () => {
               this[slotToIndex][value] = value;
               this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value);
@@ -148,8 +148,8 @@ export default class Save {
         promises = [];
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
           promises.push(new Promise((resolve) => {
-            let srcPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}_reorder`);
-            let dstPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}`);
+            let srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}_reorder`);
+            let dstPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`);
             fs.rename(srcPath, dstPath, (err) => {
               if (err) {
                 if (this[slotToIndex][i]) {
@@ -165,7 +165,7 @@ export default class Save {
         promises = [];
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
           promises.push(new Promise((resolve) => {
-            fs.access(path.resolve(`${this.pathToSave}/course${i.pad(3)}`), fs.constants.R_OK | fs.constants.W_OK, (err) => {
+            fs.access(path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`), fs.constants.R_OK | fs.constants.W_OK, (err) => {
               if (!err) {
                 this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
               }
@@ -201,15 +201,15 @@ export default class Save {
       Object.assign(sti, this[slotToIndex]);
       for (let i in sti) {
         let value = sti[i];
-        let srcPath = path.resolve(`${this.pathToSave}/course${parseInt(i).pad(3)}`);
-        let dstPath = path.resolve(`${this.pathToSave}/course${value.pad(3)}_reorder`);
+        let srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`);
+        let dstPath = path.resolve(`${this.pathToSave}/course${String(value).padStart(3, '000')}_reorder`);
         fs.renameSync(srcPath, dstPath);
         this[slotToIndex][value] = value;
         this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value);
       }
       for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-        let srcPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}_reorder`);
-        let dstPath = path.resolve(`${this.pathToSave}/course${i.pad(3)}`);
+        let srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}_reorder`);
+        let dstPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`);
         try {
           fs.renameSync(srcPath, dstPath);
         } catch (err) {
@@ -221,7 +221,7 @@ export default class Save {
       }
       for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
         try {
-          fs.accessSync(path.resolve(`${this.pathToSave}/course${i.pad(3)}`), fs.constants.R_OK | fs.constants.W_OK);
+          fs.accessSync(path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`), fs.constants.R_OK | fs.constants.W_OK);
           this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
         } catch (err) {}
       }
@@ -286,7 +286,7 @@ export default class Save {
 
     let promises = [];
     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-      let coursePath = path.resolve(`${this.pathToSave}/course${i.pad(3)}/`);
+      let coursePath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}/`);
       promises.push(new Promise(async (resolve) => {
         let exists = false;
         await new Promise((resolve) => {
@@ -359,7 +359,7 @@ export default class Save {
     let promises = [];
     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
       promises.push(new Promise(async (resolve) => {
-        let courseName = `course${i.pad(3)}`;
+        let courseName = `course${String(i).padStart(3, '000')}`;
         let coursePath = path.resolve(`${this.pathToSave}/${courseName}/`);
         let exists = await new Promise((resolve) => {
           fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
@@ -395,7 +395,7 @@ export default class Save {
   loadCoursesSync () {
 
     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-      let courseName = `course${i.pad(3)}`;
+      let courseName = `course${String(i).padStart(3, '000')}`;
       let coursePath = path.resolve(`${this.pathToSave}/${courseName}/`);
       try {
         fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
@@ -424,7 +424,7 @@ export default class Save {
     let emptySlotName = "";
     let emptySlot = -1;
     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-      let courseName = `course${i.pad(3)}`;
+      let courseName = `course${String(i).padStart(3, '000')}`;
       if (!this.courses[courseName]) {
         emptySlotName = courseName;
         emptySlot = i;
@@ -464,7 +464,7 @@ export default class Save {
     let emptySlotName = "";
     let emptySlot = -1;
     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-      let courseName = `course${i.pad(3)}`;
+      let courseName = `course${String(i).padStart(3, '000')}`;
       if (!this.courses[courseName]) {
         emptySlotName = courseName;
         emptySlot = i;
@@ -506,10 +506,10 @@ export default class Save {
     if (this.courses === {}) {
       await this.loadCourses();
     }
-    let courseName = `course${courseId.pad(3)}`;
+    let courseName = `course${String(courseId).padStart(3, '000')}`;
     let coursePath = path.join(this.pathToSave, courseName);
     if (!fs.existsSync(coursePath)) {
-      throw new Error("Course does not exist: course" + courseId.pad(3));
+      throw new Error("Course does not exist: course" + String(courseId).padStart(3, '000'));
     }
     try {
       return await new Promise((resolve) => {
@@ -526,9 +526,3 @@ export default class Save {
 
   }
 }
-
-Number.prototype.pad = function(size) {
-  let s = String(this);
-  while (s.length < (size || 2)) {s = "0" + s;}
-  return s;
-};
