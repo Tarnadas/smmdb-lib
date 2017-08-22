@@ -120,7 +120,7 @@ export default class Course {
      * @memberOf Course
      * @instance
      */
-    this.modified = (new Date(`${year.pad(4)}-${month.pad(2)}-${day.pad(2)}T${hour.pad(2)}:${minute.pad(2)}+00:00`)).getTime() / 1000;
+    this.modified = (new Date(`${String(year).padStart(4, '0000')}-${String(month).padStart(2, '00')}-${String(day).padStart(2, '00')}T${String(hour).padStart(2, '00')}:${String(minute).padStart(2, '00')}+00:00`)).getTime() / 1000;
 
     /**
      * Title of course
