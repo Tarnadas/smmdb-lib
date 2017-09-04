@@ -125,7 +125,7 @@ export default class Save {
    */
   async reorder () {
 
-    return await new Promise(async (resolve) => {
+    return new Promise(async (resolve) => {
       try {
         // rename course folders
         let promises = [];
