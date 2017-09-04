@@ -31,10 +31,6 @@ export const COURSE_CONSTANTS = {
   CRC_PRE_BUF: Buffer.from('000000000000000B', 'hex'),
   CRC_POST_BUF: Buffer.alloc(4),
 
-  HEADER_LENGTH: 0xF0,
-  HEADER_TYPE: root.lookupEnum('Header.HeaderType').values,
-  HEADER_TYPE_BY_ID: root.lookupEnum('Header.HeaderType').valuesById,
-
   TIMESTAMP_0_OFFSET: 0x1,
   TIMESTAMP_1_OFFSET: 0x14,
 
@@ -103,24 +99,15 @@ export default class Course {
         [this[tnl], this[tnlPreview]] = this.loadTnl();
         this.loadThumbnailSync();
       }
-      this.header = {
-        type: COURSE_CONSTANTS.HEADER_TYPE.WIIU,
-        data: this[courseData].slice(0, 0xF0)
-      }
     } else {
       this[endiannessBE] = false;
       this[courseData] = data.slice(0x1C, 0x15000 + 0x1C);
       this[courseDataSub] = data.slice(0x15000 + 0x1C, 2 * 0x15000 + 0x1C);
       this[image3DS] = new Image(data.slice(0x2A05C, 0x2A05C + 0x157C0));
-      this.header = {
-        type: COURSE_CONSTANTS.HEADER_TYPE.N3DS,
-        data: this[courseData].slice(0, 0xF0)
-      }
       this.changeEndian();
     }
 
     if (!this[courseData] || !this[courseDataSub]) return this;
-
 
     const year   = this[courseData].readUInt16BE(0x10);
     const month  = this[courseData].readUInt8(0x12);
