@@ -3,11 +3,11 @@
 <dl>
 <dt><a href="#Course">Course</a></dt>
 <dd></dd>
-<dt><a href="#Save">Save</a></dt>
-<dd></dd>
 <dt><a href="#Tnl">Tnl</a></dt>
 <dd></dd>
 <dt><a href="#Jpeg">Jpeg</a></dt>
+<dd></dd>
+<dt><a href="#Save">Save</a></dt>
 <dd></dd>
 </dl>
 
@@ -15,13 +15,13 @@
 
 <dl>
 <dt><a href="#loadSave">loadSave(pathToSave)</a> ⇒ <code><a href="#Save">Promise.&lt;Save&gt;</a></code></dt>
-<dd><p>Loads a save from fs</p>
+<dd><p>Loads a save from file system</p>
 </dd>
 <dt><a href="#loadSaveSync">loadSaveSync(pathToSave)</a> ⇒ <code><a href="#Save">Save</a></code></dt>
 <dd><p>Synchronous version of <a href="#loadSave">loadSave</a></p>
 </dd>
 <dt><a href="#loadCourse">loadCourse(coursePath, [courseId])</a> ⇒ <code><a href="#Course">Promise.&lt;Course&gt;</a></code></dt>
-<dd><p>Loads a course from fs</p>
+<dd><p>Loads a course from file system</p>
 </dd>
 <dt><a href="#loadCourseSync">loadCourseSync(coursePath, [courseId])</a> ⇒ <code><a href="#Course">Course</a></code></dt>
 <dd><p>Synchronous version of <a href="#loadCourse">loadCourse</a></p>
@@ -62,9 +62,9 @@ Requires p7zip for Unix and 7z.exe for Windows (Place exe in same folder as pack
     * [.writeToSave(id, pathToCourse)](#Course+writeToSave)
     * [.writeCrc(writeToFs)](#Course+writeCrc) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.setTitle(title, [writeCrc])](#Course+setTitle) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.setMaker(makerName, [writeCrc])](#Course+setMaker) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.setMaker(makerName, [writeCrc])](#Course+setMaker) ⇒ <code>Promise.&lt;void&gt;</code> \| <code>null</code>
     * [.loadTnl()](#Course+loadTnl) ⇒ [<code>Array.&lt;Tnl&gt;</code>](#Tnl)
-    * [.loadThumbnail()](#Course+loadThumbnail) ⇒ <code>null</code>
+    * [.loadThumbnail()](#Course+loadThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.loadThumbnailSync()](#Course+loadThumbnailSync)
     * [.setThumbnail(thumbnail, [isWide], [doClip])](#Course+setThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.setThumbnailFromFs(pathToThumbnail, [pathToThumbnailPreview])](#Course+setThumbnailFromFs) ⇒ <code>Promise.&lt;void&gt;</code>
@@ -169,61 +169,59 @@ Course sounds
 <a name="Course+writeToSave"></a>
 
 ### course.writeToSave(id, pathToCourse)
-Writes course to fs inside save folder.
-This function should not be called directly. Instead call save.addCourse(course)
+Writes course to file system inside save folder.This function should not be called directly. Instead call save.addCourse(course)
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | id | <code>number</code> | course ID inside save |
-| pathToCourse | <code>string</code> | path to course on fs |
+| pathToCourse | <code>string</code> | path to course on file system |
 
 <a name="Course+writeCrc"></a>
 
 ### course.writeCrc(writeToFs) ⇒ <code>Promise.&lt;void&gt;</code>
-Writes crc checksum of course to fs
+Writes crc checksum of course to file system
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| writeToFs | <code>boolean</code> | should file on fs be overwritten with new CRC checksum |
+| writeToFs | <code>boolean</code> | should file on file system be overwritten with new CRC checksum |
 
 <a name="Course+setTitle"></a>
 
 ### course.setTitle(title, [writeCrc]) ⇒ <code>Promise.&lt;void&gt;</code>
-Sets a new title for this course and optionally recalculates crc checksum
+Sets a new title for this course and optionally recalculates CRC checksum
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | title | <code>string</code> |  | new title |
-| [writeCrc] | <code>boolean</code> | <code>true</code> | should crc checksum be recalculated |
+| [writeCrc] | <code>boolean</code> | <code>true</code> | should CRC checksum be recalculated |
 
 <a name="Course+setMaker"></a>
 
-### course.setMaker(makerName, [writeCrc]) ⇒ <code>Promise.&lt;void&gt;</code>
-Sets a new maker for this course and optionally recalculates crc checksum
+### course.setMaker(makerName, [writeCrc]) ⇒ <code>Promise.&lt;void&gt;</code> \| <code>null</code>
+Sets a new maker for this course and optionally recalculates CRC checksum
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | makerName | <code>string</code> |  | new maker |
-| [writeCrc] | <code>boolean</code> | <code>true</code> | should crc checksum be recalculated |
+| [writeCrc] | <code>boolean</code> | <code>true</code> | should CRC checksum be recalculated |
 
 <a name="Course+loadTnl"></a>
 
 ### course.loadTnl() ⇒ [<code>Array.&lt;Tnl&gt;</code>](#Tnl)
-Load TNL thumbnails from fs.
-Implicitly called by constructor
+Load TNL thumbnails from file system.Implicitly called by constructor
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 <a name="Course+loadThumbnail"></a>
 
-### course.loadThumbnail() ⇒ <code>null</code>
+### course.loadThumbnail() ⇒ <code>Promise.&lt;void&gt;</code>
 Convert TNL thumbnails to JPEG thumbnails
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
@@ -255,8 +253,8 @@ Change thumbnail of this course
 
 | Param | Type | Description |
 | --- | --- | --- |
-| pathToThumbnail | <code>string</code> | path to new thumbnail on fs |
-| [pathToThumbnailPreview] | <code>string</code> | path to new thumbnailPreview on fs |
+| pathToThumbnail | <code>string</code> | path to new thumbnail on file system |
+| [pathToThumbnailPreview] | <code>string</code> | path to new thumbnailPreview on file system |
 
 <a name="Course+isThumbnailBroken"></a>
 
@@ -267,7 +265,7 @@ Check if this course's thumbnail is broken
 <a name="Course+writeThumbnail"></a>
 
 ### course.writeThumbnail() ⇒ <code>Promise.&lt;void&gt;</code>
-Write TNL thumbnail to fs
+Write TNL thumbnail to file system
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 **Throws**:
@@ -277,7 +275,7 @@ Write TNL thumbnail to fs
 <a name="Course+exportThumbnail"></a>
 
 ### course.exportThumbnail() ⇒ <code>Promise.&lt;void&gt;</code>
-Write JPEG thumbnail to fs
+Write JPEG thumbnail to file system
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 **Throws**:
@@ -305,8 +303,7 @@ Serializes a course object with compliance to [https://github.com/Tarnadas/smm-p
 <a name="Course+decompress"></a>
 
 ### course.decompress(filePath) ⇒ [<code>Array.&lt;Course&gt;</code>](#Course)
-Decompresses a file and loads all included courses into an array.
-Requires p7zip for Unix and 7z.exe for Windows (Place exe in same folder as package.json or add to PATH)
+Decompresses a file and loads all included courses into an array.Requires p7zip for Unix and 7z.exe for Windows (Place exe in same folder as package.json or add to PATH)
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 
@@ -330,161 +327,6 @@ Deserializes a course object with compliance to [https://github.com/Tarnadas/smm
 | Param | Type | Description |
 | --- | --- | --- |
 | buffer | <code>Buffer</code> \| <code>Uint8Array</code> | Node Buffer or Uint8Array to be converted to a [Course](#Course) |
-
-<a name="Save"></a>
-
-## Save
-**Kind**: global class  
-
-* [Save](#Save)
-    * [new Save()](#new_Save_new)
-    * [.pathToSave](#Save+pathToSave) : <code>string</code>
-    * [.data](#Save+data) : <code>Buffer</code>
-    * [.courses](#Save+courses) : <code>Object.&lt;string, Course&gt;</code>
-    * [.writeCrc()](#Save+writeCrc) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.writeCrcSync()](#Save+writeCrcSync)
-    * [.reorder()](#Save+reorder) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.reorderSync()](#Save+reorderSync)
-    * [.exportThumbnail()](#Save+exportThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.exportThumbnailSync()](#Save+exportThumbnailSync)
-    * [.importThumbnail()](#Save+importThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.unlockAmiibos()](#Save+unlockAmiibos) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.loadCourses()](#Save+loadCourses) ⇒ <code>Object.&lt;string, Course&gt;</code>
-    * [.loadCoursesSync()](#Save+loadCoursesSync) ⇒ <code>Object.&lt;string, Course&gt;</code>
-    * [.addCourse(course)](#Save+addCourse) ⇒ <code>number</code>
-    * [.addCourseFromFs(coursePath)](#Save+addCourseFromFs) ⇒ <code>number</code>
-    * [.deleteCourse(courseId)](#Save+deleteCourse) ⇒ <code>Promise.&lt;void&gt;</code>
-
-<a name="new_Save_new"></a>
-
-### new Save()
-Represents a Super Mario Maker save
-
-<a name="Save+pathToSave"></a>
-
-### save.pathToSave : <code>string</code>
-Path to save
-
-**Kind**: instance property of [<code>Save</code>](#Save)  
-<a name="Save+data"></a>
-
-### save.data : <code>Buffer</code>
-Node buffer of save.dat file
-
-**Kind**: instance property of [<code>Save</code>](#Save)  
-<a name="Save+courses"></a>
-
-### save.courses : <code>Object.&lt;string, Course&gt;</code>
-Courses belonging to this save
-
-**Kind**: instance property of [<code>Save</code>](#Save)  
-<a name="Save+writeCrc"></a>
-
-### save.writeCrc() ⇒ <code>Promise.&lt;void&gt;</code>
-Writes crc checksum of save.dat
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-<a name="Save+writeCrcSync"></a>
-
-### save.writeCrcSync()
-Synchronous version of [writeCrc](#Save+writeCrc)
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-<a name="Save+reorder"></a>
-
-### save.reorder() ⇒ <code>Promise.&lt;void&gt;</code>
-Reorders course folders to match actual in game appearance
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-<a name="Save+reorderSync"></a>
-
-### save.reorderSync()
-Synchronous version of [reorder](#Save+reorder)
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-<a name="Save+exportThumbnail"></a>
-
-### save.exportThumbnail() ⇒ <code>Promise.&lt;void&gt;</code>
-Exports all course thumbnails as JPEG within course folders
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-<a name="Save+exportThumbnailSync"></a>
-
-### save.exportThumbnailSync()
-Synchronous version of [exportThumbnail](#Save+exportThumbnail)
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-<a name="Save+importThumbnail"></a>
-
-### save.importThumbnail() ⇒ <code>Promise.&lt;void&gt;</code>
-Imports all JPEG thumbnails as TNL within course folders
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-<a name="Save+unlockAmiibos"></a>
-
-### save.unlockAmiibos() ⇒ <code>Promise.&lt;void&gt;</code>
-Unlocks Amiibos for this save
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-<a name="Save+loadCourses"></a>
-
-### save.loadCourses() ⇒ <code>Object.&lt;string, Course&gt;</code>
-Load courses and store them in [courses](#Save+courses)
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-<a name="Save+loadCoursesSync"></a>
-
-### save.loadCoursesSync() ⇒ <code>Object.&lt;string, Course&gt;</code>
-Synchronous version of [loadCourses](#Save+loadCourses)
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-<a name="Save+addCourse"></a>
-
-### save.addCourse(course) ⇒ <code>number</code>
-Stores a course in this save
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-**Returns**: <code>number</code> - course slot ID  
-**Throws**:
-
-- <code>Error</code> Save must have an empty slot
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| course | [<code>Course</code>](#Course) | course to be stored in save |
-
-<a name="Save+addCourseFromFs"></a>
-
-### save.addCourseFromFs(coursePath) ⇒ <code>number</code>
-Stores a course from fs in this save
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-**Returns**: <code>number</code> - course slot ID  
-**Throws**:
-
-- <code>Error</code> courseDataPath must exist
-- <code>Error</code> Save must have an empty slot
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| coursePath | <code>string</code> | course to be stored in save |
-
-<a name="Save+deleteCourse"></a>
-
-### save.deleteCourse(courseId) ⇒ <code>Promise.&lt;void&gt;</code>
-Deletes a course from this save
-
-**Kind**: instance method of [<code>Save</code>](#Save)  
-**Throws**:
-
-- <code>Error</code> course with courseId must exist
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| courseId | <code>number</code> | ID of course to be deleted |
 
 <a name="Tnl"></a>
 
@@ -547,10 +389,165 @@ Convert to TNL
 Check if JPEG thumbnail is broken and needs fix
 
 **Kind**: instance method of [<code>Jpeg</code>](#Jpeg)  
+<a name="Save"></a>
+
+## Save
+**Kind**: global class  
+
+* [Save](#Save)
+    * [new Save()](#new_Save_new)
+    * [.pathToSave](#Save+pathToSave) : <code>string</code>
+    * [.data](#Save+data) : <code>Buffer</code>
+    * [.courses](#Save+courses) : <code>Object.&lt;string, Course&gt;</code>
+    * [.writeCrc()](#Save+writeCrc) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.writeCrcSync()](#Save+writeCrcSync)
+    * [.reorder()](#Save+reorder) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.reorderSync()](#Save+reorderSync)
+    * [.exportThumbnail()](#Save+exportThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.exportThumbnailSync()](#Save+exportThumbnailSync)
+    * [.importThumbnail()](#Save+importThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.unlockAmiibos()](#Save+unlockAmiibos) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.loadCourses()](#Save+loadCourses) ⇒ <code>Object.&lt;string, Course&gt;</code>
+    * [.loadCoursesSync()](#Save+loadCoursesSync) ⇒ <code>Object.&lt;string, Course&gt;</code>
+    * [.addCourse(course)](#Save+addCourse) ⇒ <code>Promise.&lt;number&gt;</code>
+    * [.addCourseFromFs(coursePath)](#Save+addCourseFromFs) ⇒ <code>Promise.&lt;number&gt;</code>
+    * [.deleteCourse(courseId)](#Save+deleteCourse) ⇒ <code>Promise.&lt;void&gt;</code>
+
+<a name="new_Save_new"></a>
+
+### new Save()
+Represents a Super Mario Maker save
+
+<a name="Save+pathToSave"></a>
+
+### save.pathToSave : <code>string</code>
+Path to save
+
+**Kind**: instance property of [<code>Save</code>](#Save)  
+<a name="Save+data"></a>
+
+### save.data : <code>Buffer</code>
+Node buffer of save.dat file
+
+**Kind**: instance property of [<code>Save</code>](#Save)  
+<a name="Save+courses"></a>
+
+### save.courses : <code>Object.&lt;string, Course&gt;</code>
+Courses belonging to this save
+
+**Kind**: instance property of [<code>Save</code>](#Save)  
+<a name="Save+writeCrc"></a>
+
+### save.writeCrc() ⇒ <code>Promise.&lt;void&gt;</code>
+Writes CRC checksum of save.dat
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+<a name="Save+writeCrcSync"></a>
+
+### save.writeCrcSync()
+Synchronous version of [writeCrc](#Save+writeCrc)
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+<a name="Save+reorder"></a>
+
+### save.reorder() ⇒ <code>Promise.&lt;void&gt;</code>
+Reorders course folders to match actual in game appearance
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+<a name="Save+reorderSync"></a>
+
+### save.reorderSync()
+Synchronous version of [reorder](#Save+reorder)
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+<a name="Save+exportThumbnail"></a>
+
+### save.exportThumbnail() ⇒ <code>Promise.&lt;void&gt;</code>
+Exports all course thumbnails as JPEG within course folders
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+<a name="Save+exportThumbnailSync"></a>
+
+### save.exportThumbnailSync()
+Synchronous version of [exportThumbnail](#Save+exportThumbnail)
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+<a name="Save+importThumbnail"></a>
+
+### save.importThumbnail() ⇒ <code>Promise.&lt;void&gt;</code>
+Imports all JPEG thumbnails as TNL within course folders
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+<a name="Save+unlockAmiibos"></a>
+
+### save.unlockAmiibos() ⇒ <code>Promise.&lt;void&gt;</code>
+Unlocks Amiibos for this save
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+<a name="Save+loadCourses"></a>
+
+### save.loadCourses() ⇒ <code>Object.&lt;string, Course&gt;</code>
+Load courses and store them in [courses](#Save+courses)
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+<a name="Save+loadCoursesSync"></a>
+
+### save.loadCoursesSync() ⇒ <code>Object.&lt;string, Course&gt;</code>
+Synchronous version of [loadCourses](#Save+loadCourses)
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+<a name="Save+addCourse"></a>
+
+### save.addCourse(course) ⇒ <code>Promise.&lt;number&gt;</code>
+Stores a course in this save
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+**Returns**: <code>Promise.&lt;number&gt;</code> - course slot ID  
+**Throws**:
+
+- <code>Error</code> Save must have an empty slot
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| course | [<code>Course</code>](#Course) | course to be stored in save |
+
+<a name="Save+addCourseFromFs"></a>
+
+### save.addCourseFromFs(coursePath) ⇒ <code>Promise.&lt;number&gt;</code>
+Stores a course from file system in this save
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+**Returns**: <code>Promise.&lt;number&gt;</code> - course slot ID  
+**Throws**:
+
+- <code>Error</code> courseDataPath must exist
+- <code>Error</code> Save must have an empty slot
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| coursePath | <code>string</code> | course to be stored in save |
+
+<a name="Save+deleteCourse"></a>
+
+### save.deleteCourse(courseId) ⇒ <code>Promise.&lt;void&gt;</code>
+Deletes a course from this save
+
+**Kind**: instance method of [<code>Save</code>](#Save)  
+**Throws**:
+
+- <code>Error</code> course with courseId must exist
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| courseId | <code>number</code> | ID of course to be deleted |
+
 <a name="loadSave"></a>
 
 ## loadSave(pathToSave) ⇒ [<code>Promise.&lt;Save&gt;</code>](#Save)
-Loads a save from fs
+Loads a save from file system
 
 **Kind**: global function  
 **Throws**:
@@ -560,7 +557,7 @@ Loads a save from fs
 
 | Param | Type | Description |
 | --- | --- | --- |
-| pathToSave | <code>string</code> | path to save on fs |
+| pathToSave | <code>string</code> | path to save on file system |
 
 <a name="loadSaveSync"></a>
 
@@ -575,18 +572,18 @@ Synchronous version of [loadSave](#loadSave)
 
 | Param | Type | Description |
 | --- | --- | --- |
-| pathToSave | <code>string</code> | path to save on fs |
+| pathToSave | <code>string</code> | path to save on file system |
 
 <a name="loadCourse"></a>
 
 ## loadCourse(coursePath, [courseId]) ⇒ [<code>Promise.&lt;Course&gt;</code>](#Course)
-Loads a course from fs
+Loads a course from file system
 
 **Kind**: global function  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| coursePath | <code>string</code> | path to course on fs |
+| coursePath | <code>string</code> | path to course on file system |
 | [courseId] | <code>number</code> | course ID inside save |
 
 <a name="loadCourseSync"></a>
@@ -598,7 +595,7 @@ Synchronous version of [loadCourse](#loadCourse)
 
 | Param | Type | Description |
 | --- | --- | --- |
-| coursePath | <code>string</code> | path to course on fs |
+| coursePath | <code>string</code> | path to course on file system |
 | [courseId] | <code>number</code> | course ID inside save |
 
 <a name="decompress"></a>
@@ -636,5 +633,5 @@ Load JPEG or TNL image
 
 | Param | Type | Description |
 | --- | --- | --- |
-| pathToFile | <code>string</code> | path to image on fs |
+| pathToFile | <code>string</code> | path to image on file system |
 

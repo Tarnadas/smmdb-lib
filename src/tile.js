@@ -29,23 +29,24 @@ export const TILE_CONSTANTS = {
 
   COSTUME_OFFSET: 0x1E, // uint_8 x 2
 
-  BLOCK_DEFAULT: Buffer.from(`00000000000000000000000006000840060000400000000000FFFFFFFFFFFFFF`, "hex"
-  ),
-};
+  BLOCK_DEFAULT: Buffer.from(`00000000000000000000000006000840060000400000000000FFFFFFFFFFFFFF`, 'hex'
+  )
+}
 
-const living    = Symbol();
-const platform  = Symbol();
-const linkable  = Symbol();
-const hasId     = Symbol();
-const costume   = Symbol();
-const unknown0  = Symbol();
-const unknown1  = Symbol();
+/*
+const living = Symbol('living')
+const platform = Symbol('platform')
+const linkable = Symbol('linkable')
+const hasId = Symbol('hasId')
+const costume = Symbol('costume')
+const unknown0 = Symbol('unknown0')
+const unknown1 = Symbol('unknown1')
+*/
 
 export default class Tile {
-
   constructor (data) {
-
-    /*this[living]    = false;
+    /*
+    this[living]    = false;
     this[platform]  = false;
     this[linkable]  = false;
     this[hasId]     = false;
@@ -77,18 +78,14 @@ export default class Tile {
     this.id = data.readUInt16BE(BLOCK_CONSTANTS.ID_OFFSET);
     if (this.id !== 0xFFFF) {
         this[hasId] = true;
-    }*/
-
-    this.tileData = data;
-
+    }
+    */
+    this.tileData = data
   }
 
   toBuffer (lazy) {
-
     if (lazy) {
-      return this.tileData;
+      return this.tileData
     }
-
   }
-
 }

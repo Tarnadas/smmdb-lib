@@ -1,51 +1,45 @@
-import Promise from "bluebird"
-import crc32   from "buffer-crc32"
-import copydir from "copy-dir"
-import rimraf  from "rimraf"
+import crc32 from 'buffer-crc32'
+import copydir from 'copy-dir'
+import rimraf from 'rimraf'
 
-import * as fs   from "fs"
-import * as path from "path"
+import fs from 'fs'
+import path from 'path'
 
 import {
   loadCourse, loadCourseSync
-} from "."
+} from '.'
 import {
-  Tnl, Jpeg
-} from "./tnl"
+  Jpeg
+} from './image'
 
-const SAVE_SIZE  = 0xA000;
+const SAVE_SIZE = 0xA000
 
-const SAVE_ORDER_OFFSET = 0x4340;
-const SAVE_ORDER_SIZE = 120;
-const SAVE_ORDER_EMPTY = 0xFF;
+const SAVE_ORDER_OFFSET = 0x4340
+const SAVE_ORDER_SIZE = 120
+const SAVE_ORDER_EMPTY = 0xFF
 
-const SAVE_AMIIBO_OFFSET = 0x85E0;
-const SAVE_AMIIBO_LENGTH = 0x14;
+const SAVE_AMIIBO_OFFSET = 0x85E0
+const SAVE_AMIIBO_LENGTH = 0x14
 
-const SAVE_CRC_LENGTH = 0x10;
-const SAVE_CRC_PRE_BUF  = Buffer.from("0000000000000015", "hex");
-const SAVE_CRC_POST_BUF = Buffer.alloc(4);
+const SAVE_CRC_LENGTH = 0x10
+const SAVE_CRC_PRE_BUF = Buffer.from('0000000000000015', 'hex')
+const SAVE_CRC_POST_BUF = Buffer.alloc(4)
 
-const slotToIndex = Symbol();
+const slotToIndex = Symbol('slotToIndex')
 
-//
-// @param {string} pathToSave - path to Super Mario Maker save on fs
-// @param {Buffer} data - Node buffer of save.dat file
 /**
  * Represents a Super Mario Maker save
  * @class Save
  */
 export default class Save {
-
   constructor (pathToSave, data) {
-
     /**
      * Path to save
      * @member {string} pathToSave
      * @memberOf Save
      * @instance
      */
-    this.pathToSave = pathToSave;
+    this.pathToSave = pathToSave
 
     /**
      * Node buffer of save.dat file
@@ -53,7 +47,7 @@ export default class Save {
      * @memberOf Save
      * @instance
      */
-    this.data = data;
+    this.data = data
 
     /**
      * Courses belonging to this save
@@ -61,42 +55,39 @@ export default class Save {
      * @memberOf Save
      * @instance
      */
-    this.courses = {};
+    this.courses = {}
 
-    this[slotToIndex] = {};
+    this[slotToIndex] = {}
     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-      let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i);
+      let index = this.data.readUInt8(SAVE_ORDER_OFFSET + i)
       if (index !== 255) {
-        this[slotToIndex][i] = index;
+        this[slotToIndex][i] = index
       }
     }
-
   }
 
   /**
-   * Writes crc checksum of save.dat
+   * Writes CRC checksum of save.dat
    * @function writeCrc
    * @memberOf Save
    * @instance
-   * @returns {Promise.<void>}
+   * @returns {Promise<void>}
    */
-  async writeCrc () {
-
-    return await new Promise((resolve) => {
+  writeCrc () {
+    return new Promise((resolve, reject) => {
       try {
-        let fileWithoutCrc = this.data.slice(16);
-        let crc = Buffer.alloc(4);
-        crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
-        let crcBuffer = Buffer.concat([SAVE_CRC_PRE_BUF, crc, SAVE_CRC_POST_BUF], SAVE_CRC_LENGTH);
-        this.data = Buffer.concat([crcBuffer, fileWithoutCrc], SAVE_SIZE);
+        let fileWithoutCrc = this.data.slice(16)
+        let crc = Buffer.alloc(4)
+        crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0)
+        let crcBuffer = Buffer.concat([SAVE_CRC_PRE_BUF, crc, SAVE_CRC_POST_BUF], SAVE_CRC_LENGTH)
+        this.data = Buffer.concat([crcBuffer, fileWithoutCrc], SAVE_SIZE)
         fs.writeFile(path.resolve(`${this.pathToSave}/save.dat`), this.data, null, () => {
-          resolve();
+          resolve()
         })
       } catch (err) {
-        console.log(err);
+        reject(err)
       }
-    });
-
+    })
   }
 
   /**
@@ -106,14 +97,12 @@ export default class Save {
    * @instance
    */
   writeCrcSync () {
-
-    let fileWithoutCrc = this.data.slice(16);
-    let crc = Buffer.alloc(4);
-    crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0);
-    let crcBuffer = Buffer.concat([SAVE_CRC_PRE_BUF, crc, SAVE_CRC_POST_BUF], SAVE_CRC_LENGTH);
-    this.data = Buffer.concat([crcBuffer, fileWithoutCrc], SAVE_SIZE);
-    fs.writeFileSync(path.resolve(`${this.pathToSave}/save.dat`), this.data);
-
+    let fileWithoutCrc = this.data.slice(16)
+    let crc = Buffer.alloc(4)
+    crc.writeUInt32BE(crc32.unsigned(fileWithoutCrc), 0)
+    let crcBuffer = Buffer.concat([SAVE_CRC_PRE_BUF, crc, SAVE_CRC_POST_BUF], SAVE_CRC_LENGTH)
+    this.data = Buffer.concat([crcBuffer, fileWithoutCrc], SAVE_SIZE)
+    fs.writeFileSync(path.resolve(`${this.pathToSave}/save.dat`), this.data)
   }
 
   /**
@@ -121,70 +110,76 @@ export default class Save {
    * @function reorder
    * @memberOf Save
    * @instance
-   * @returns {Promise.<void>}
+   * @returns {Promise<void>}
    */
-  async reorder () {
-
-    return new Promise(async (resolve) => {
+  reorder () {
+    return new Promise(async (resolve, reject) => {
       try {
         // rename course folders
-        let promises = [];
-        let sti = {};
-        Object.assign(sti, this[slotToIndex]);
+        let promises = []
+        const sti = {}
+        Object.assign(sti, this[slotToIndex])
         for (let i in sti) {
-          promises.push(new Promise((resolve) => {
-            let value = sti[i];
-            let srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`);
-            let dstPath = path.resolve(`${this.pathToSave}/course${String(value).padStart(3, '000')}_reorder`);
-            fs.rename(srcPath, dstPath, () => {
-              this[slotToIndex][value] = value;
-              this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value);
-              resolve();
-            });
-            resolve();
-          }));
+          promises.push(new Promise((resolve, reject) => {
+            try {
+              const value = sti[i]
+              const srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`)
+              const dstPath = path.resolve(`${this.pathToSave}/course${String(value).padStart(3, '000')}_reorder`)
+              fs.rename(srcPath, dstPath, () => {
+                this[slotToIndex][value] = value
+                this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value)
+                resolve()
+              })
+              resolve()
+            } catch (err) {
+              reject(err)
+            }
+          }))
         }
-        await Promise.all(promises);
-        promises = [];
+        await Promise.all(promises)
+        promises = []
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-          promises.push(new Promise((resolve) => {
-            let srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}_reorder`);
-            let dstPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`);
-            fs.rename(srcPath, dstPath, (err) => {
-              if (err) {
-                if (this[slotToIndex][i]) {
-                  delete this[slotToIndex][i];
+          promises.push(new Promise((resolve, reject) => {
+            try {
+              const srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}_reorder`)
+              const dstPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`)
+              fs.rename(srcPath, dstPath, (err) => {
+                if (err) {
+                  if (this[slotToIndex][i]) {
+                    delete this[slotToIndex][i]
+                  }
+                  this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i)
                 }
-                this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i);
-              }
-              resolve();
-            });
-          }));
+                resolve()
+              })
+            } catch (err) {
+              reject(err)
+            }
+          }))
         }
-        await Promise.all(promises);
-        promises = [];
+        await Promise.all(promises)
+        promises = []
         for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
           promises.push(new Promise((resolve) => {
             fs.access(path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`), fs.constants.R_OK | fs.constants.W_OK, (err) => {
               if (!err) {
-                this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
+                this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i)
               }
-              resolve();
+              resolve()
             })
-          }));
+          }))
         }
-        await Promise.all(promises);
+        await Promise.all(promises)
 
         // recalculate checksum
-        await this.writeCrc();
+        await this.writeCrc()
 
-        resolve();
+        resolve()
       } catch (err) {
-        console.log(err);
+        reject(err)
         // TODO undo changes
       }
-    });
-
+    })
   }
 
   /**
@@ -194,45 +189,43 @@ export default class Save {
    * @instance
    */
   reorderSync () {
-
     try {
       // rename course folders
-      let sti = {};
-      Object.assign(sti, this[slotToIndex]);
+      const sti = {}
+      Object.assign(sti, this[slotToIndex])
       for (let i in sti) {
-        let value = sti[i];
-        let srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`);
-        let dstPath = path.resolve(`${this.pathToSave}/course${String(value).padStart(3, '000')}_reorder`);
-        fs.renameSync(srcPath, dstPath);
-        this[slotToIndex][value] = value;
-        this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value);
+        const value = sti[i]
+        const srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`)
+        const dstPath = path.resolve(`${this.pathToSave}/course${String(value).padStart(3, '000')}_reorder`)
+        fs.renameSync(srcPath, dstPath)
+        this[slotToIndex][value] = value
+        this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value)
       }
       for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-        let srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}_reorder`);
-        let dstPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`);
+        const srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}_reorder`)
+        const dstPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`)
         try {
-          fs.renameSync(srcPath, dstPath);
+          fs.renameSync(srcPath, dstPath)
         } catch (err) {
           if (this[slotToIndex][i]) {
-            delete this[slotToIndex][i];
+            delete this[slotToIndex][i]
           }
-          this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i);
+          this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i)
         }
       }
       for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
         try {
-          fs.accessSync(path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`), fs.constants.R_OK | fs.constants.W_OK);
-          this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
+          fs.accessSync(path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`), fs.constants.R_OK | fs.constants.W_OK)
+          this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i)
         } catch (err) {}
       }
 
       // recalculate checksum
-      this.writeCrc();
+      this.writeCrc()
     } catch (err) {
-      console.log(err);
+      throw err
       // TODO undo changes
     }
-
   }
 
   /**
@@ -240,22 +233,24 @@ export default class Save {
    * @function exportThumbnail
    * @memberOf Save
    * @instance
-   * @returns {Promise.<void>}
+   * @returns {Promise<void>}
    */
   async exportThumbnail () {
-
-    let promises = [];
+    let promises = []
     if (this.courses === {}) {
-      await this.loadCourses();
+      await this.loadCourses()
     }
-    for (let key in this.courses) {
-      promises.push(new Promise(async (resolve) => {
-        await this.courses[key].exportThumbnail();
-        resolve();
-      }));
+    for (const course of this.courses) {
+      promises.push(new Promise(async (resolve, reject) => {
+        try {
+          await course.exportThumbnail()
+        } catch (err) {
+          reject(err)
+        }
+        resolve()
+      }))
     }
-    return await Promise.all(promises);
-
+    return Promise.all(promises)
   }
 
   /**
@@ -265,14 +260,12 @@ export default class Save {
    * @instance
    */
   exportThumbnailSync () {
-
     if (this.courses === {}) {
-      this.loadCoursesSync();
+      this.loadCoursesSync()
     }
-    for (let key in this.courses) {
-      this.courses[key].exportThumbnailSync();
+    for (const course of this.courses) {
+      course.exportThumbnailSync()
     }
-
   }
 
   /**
@@ -280,52 +273,50 @@ export default class Save {
    * @function importThumbnail
    * @memberOf Save
    * @instance
-   * @returns {Promise.<void>}
+   * @returns {Promise<void>}
    */
-  async importThumbnail () {
-
-    let promises = [];
+  importThumbnail () {
+    const promises = []
     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-      let coursePath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}/`);
-      promises.push(new Promise(async (resolve) => {
-        let exists = false;
-        await new Promise((resolve) => {
-          fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
-            exists = !err;
-            resolve();
-          });
-        });
+      const coursePath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}/`)
+      promises.push(new Promise(async (resolve, reject) => {
+        const exists = await new Promise(resolve => {
+          fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, err => {
+            resolve(!err)
+          })
+        })
         if (exists) {
           await Promise.all([
-            new Promise(async (resolve) => {
+            new Promise(async (resolve, reject) => {
               try {
-                let jpeg = new Jpeg(coursePath + "/thumbnail0.jpg");
-                let tnl = await jpeg.toTnl(true);
-                fs.writeFile(coursePath + "/thumbnail0.tnl", tnl, null, () => {
-                  resolve();
+                const jpeg = new Jpeg(`${coursePath}/thumbnail0.jpg`)
+                const tnl = await jpeg.toTnl(true)
+                fs.writeFile(`${coursePath}/thumbnail0.tnl`, tnl, null, err => {
+                  if (err) reject(err)
+                  resolve()
                 })
               } catch (err) {
-                resolve();
+                reject(err)
               }
             }),
-            new Promise(async (resolve) => {
+            new Promise(async (resolve, reject) => {
               try {
-                let jpeg = new Jpeg(coursePath + "/thumbnail1.jpg");
-                let tnl = await jpeg.toTnl(false);
-                fs.writeFile(coursePath + "/thumbnail1.tnl", tnl, null, () => {
-                  resolve();
-                });
+                const jpeg = new Jpeg(`${coursePath}/thumbnail1.jpg`)
+                const tnl = await jpeg.toTnl(false)
+                fs.writeFile(`${coursePath}/thumbnail1.tnl`, tnl, null, err => {
+                  if (err) reject(err)
+                  resolve()
+                })
               } catch (err) {
-                resolve();
+                reject(err)
               }
             })
-          ]);
+          ])
         }
-        resolve();
-      }));
+        resolve()
+      }))
     }
-    return await Promise.all(promises);
-
+    return Promise.all(promises)
   }
 
   /**
@@ -333,18 +324,16 @@ export default class Save {
    * @function unlockAmiibos
    * @memberOf Save
    * @instance
-   * @returns {Promise.<void>}
+   * @returns {Promise<void>}
    */
-  async unlockAmiibos () {
-
-    return await new Promise(async (resolve) => {
+  unlockAmiibos () {
+    return new Promise(async (resolve) => {
       for (let i = 0; i < SAVE_AMIIBO_LENGTH; i++) {
-        this.data.writeUInt8(0xFF, SAVE_AMIIBO_OFFSET + i);
+        this.data.writeUInt8(0xFF, SAVE_AMIIBO_OFFSET + i)
       }
-      await this.writeCrc();
-      resolve();
+      await this.writeCrc()
+      resolve()
     })
-
   }
 
   /**
@@ -352,37 +341,35 @@ export default class Save {
    * @function loadCourses
    * @memberOf Save
    * @instance
-   * @returns {Object.<string,Course>}
+   * @returns {Object<string,Course>}
    */
   async loadCourses () {
-
-    let promises = [];
+    const promises = []
     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
       promises.push(new Promise(async (resolve) => {
-        let courseName = `course${String(i).padStart(3, '000')}`;
-        let coursePath = path.resolve(`${this.pathToSave}/${courseName}/`);
-        let exists = await new Promise((resolve) => {
-          fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
-            resolve(!err);
-          });
-        });
+        const courseName = `course${String(i).padStart(3, '000')}`
+        const coursePath = path.resolve(`${this.pathToSave}/${courseName}/`)
+        const exists = await new Promise((resolve) => {
+          fs.access(coursePath, fs.constants.R_OK | fs.constants.W_OK, err => {
+            resolve(!err)
+          })
+        })
         if (exists) {
           try {
-            this.courses[courseName] = await loadCourse(coursePath, i);
-            this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
+            this.courses[courseName] = await loadCourse(coursePath, i)
+            this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i)
           } catch (err) {
-            this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i);
+            this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i)
           }
         } else {
-          this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i);
+          this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i)
         }
-        resolve();
-      }));
+        resolve()
+      }))
     }
-    await Promise.all(promises);
-    await this.writeCrc();
-    return this.courses;
-
+    await Promise.all(promises)
+    await this.writeCrc()
+    return this.courses
   }
 
   /**
@@ -390,24 +377,22 @@ export default class Save {
    * @function loadCoursesSync
    * @memberOf Save
    * @instance
-   * @returns {Object.<string,Course>}
+   * @returns {Object<string,Course>}
    */
   loadCoursesSync () {
-
     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-      let courseName = `course${String(i).padStart(3, '000')}`;
-      let coursePath = path.resolve(`${this.pathToSave}/${courseName}/`);
+      let courseName = `course${String(i).padStart(3, '000')}`
+      let coursePath = path.resolve(`${this.pathToSave}/${courseName}/`)
       try {
-        fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
-        this.courses[courseName] = loadCourseSync(coursePath, i);
-        this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i);
+        fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK)
+        this.courses[courseName] = loadCourseSync(coursePath, i)
+        this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i)
       } catch (err) {
-        this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i);
+        this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + i)
       }
     }
-    this.writeCrcSync();
-    return this.courses;
-
+    this.writeCrcSync()
+    return this.courses
   }
 
   /**
@@ -416,80 +401,81 @@ export default class Save {
    * @memberOf Save
    * @instance
    * @param {Course} course - course to be stored in save
-   * @returns {number} course slot ID
+   * @returns {Promise<number>} course slot ID
    * @throws {Error} Save must have an empty slot
    */
   async addCourse (course) {
-
-    let emptySlotName = "";
-    let emptySlot = -1;
+    let emptySlotName = ''
+    let emptySlot = -1
     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-      let courseName = `course${String(i).padStart(3, '000')}`;
+      let courseName = `course${String(i).padStart(3, '000')}`
       if (!this.courses[courseName]) {
-        emptySlotName = courseName;
-        emptySlot = i;
-        break;
+        emptySlotName = courseName
+        emptySlot = i
+        break
       }
     }
     if (emptySlot === -1) {
-      throw new Error("No empty slot inside save");
+      throw new Error('No empty slot inside save')
     }
-    let cemuSavePath = path.join(this.pathToSave, emptySlotName);
-    await course.writeToSave(emptySlot, cemuSavePath);
-    this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
-    this.courses[emptySlotName] = course;
-    await this.writeCrc();
-    return emptySlot;
-
+    let cemuSavePath = path.join(this.pathToSave, emptySlotName)
+    await course.writeToSave(emptySlot, cemuSavePath)
+    this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot)
+    this.courses[emptySlotName] = course
+    await this.writeCrc()
+    return emptySlot
   }
 
   /**
-   * Stores a course from fs in this save
+   * Stores a course from file system in this save
    * @function addCourseFromFs
    * @memberOf Save
    * @instance
    * @param {string} coursePath - course to be stored in save
-   * @returns {number} course slot ID
+   * @returns {Promise<number>} course slot ID
    * @throws {Error} courseDataPath must exist
    * @throws {Error} Save must have an empty slot
    */
   async addCourseFromFs (coursePath) {
-
     if (this.courses === {}) {
-      await this.loadCourses();
+      await this.loadCourses()
     }
     if (!fs.existsSync(coursePath)) {
-      throw new Error("Path does not exist: " + coursePath);
+      throw new Error(`Path does not exist:\n${coursePath}`)
     }
-    let emptySlotName = "";
-    let emptySlot = -1;
+    let emptySlotName = ''
+    let emptySlot = -1
     for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-      let courseName = `course${String(i).padStart(3, '000')}`;
+      let courseName = `course${String(i).padStart(3, '000')}`
       if (!this.courses[courseName]) {
-        emptySlotName = courseName;
-        emptySlot = i;
-        break;
+        emptySlotName = courseName
+        emptySlot = i
+        break
       }
     }
     if (emptySlot === -1) {
-      throw new Error("No empty slot inside save");
+      throw new Error('No empty slot inside save')
     }
-    let cemuSavePath = path.join(this.pathToSave, emptySlotName);
+    let cemuSavePath = path.join(this.pathToSave, emptySlotName)
     try {
-      return await new Promise((resolve) => {
-        rimraf(cemuSavePath, async () => {
-          fs.mkdirSync(cemuSavePath);
-          copydir.sync(coursePath, cemuSavePath);
-          this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot);
-          this.courses[emptySlotName] = await loadCourse(cemuSavePath, emptySlot);
-          await this.writeCrc();
-          resolve(emptySlot);
+      return new Promise((resolve, reject) => {
+        rimraf(cemuSavePath, async (err) => {
+          if (err) reject(err)
+          try {
+            fs.mkdirSync(cemuSavePath)
+            copydir.sync(coursePath, cemuSavePath)
+            this.data.writeUInt8(emptySlot, SAVE_ORDER_OFFSET + emptySlot)
+            this.courses[emptySlotName] = await loadCourse(cemuSavePath, emptySlot)
+            await this.writeCrc()
+          } catch (err) {
+            reject(err)
+          }
+          resolve(emptySlot)
         })
-      });
+      })
     } catch (err) {
-      throw err;
+      throw err
     }
-
   }
 
   /**
@@ -502,27 +488,30 @@ export default class Save {
    * @throws {Error} course with courseId must exist
    */
   async deleteCourse (courseId) {
-
     if (this.courses === {}) {
-      await this.loadCourses();
+      await this.loadCourses()
     }
-    let courseName = `course${String(courseId).padStart(3, '000')}`;
-    let coursePath = path.join(this.pathToSave, courseName);
+    let courseName = `course${String(courseId).padStart(3, '000')}`
+    let coursePath = path.join(this.pathToSave, courseName)
     if (!fs.existsSync(coursePath)) {
-      throw new Error("Course does not exist: course" + String(courseId).padStart(3, '000'));
+      throw new Error(`Course does not exist: course${String(courseId).padStart(3, '000')}`)
     }
     try {
-      return await new Promise((resolve) => {
-        rimraf(coursePath, async () => {
-          this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + courseId);
-          delete this.courses[courseName];
-          await this.writeCrc();
-          resolve();
+      return new Promise((resolve, reject) => {
+        rimraf(coursePath, async (err) => {
+          if (err) reject(err)
+          try {
+            this.data.writeUInt8(0xFF, SAVE_ORDER_OFFSET + courseId)
+            delete this.courses[courseName]
+            await this.writeCrc()
+          } catch (err) {
+            reject(err)
+          }
+          resolve()
         })
-      });
+      })
     } catch (err) {
-      throw err;
+      throw err
     }
-
   }
 }

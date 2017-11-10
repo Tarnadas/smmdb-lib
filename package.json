@@ -6,14 +6,13 @@
   "scripts": {
     "compile": "node compile",
     "transpile": "babel src --out-dir lib",
-    "prepare": "npm run compile&& npm run transpile",
-    "test": "npm run transpile&& node test/test"
+    "prepare": "npm run compile && npm run transpile",
+    "test": "npm run transpile && node test/test"
   },
   "author": "Mario Reder",
   "license": "MIT",
   "dependencies": {
     "babel-runtime": "^6.26.0",
-    "bluebird": "^3.5.0",
     "buffer-crc32": "latest",
     "copy-dir": "^0.3.0",
     "crc": "^3.4.4",
