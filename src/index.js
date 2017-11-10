@@ -50,6 +50,7 @@ export function loadSaveSync (pathToSave) {
  * @function loadCourse
  * @param {string} coursePath - path to course on file system
  * @param {number} [courseId] - course ID inside save
+ * @param {boolean} [isWiiU=true] - is it a Wii U course or 3DS course
  * @return {Promise<Course>}
  */
 export function loadCourse (coursePath, courseId, isWiiU = true) {
@@ -93,6 +94,7 @@ export function loadCourse (coursePath, courseId, isWiiU = true) {
  * @function loadCourseSync
  * @param {string} coursePath - path to course on file system
  * @param {number} [courseId] - course ID inside save
+ * @param {boolean} [isWiiU=true] - is it a Wii U course or 3DS course
  * @returns {Course}
  */
 export function loadCourseSync (coursePath, courseId, isWiiU = true) {

@@ -20,10 +20,10 @@
 <dt><a href="#loadSaveSync">loadSaveSync(pathToSave)</a> ⇒ <code><a href="#Save">Save</a></code></dt>
 <dd><p>Synchronous version of <a href="#loadSave">loadSave</a></p>
 </dd>
-<dt><a href="#loadCourse">loadCourse(coursePath, [courseId])</a> ⇒ <code><a href="#Course">Promise.&lt;Course&gt;</a></code></dt>
+<dt><a href="#loadCourse">loadCourse(coursePath, [courseId], [isWiiU])</a> ⇒ <code><a href="#Course">Promise.&lt;Course&gt;</a></code></dt>
 <dd><p>Loads a course from file system</p>
 </dd>
-<dt><a href="#loadCourseSync">loadCourseSync(coursePath, [courseId])</a> ⇒ <code><a href="#Course">Course</a></code></dt>
+<dt><a href="#loadCourseSync">loadCourseSync(coursePath, [courseId], [isWiiU])</a> ⇒ <code><a href="#Course">Course</a></code></dt>
 <dd><p>Synchronous version of <a href="#loadCourse">loadCourse</a></p>
 </dd>
 <dt><a href="#decompress">decompress(filePath)</a> ⇒ <code>Promise.&lt;Array.&lt;Course&gt;&gt;</code></dt>
@@ -59,21 +59,21 @@ Requires p7zip for Unix and 7z.exe for Windows (Place exe in same folder as pack
     * [.tilesSub](#Course+tilesSub) : <code>Array.&lt;Tile&gt;</code>
     * [.sounds](#Course+sounds) : <code>Array.&lt;Sound&gt;</code>
     * [.soundsSub](#Course+soundsSub) : <code>Array.&lt;Sound&gt;</code>
-    * [.writeToSave(id, pathToCourse)](#Course+writeToSave)
-    * [.writeCrc(writeToFs)](#Course+writeCrc) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.writeToSave(id, pathToCourse)](#Course+writeToSave) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.writeCrc([writeToFs])](#Course+writeCrc) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.setTitle(title, [writeCrc])](#Course+setTitle) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.setMaker(makerName, [writeCrc])](#Course+setMaker) ⇒ <code>Promise.&lt;void&gt;</code> \| <code>null</code>
+    * [.setMaker(makerName, [writeCrc])](#Course+setMaker) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.loadTnl()](#Course+loadTnl) ⇒ [<code>Array.&lt;Tnl&gt;</code>](#Tnl)
-    * [.loadThumbnail()](#Course+loadThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.loadThumbnailSync()](#Course+loadThumbnailSync)
-    * [.setThumbnail(thumbnail, [isWide], [doClip])](#Course+setThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.setThumbnailFromFs(pathToThumbnail, [pathToThumbnailPreview])](#Course+setThumbnailFromFs) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.loadThumbnail()](#Course+loadThumbnail) ⇒ <code>Promise.&lt;Array.&lt;Jpeg&gt;&gt;</code>
+    * [.loadThumbnailSync()](#Course+loadThumbnailSync) ⇒ [<code>Array.&lt;Jpeg&gt;</code>](#Jpeg)
+    * [.setThumbnail(thumbnail, [isWide], [doClip])](#Course+setThumbnail) ⇒ [<code>Promise.&lt;Jpeg&gt;</code>](#Jpeg)
+    * [.setThumbnailFromFs(pathToThumbnail, [pathToThumbnailPreview])](#Course+setThumbnailFromFs) ⇒ <code>Promise.&lt;Array.&lt;Jpeg&gt;&gt;</code>
     * [.isThumbnailBroken()](#Course+isThumbnailBroken) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [.writeThumbnail()](#Course+writeThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.exportThumbnail()](#Course+exportThumbnail) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.exportThumbnailSync()](#Course+exportThumbnailSync)
     * [.serialize()](#Course+serialize) ⇒ <code>Promise.&lt;Buffer&gt;</code>
-    * [.decompress(filePath)](#Course+decompress) ⇒ [<code>Array.&lt;Course&gt;</code>](#Course)
+    * [.decompress(filePath)](#Course+decompress) ⇒ <code>Promise.&lt;Array.&lt;Course&gt;&gt;</code>
     * [.serializeGzipped()](#Course+serializeGzipped) ⇒ <code>Promise.&lt;Buffer&gt;</code>
     * [.deserialize(buffer)](#Course+deserialize) ⇒ [<code>Promise.&lt;Course&gt;</code>](#Course)
 
@@ -168,7 +168,7 @@ Course sounds
 **Kind**: instance property of [<code>Course</code>](#Course)  
 <a name="Course+writeToSave"></a>
 
-### course.writeToSave(id, pathToCourse)
+### course.writeToSave(id, pathToCourse) ⇒ <code>Promise.&lt;void&gt;</code>
 Writes course to file system inside save folder.This function should not be called directly. Instead call save.addCourse(course)
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
@@ -180,14 +180,14 @@ Writes course to file system inside save folder.This function should not be cal
 
 <a name="Course+writeCrc"></a>
 
-### course.writeCrc(writeToFs) ⇒ <code>Promise.&lt;void&gt;</code>
-Writes crc checksum of course to file system
+### course.writeCrc([writeToFs]) ⇒ <code>Promise.&lt;void&gt;</code>
+Writes CRC checksum of course to file system
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| writeToFs | <code>boolean</code> | should file on file system be overwritten with new CRC checksum |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [writeToFs] | <code>boolean</code> | <code>false</code> | should file on file system be overwritten with new CRC checksum |
 
 <a name="Course+setTitle"></a>
 
@@ -203,7 +203,7 @@ Sets a new title for this course and optionally recalculates CRC checksum
 
 <a name="Course+setMaker"></a>
 
-### course.setMaker(makerName, [writeCrc]) ⇒ <code>Promise.&lt;void&gt;</code> \| <code>null</code>
+### course.setMaker(makerName, [writeCrc]) ⇒ <code>Promise.&lt;void&gt;</code>
 Sets a new maker for this course and optionally recalculates CRC checksum
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
@@ -221,22 +221,25 @@ Load TNL thumbnails from file system.Implicitly called by constructor
 **Kind**: instance method of [<code>Course</code>](#Course)  
 <a name="Course+loadThumbnail"></a>
 
-### course.loadThumbnail() ⇒ <code>Promise.&lt;void&gt;</code>
+### course.loadThumbnail() ⇒ <code>Promise.&lt;Array.&lt;Jpeg&gt;&gt;</code>
 Convert TNL thumbnails to JPEG thumbnails
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
+**Returns**: <code>Promise.&lt;Array.&lt;Jpeg&gt;&gt;</code> - [ thumbnail wide, thumbnail 4:3 ]  
 <a name="Course+loadThumbnailSync"></a>
 
-### course.loadThumbnailSync()
+### course.loadThumbnailSync() ⇒ [<code>Array.&lt;Jpeg&gt;</code>](#Jpeg)
 Synchronous version of [loadThumbnail](#Course+loadThumbnail)
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
+**Returns**: [<code>Array.&lt;Jpeg&gt;</code>](#Jpeg) - [ thumbnail wide, thumbnail 4:3 ]  
 <a name="Course+setThumbnail"></a>
 
-### course.setThumbnail(thumbnail, [isWide], [doClip]) ⇒ <code>Promise.&lt;void&gt;</code>
+### course.setThumbnail(thumbnail, [isWide], [doClip]) ⇒ [<code>Promise.&lt;Jpeg&gt;</code>](#Jpeg)
 Change thumbnail of this course
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
+**Returns**: [<code>Promise.&lt;Jpeg&gt;</code>](#Jpeg) - converted thumbnail  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -246,10 +249,11 @@ Change thumbnail of this course
 
 <a name="Course+setThumbnailFromFs"></a>
 
-### course.setThumbnailFromFs(pathToThumbnail, [pathToThumbnailPreview]) ⇒ <code>Promise.&lt;void&gt;</code>
-Change thumbnail of this course
+### course.setThumbnailFromFs(pathToThumbnail, [pathToThumbnailPreview]) ⇒ <code>Promise.&lt;Array.&lt;Jpeg&gt;&gt;</code>
+Change thumbnail of this course.If second argument is not provided, it will use the first file path for both thumbnail calculations
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
+**Returns**: <code>Promise.&lt;Array.&lt;Jpeg&gt;&gt;</code> - [ thumbnail wide, thumbnail 4:3 ]  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -259,7 +263,7 @@ Change thumbnail of this course
 <a name="Course+isThumbnailBroken"></a>
 
 ### course.isThumbnailBroken() ⇒ <code>Promise.&lt;boolean&gt;</code>
-Check if this course's thumbnail is broken
+Check if this course's thumbnail has been generated by Cemu versions prior to 1.9.1
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
 <a name="Course+writeThumbnail"></a>
@@ -302,7 +306,7 @@ Serializes a course object with compliance to [https://github.com/Tarnadas/smm-p
 **Kind**: instance method of [<code>Course</code>](#Course)  
 <a name="Course+decompress"></a>
 
-### course.decompress(filePath) ⇒ [<code>Array.&lt;Course&gt;</code>](#Course)
+### course.decompress(filePath) ⇒ <code>Promise.&lt;Array.&lt;Course&gt;&gt;</code>
 Decompresses a file and loads all included courses into an array.Requires p7zip for Unix and 7z.exe for Windows (Place exe in same folder as package.json or add to PATH)
 
 **Kind**: instance method of [<code>Course</code>](#Course)  
@@ -359,7 +363,7 @@ Synchronous version of [Tnl.toJpeg](Tnl.toJpeg)
 <a name="Tnl+isBroken"></a>
 
 ### tnl.isBroken() ⇒ <code>Promise.&lt;boolean&gt;</code>
-Check if TNL thumbnail is broken and needs fix
+Check if TNL thumbnail has been generated by Cemu versions prior to 1.9.1
 
 **Kind**: instance method of [<code>Tnl</code>](#Tnl)  
 <a name="Jpeg"></a>
@@ -576,27 +580,29 @@ Synchronous version of [loadSave](#loadSave)
 
 <a name="loadCourse"></a>
 
-## loadCourse(coursePath, [courseId]) ⇒ [<code>Promise.&lt;Course&gt;</code>](#Course)
+## loadCourse(coursePath, [courseId], [isWiiU]) ⇒ [<code>Promise.&lt;Course&gt;</code>](#Course)
 Loads a course from file system
 
 **Kind**: global function  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| coursePath | <code>string</code> | path to course on file system |
-| [courseId] | <code>number</code> | course ID inside save |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| coursePath | <code>string</code> |  | path to course on file system |
+| [courseId] | <code>number</code> |  | course ID inside save |
+| [isWiiU] | <code>boolean</code> | <code>true</code> | is it a Wii U course or 3DS course |
 
 <a name="loadCourseSync"></a>
 
-## loadCourseSync(coursePath, [courseId]) ⇒ [<code>Course</code>](#Course)
+## loadCourseSync(coursePath, [courseId], [isWiiU]) ⇒ [<code>Course</code>](#Course)
 Synchronous version of [loadCourse](#loadCourse)
 
 **Kind**: global function  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| coursePath | <code>string</code> | path to course on file system |
-| [courseId] | <code>number</code> | course ID inside save |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| coursePath | <code>string</code> |  | path to course on file system |
+| [courseId] | <code>number</code> |  | course ID inside save |
+| [isWiiU] | <code>boolean</code> | <code>true</code> | is it a Wii U course or 3DS course |
 
 <a name="decompress"></a>
 
