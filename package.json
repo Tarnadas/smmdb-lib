@@ -15,7 +15,6 @@
     "babel-runtime": "^6.26.0",
     "buffer-crc32": "latest",
     "copy-dir": "^0.3.0",
-    "crc": "^3.4.4",
     "file-type": "^4.4.0",
     "jimp": "^0.2.27",
     "node-7z": "^0.4.0",
