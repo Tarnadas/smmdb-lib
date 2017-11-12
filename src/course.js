@@ -16,7 +16,7 @@ import Tile, { TILE_CONSTANTS } from './tile'
 import Sound, { SOUND_CONSTANTS } from './sound'
 import {
   Tnl, Jpeg, Image
-} from './tnl'
+} from './image'
 
 const sound = Buffer.concat([Buffer.from('76246AAE', 'hex'), Buffer.alloc(0xD804)], 0xD808)
 
