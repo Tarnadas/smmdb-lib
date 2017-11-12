@@ -2,9 +2,9 @@
   "presets": [
     [ "env", {
       "targets": {
-        "node": "current"
+        "node": "8.9.1"
       }
     }]
   ],
-  "plugins": ["transform-runtime"]
+  "plugins": ["transform-runtime", "transform-array-from"]
 }
