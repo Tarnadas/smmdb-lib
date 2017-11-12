@@ -177,7 +177,6 @@ export default class Save {
         resolve()
       } catch (err) {
         reject(err)
-        // TODO undo changes
       }
     })
   }
@@ -189,43 +188,38 @@ export default class Save {
    * @instance
    */
   reorderSync () {
-    try {
-      // rename course folders
-      const sti = {}
-      Object.assign(sti, this[slotToIndex])
-      for (let i in sti) {
-        const value = sti[i]
-        const srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`)
-        const dstPath = path.resolve(`${this.pathToSave}/course${String(value).padStart(3, '000')}_reorder`)
-        fs.renameSync(srcPath, dstPath)
-        this[slotToIndex][value] = value
-        this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value)
-      }
-      for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-        const srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}_reorder`)
-        const dstPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`)
-        try {
-          fs.renameSync(srcPath, dstPath)
-        } catch (err) {
-          if (this[slotToIndex][i]) {
-            delete this[slotToIndex][i]
-          }
-          this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i)
-        }
-      }
-      for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
-        try {
-          fs.accessSync(path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`), fs.constants.R_OK | fs.constants.W_OK)
-          this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i)
-        } catch (err) {}
-      }
-
-      // recalculate checksum
-      this.writeCrc()
-    } catch (err) {
-      throw err
-      // TODO undo changes
+    // rename course folders
+    const sti = {}
+    Object.assign(sti, this[slotToIndex])
+    for (let i in sti) {
+      const value = sti[i]
+      const srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`)
+      const dstPath = path.resolve(`${this.pathToSave}/course${String(value).padStart(3, '000')}_reorder`)
+      fs.renameSync(srcPath, dstPath)
+      this[slotToIndex][value] = value
+      this.data.writeUInt8(value, SAVE_ORDER_OFFSET + value)
     }
+    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+      const srcPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}_reorder`)
+      const dstPath = path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`)
+      try {
+        fs.renameSync(srcPath, dstPath)
+      } catch (err) {
+        if (this[slotToIndex][i]) {
+          delete this[slotToIndex][i]
+        }
+        this.data.writeUInt8(SAVE_ORDER_EMPTY, SAVE_ORDER_OFFSET + i)
+      }
+    }
+    for (let i = 0; i < SAVE_ORDER_SIZE; i++) {
+      try {
+        fs.accessSync(path.resolve(`${this.pathToSave}/course${String(i).padStart(3, '000')}`), fs.constants.R_OK | fs.constants.W_OK)
+        this.data.writeUInt8(i, SAVE_ORDER_OFFSET + i)
+      } catch (err) {}
+    }
+
+    // recalculate checksum
+    this.writeCrc()
   }
 
   /**

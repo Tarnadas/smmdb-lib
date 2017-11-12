@@ -588,9 +588,7 @@ export default class Course {
    */
   loadThumbnailSync () {
     if (this[image3DS]) {
-      // TODO
-      this[tnl] = new Jpeg(this.thumbnail).toTnlSync()
-      this[tnlPreview] = new Jpeg(this.thumbnailPreview).toTnlSync()
+      throw new Error('No synchronous version to convert from 3DS. Please use the asynchronous version.')
     } else {
       this.thumbnail = new Tnl(this[tnl]).toJpegSync()
       this.thumbnailPreview = new Tnl(this[tnlPreview]).toJpegSync()
@@ -743,7 +741,7 @@ export default class Course {
   static async decompress (filePath) {
     const mime = fileType(readChunk.sync(filePath, 0, 4100)).mime
     if (mime !== 'application/x-rar-compressed' && mime !== 'application/zip' && mime !== 'application/x-7z-compressed' && mime !== 'application/x-tar') {
-      throw new Error(`Could not decompress file! Unknown format: ${mime}`)
+      throw new Error(`Could not decompress file! Unknown mime type: ${mime}`)
     }
 
     // decompress

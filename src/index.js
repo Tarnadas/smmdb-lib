@@ -1,3 +1,6 @@
+import fileType from 'file-type'
+import readChunk from 'read-chunk'
+
 import fs from 'fs'
 import path from 'path'
 
@@ -142,7 +145,10 @@ export function loadImage (pathToFile) {
   if (ending === 'tnl') {
     return new Tnl(pathToFile)
   } else {
-    // TODO check magic value
+    const mime = fileType(readChunk.sync(pathToFile, 0, 4100)).mime
+    if (mime !== 'image/jpeg') {
+      throw new Error(`Could not load file! Unknown mime type: ${mime}`)
+    }
     return new Jpeg(pathToFile)
   }
 }
