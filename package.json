@@ -18,7 +18,7 @@
     "file-type": "^4.4.0",
     "jimp": "^0.2.27",
     "node-7z": "^0.4.0",
-    "protobufjs": "^6.8.0",
+    "protobufjs": "^6.8.6",
     "read-chunk": "^2.1.0",
     "rimraf": "^2.6.1",
     "smm-protobuf": "git+https://github.com/Tarnadas/smm-protobuf.git",
