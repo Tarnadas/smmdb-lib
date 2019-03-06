@@ -1,7 +1,7 @@
 {
   "author": "Mario Reder <mreder1289@gmail.com>",
   "name": "cemu-smm",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu",
   "repository": "https://github.com/Tarnadas/cemu-smm",
   "license": "MIT",

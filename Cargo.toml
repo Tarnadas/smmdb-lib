@@ -6,7 +6,7 @@ license = "MIT"
 name = "cemu-smm"
 readme = "./README.md"
 repository = "https://github.com/Tarnadas/cemu-smm"
-version = "4.0.0"
+version = "4.0.1"
 
 [lib]
 path = "crate/src/lib.rs"
