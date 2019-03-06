@@ -18,4 +18,4 @@ deploy:
   on:
     repo: Tarnadas/cemu-smm
     branch: dev
-    tag: beta
+    tag: next
