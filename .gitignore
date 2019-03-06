@@ -1,4 +1,5 @@
-/.idea/
-/node_modules/
-/test/save/
-/lib/
+dist
+node_modules
+pkg
+target
+wasm-pack.log

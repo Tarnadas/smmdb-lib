@@ -102,17 +102,17 @@ const fs  = require("fs");
 
 ## Tutorials
 
-[Installation](tutorial/installation.md)
+[Installation](documentation/installation.md)
 
-[Basic Usage](tutorial/basic_usage.md)
+[Basic Usage](documentation/basic_usage.md)
 
-[Save Manipulation](tutorial/save_manipulation.md)
+[Save Manipulation](documentation/save_manipulation.md)
 
-[Course Manipulation](tutorial/course_manipulation.md)
+[Course Manipulation](documentation/course_manipulation.md)
 
-[Thumbnail Manipulation](tutorial/thumbnail_manipulation.md)
+[Thumbnail Manipulation](documentation/thumbnail_manipulation.md)
 
-[Serialization](tutorial/serialization.md)
+[Serialization](documentation/serialization.md)
 
 ## Documentation
 

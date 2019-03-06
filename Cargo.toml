@@ -1,0 +1,37 @@
+[package]
+authors = ["Mario Reder <mreder1289@gmail.com>"]
+categories = ["wasm"]
+description = "This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu"
+license = "MIT"
+name = "cemu-smm"
+readme = "./README.md"
+repository = "https://github.com/Tarnadas/cemu-smm"
+version = "4.0.0"
+
+[lib]
+path = "crate/src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+cfg-if = "0.1.7"
+console_error_panic_hook = { version = "0.1.6", optional = true }
+js-sys = "=0.3.15"
+wasm-bindgen = "=0.2.38"
+wee_alloc = { version = "0.4.3", optional = true }
+
+[dependencies.web-sys]
+version = "=0.3.15"
+features = [
+  "Document",
+  "Element",
+  "HtmlElement",
+  "Node",
+  "Window",
+]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[profile.release]
+debug = false
+lto = true
