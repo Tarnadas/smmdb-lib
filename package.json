@@ -8,7 +8,7 @@
   "scripts": {
     "start": "webpack-dev-server -d",
     "build": "webpack",
-    "deploy:dev": "wasm-pack build && wasm-pack pack && npm publish --tag beta"
+    "pack": "wasm-pack build && wasm-pack pack"
   },
   "devDependencies": {
     "@wasm-tool/wasm-pack-plugin": "0.2.3",

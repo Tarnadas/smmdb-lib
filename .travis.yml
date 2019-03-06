@@ -7,5 +7,16 @@ install:
   - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh -s -- -f
 
 script:
-  - npm install
-  - npm run build
+  - yarn install
+  - yarn build
+  - yarn pack
+
+deploy:
+  provider: npm
+  email: mreder1289@gmail.com
+  api_key:
+    secure: KG5eiAFJ6UE83YT9GZrTYB22jNe/yzar5GYBA29cK98gDiajcMvrB6Tn01L6gKtqquTDrrXtoSZKAC0bXfUdzLW5Winh5U+NPtDGHqJWK6hUqsle799f7lJMQhIz8huenPMOfXQ94P3SxL6b2pR9IJeoPpuaoLqk9gldjB4/1sZGCL1h+22iiU0W5B0z5UKhxdxSZ8MvOQ2louWw1ilFVIUBc+arb0ZROyyKrGgeLwmrCoE40BptJBhp9cv4tW8roAXrDqBeZR4y86gKzfSfs7tyR2cfSP6bMJkeG2I2mlEC7YbnPDkq1RCcPDyDrr0Nw147+MHCRh6dnlDjwgMyKWCqOoQrilCzInMFtG5vN2K+dvJLIjuGoYohD90S3uxTTkLWjOYG3ZD97Emt5H5VmbBbgK8b1B8oy/0bCaoegBIzmsV06ryWsgyL9z/4uJfzS3fLg7YPe5ClOC+yesqfc0ghyhiEvSJjH7oQeMsYx1ClQfF4tmxp1nzQCOfnOY8HhCYeGdRdL4TLERd1W5rZ0ihlTOR/a/wR1/A7J3mhX7OpU82ZW8wfrlApvK9fEMqLVK1o/UXabfZec7ZFs4HLXCVRP/KvmQZ9U/L8EH+DToWNKJL9HMX5x5I14Mz/e7M9y6U0kDs2WDfbpAIkeMhonSsVJCphDsDAag0eR35RYr8=
+  on:
+    repo: Tarnadas/cemu-smm
+    branch: dev
+    tag: beta
