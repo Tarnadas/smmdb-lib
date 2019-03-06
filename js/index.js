@@ -1,3 +1,3 @@
-import("../crate/pkg").then(module => {
+import("../pkg").then(module => {
   module.run();
 });
