@@ -6,14 +6,22 @@
   "repository": "https://github.com/Tarnadas/cemu-smm",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server -d",
-    "build": "webpack",
-    "pack": "wasm-pack build && wasm-pack pack"
+    "start": "webpack-dev-server -d --env=dev",
+    "build": "yarn clean && webpack --env=prod",
+    "pack": "wasm-pack build && wasm-pack pack",
+    "clean": "rimraf ./build && rimraf ./pkg"
   },
   "devDependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-transform-typescript": "^7.3.2",
+    "@babel/polyfill": "^7.2.5",
+    "@babel/preset-env": "^7.3.4",
     "@wasm-tool/wasm-pack-plugin": "0.2.3",
+    "babel-loader": "^8.0.5",
     "html-webpack-plugin": "^3.2.0",
     "webpack": "^4.29.6",
+    "webpack-bundle-analyzer": "^3.1.0",
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.2.1"
   }

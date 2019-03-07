@@ -3,3 +3,5 @@ node_modules
 pkg
 target
 wasm-pack.log
+stats.json
+bundle-report.html
