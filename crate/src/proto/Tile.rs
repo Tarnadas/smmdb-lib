@@ -32,8 +32,8 @@ pub struct Tile {
 
 #[derive(Clone,PartialEq)]
 pub enum Tile_oneof_payload {
-    tile_data(::std::vec::Vec<u8>),
-    tile_details(Tile_TileDetails),
+    tile_data(::bytes::Bytes),
+    tile_details(super::Tile::Tile_TileDetails),
 }
 
 impl Tile {
@@ -55,15 +55,15 @@ impl Tile {
     }
 
     // Param is passed by value, moved
-    pub fn set_tile_data(&mut self, v: ::std::vec::Vec<u8>) {
+    pub fn set_tile_data(&mut self, v: ::bytes::Bytes) {
         self.payload = ::std::option::Option::Some(Tile_oneof_payload::tile_data(v))
     }
 
     // Mutable pointer to the field.
-    pub fn mut_tile_data(&mut self) -> &mut ::std::vec::Vec<u8> {
+    pub fn mut_tile_data(&mut self) -> &mut ::bytes::Bytes {
         if let ::std::option::Option::Some(Tile_oneof_payload::tile_data(_)) = self.payload {
         } else {
-            self.payload = ::std::option::Option::Some(Tile_oneof_payload::tile_data(::std::vec::Vec::new()));
+            self.payload = ::std::option::Option::Some(Tile_oneof_payload::tile_data(::bytes::Bytes::new()));
         }
         match self.payload {
             ::std::option::Option::Some(Tile_oneof_payload::tile_data(ref mut v)) => v,
@@ -72,14 +72,14 @@ impl Tile {
     }
 
     // Take field
-    pub fn take_tile_data(&mut self) -> ::std::vec::Vec<u8> {
+    pub fn take_tile_data(&mut self) -> ::bytes::Bytes {
         if self.has_tile_data() {
             match self.payload.take() {
                 ::std::option::Option::Some(Tile_oneof_payload::tile_data(v)) => v,
                 _ => panic!(),
             }
         } else {
-            ::std::vec::Vec::new()
+            ::bytes::Bytes::new()
         }
     }
 
@@ -104,15 +104,15 @@ impl Tile {
     }
 
     // Param is passed by value, moved
-    pub fn set_tile_details(&mut self, v: Tile_TileDetails) {
+    pub fn set_tile_details(&mut self, v: super::Tile::Tile_TileDetails) {
         self.payload = ::std::option::Option::Some(Tile_oneof_payload::tile_details(v))
     }
 
     // Mutable pointer to the field.
-    pub fn mut_tile_details(&mut self) -> &mut Tile_TileDetails {
+    pub fn mut_tile_details(&mut self) -> &mut super::Tile::Tile_TileDetails {
         if let ::std::option::Option::Some(Tile_oneof_payload::tile_details(_)) = self.payload {
         } else {
-            self.payload = ::std::option::Option::Some(Tile_oneof_payload::tile_details(Tile_TileDetails::new()));
+            self.payload = ::std::option::Option::Some(Tile_oneof_payload::tile_details(super::Tile::Tile_TileDetails::new()));
         }
         match self.payload {
             ::std::option::Option::Some(Tile_oneof_payload::tile_details(ref mut v)) => v,
@@ -121,21 +121,21 @@ impl Tile {
     }
 
     // Take field
-    pub fn take_tile_details(&mut self) -> Tile_TileDetails {
+    pub fn take_tile_details(&mut self) -> super::Tile::Tile_TileDetails {
         if self.has_tile_details() {
             match self.payload.take() {
                 ::std::option::Option::Some(Tile_oneof_payload::tile_details(v)) => v,
                 _ => panic!(),
             }
         } else {
-            Tile_TileDetails::new()
+            super::Tile::Tile_TileDetails::new()
         }
     }
 
-    pub fn get_tile_details(&self) -> &Tile_TileDetails {
+    pub fn get_tile_details(&self) -> &super::Tile::Tile_TileDetails {
         match self.payload {
             ::std::option::Option::Some(Tile_oneof_payload::tile_details(ref v)) => v,
-            _ => Tile_TileDetails::default_instance(),
+            _ => super::Tile::Tile_TileDetails::default_instance(),
         }
     }
 }
@@ -158,7 +158,7 @@ impl ::protobuf::Message for Tile {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
-                    self.payload = ::std::option::Option::Some(Tile_oneof_payload::tile_data(is.read_bytes()?));
+                    self.payload = ::std::option::Option::Some(Tile_oneof_payload::tile_data(is.read_carllerche_bytes()?));
                 },
                 2 => {
                     if wire_type != ::protobuf::wire_format::WireTypeLengthDelimited {
@@ -254,7 +254,7 @@ impl ::protobuf::Message for Tile {
                     Tile::has_tile_data,
                     Tile::get_tile_data,
                 ));
-                fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, Tile_TileDetails>(
+                fields.push(::protobuf::reflect::accessor::make_singular_message_accessor::<_, super::Tile::Tile_TileDetails>(
                     "tile_details",
                     Tile::has_tile_details,
                     Tile::get_tile_details,
@@ -308,8 +308,8 @@ pub struct Tile_TileDetails {
     pub dim_y: u32,
     pub orientation: u32,
     pub z_index: u32,
-    pub tile_type: Tile_TileDetails_TileType,
-    pub entity_type: Tile_TileDetails_EntityType,
+    pub tile_type: super::Tile::Tile_TileDetails_TileType,
+    pub entity_type: super::Tile::Tile_TileDetails_EntityType,
     pub link: u32,
     pub id: u32,
     pub costume: u32,
@@ -420,30 +420,30 @@ impl Tile_TileDetails {
     // .Tile.TileDetails.TileType tile_type = 7;
 
     pub fn clear_tile_type(&mut self) {
-        self.tile_type = Tile_TileDetails_TileType::UNKNOWN;
+        self.tile_type = super::Tile::Tile_TileDetails_TileType::UNKNOWN;
     }
 
     // Param is passed by value, moved
-    pub fn set_tile_type(&mut self, v: Tile_TileDetails_TileType) {
+    pub fn set_tile_type(&mut self, v: super::Tile::Tile_TileDetails_TileType) {
         self.tile_type = v;
     }
 
-    pub fn get_tile_type(&self) -> Tile_TileDetails_TileType {
+    pub fn get_tile_type(&self) -> super::Tile::Tile_TileDetails_TileType {
         self.tile_type
     }
 
     // .Tile.TileDetails.EntityType entity_type = 8;
 
     pub fn clear_entity_type(&mut self) {
-        self.entity_type = Tile_TileDetails_EntityType::STATIC;
+        self.entity_type = super::Tile::Tile_TileDetails_EntityType::STATIC;
     }
 
     // Param is passed by value, moved
-    pub fn set_entity_type(&mut self, v: Tile_TileDetails_EntityType) {
+    pub fn set_entity_type(&mut self, v: super::Tile::Tile_TileDetails_EntityType) {
         self.entity_type = v;
     }
 
-    pub fn get_entity_type(&self) -> Tile_TileDetails_EntityType {
+    pub fn get_entity_type(&self) -> super::Tile::Tile_TileDetails_EntityType {
         self.entity_type
     }
 
@@ -689,10 +689,10 @@ impl ::protobuf::Message for Tile_TileDetails {
         if self.z_index != 0 {
             my_size += ::protobuf::rt::value_size(6, self.z_index, ::protobuf::wire_format::WireTypeVarint);
         }
-        if self.tile_type != Tile_TileDetails_TileType::UNKNOWN {
+        if self.tile_type != super::Tile::Tile_TileDetails_TileType::UNKNOWN {
             my_size += ::protobuf::rt::enum_size(7, self.tile_type);
         }
-        if self.entity_type != Tile_TileDetails_EntityType::STATIC {
+        if self.entity_type != super::Tile::Tile_TileDetails_EntityType::STATIC {
             my_size += ::protobuf::rt::enum_size(8, self.entity_type);
         }
         if self.link != 0 {
@@ -740,10 +740,10 @@ impl ::protobuf::Message for Tile_TileDetails {
         if self.z_index != 0 {
             os.write_uint32(6, self.z_index)?;
         }
-        if self.tile_type != Tile_TileDetails_TileType::UNKNOWN {
+        if self.tile_type != super::Tile::Tile_TileDetails_TileType::UNKNOWN {
             os.write_enum(7, self.tile_type.value())?;
         }
-        if self.entity_type != Tile_TileDetails_EntityType::STATIC {
+        if self.entity_type != super::Tile::Tile_TileDetails_EntityType::STATIC {
             os.write_enum(8, self.entity_type.value())?;
         }
         if self.link != 0 {
@@ -839,12 +839,12 @@ impl ::protobuf::Message for Tile_TileDetails {
                     |m: &Tile_TileDetails| { &m.z_index },
                     |m: &mut Tile_TileDetails| { &mut m.z_index },
                 ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<Tile_TileDetails_TileType>>(
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<super::Tile::Tile_TileDetails_TileType>>(
                     "tile_type",
                     |m: &Tile_TileDetails| { &m.tile_type },
                     |m: &mut Tile_TileDetails| { &mut m.tile_type },
                 ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<Tile_TileDetails_EntityType>>(
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<super::Tile::Tile_TileDetails_EntityType>>(
                     "entity_type",
                     |m: &Tile_TileDetails| { &m.entity_type },
                     |m: &mut Tile_TileDetails| { &mut m.entity_type },

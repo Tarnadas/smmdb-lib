@@ -15,6 +15,7 @@ fn main() {
         input: &["proto/SMMCourse.proto", "proto/Sound.proto", "proto/Tile.proto"],
         includes: &["proto"],
         customize: Customize {
+            carllerche_bytes_for_bytes: Some(true),
             ..Default::default()
         },
     }).expect("protoc");

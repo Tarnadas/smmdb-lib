@@ -39,8 +39,8 @@ pub struct SMMCourse {
     pub tiles_sub: ::protobuf::RepeatedField<super::Tile::Tile>,
     pub sounds: ::protobuf::RepeatedField<super::Sound::Sound>,
     pub sounds_sub: ::protobuf::RepeatedField<super::Sound::Sound>,
-    pub thumbnail: ::std::vec::Vec<u8>,
-    pub thumbnail_preview: ::std::vec::Vec<u8>,
+    pub thumbnail: ::bytes::Bytes,
+    pub thumbnail_preview: ::bytes::Bytes,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
     pub cached_size: ::protobuf::CachedSize,
@@ -345,19 +345,19 @@ impl SMMCourse {
     }
 
     // Param is passed by value, moved
-    pub fn set_thumbnail(&mut self, v: ::std::vec::Vec<u8>) {
+    pub fn set_thumbnail(&mut self, v: ::bytes::Bytes) {
         self.thumbnail = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_thumbnail(&mut self) -> &mut ::std::vec::Vec<u8> {
+    pub fn mut_thumbnail(&mut self) -> &mut ::bytes::Bytes {
         &mut self.thumbnail
     }
 
     // Take field
-    pub fn take_thumbnail(&mut self) -> ::std::vec::Vec<u8> {
-        ::std::mem::replace(&mut self.thumbnail, ::std::vec::Vec::new())
+    pub fn take_thumbnail(&mut self) -> ::bytes::Bytes {
+        ::std::mem::replace(&mut self.thumbnail, ::bytes::Bytes::new())
     }
 
     pub fn get_thumbnail(&self) -> &[u8] {
@@ -371,19 +371,19 @@ impl SMMCourse {
     }
 
     // Param is passed by value, moved
-    pub fn set_thumbnail_preview(&mut self, v: ::std::vec::Vec<u8>) {
+    pub fn set_thumbnail_preview(&mut self, v: ::bytes::Bytes) {
         self.thumbnail_preview = v;
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_thumbnail_preview(&mut self) -> &mut ::std::vec::Vec<u8> {
+    pub fn mut_thumbnail_preview(&mut self) -> &mut ::bytes::Bytes {
         &mut self.thumbnail_preview
     }
 
     // Take field
-    pub fn take_thumbnail_preview(&mut self) -> ::std::vec::Vec<u8> {
-        ::std::mem::replace(&mut self.thumbnail_preview, ::std::vec::Vec::new())
+    pub fn take_thumbnail_preview(&mut self) -> ::bytes::Bytes {
+        ::std::mem::replace(&mut self.thumbnail_preview, ::bytes::Bytes::new())
     }
 
     pub fn get_thumbnail_preview(&self) -> &[u8] {
@@ -482,10 +482,10 @@ impl ::protobuf::Message for SMMCourse {
                     ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.sounds_sub)?;
                 },
                 16 => {
-                    ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.thumbnail)?;
+                    ::protobuf::rt::read_singular_proto3_carllerche_bytes_into(wire_type, is, &mut self.thumbnail)?;
                 },
                 17 => {
-                    ::protobuf::rt::read_singular_proto3_bytes_into(wire_type, is, &mut self.thumbnail_preview)?;
+                    ::protobuf::rt::read_singular_proto3_carllerche_bytes_into(wire_type, is, &mut self.thumbnail_preview)?;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -736,12 +736,12 @@ impl ::protobuf::Message for SMMCourse {
                     |m: &SMMCourse| { &m.sounds_sub },
                     |m: &mut SMMCourse| { &mut m.sounds_sub },
                 ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeCarllercheBytes>(
                     "thumbnail",
                     |m: &SMMCourse| { &m.thumbnail },
                     |m: &mut SMMCourse| { &mut m.thumbnail },
                 ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeBytes>(
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeCarllercheBytes>(
                     "thumbnail_preview",
                     |m: &SMMCourse| { &m.thumbnail_preview },
                     |m: &mut SMMCourse| { &mut m.thumbnail_preview },
