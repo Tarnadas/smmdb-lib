@@ -1,0 +1,13 @@
+syntax = 'proto3';
+
+message Sound {
+    uint32 x = 1; // uint8 at offset 3
+    uint32 y = 2; // uint8 at offset 4
+    enum SoundType {
+        // TODO find out all sound types and match their enum to their constant value
+        UNKNOWN = 0;
+        
+    }
+    uint32 sound_type = 3; // uint8 at offset 0 - as long as enum is not complete, keep value type uint32
+    bool variation = 4; // bool at offset 2
+}

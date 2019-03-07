@@ -1,0 +1,45 @@
+syntax = 'proto3';
+
+import "./Tile.proto";
+import "./Sound.proto";
+
+message SMMCourse {
+    uint64 modified = 1; // unix timestamp
+    string title = 2;
+    string maker = 3;
+    enum GameStyle {
+        M1 = 0; // Super Mario Bros
+        M3 = 1; // Super Mario Bros 3
+        MW = 2; // Super Mario World
+        WU = 3; // New Super Mario Bros U
+        
+    }
+    GameStyle game_style = 4; // string at offset 0x6A
+    enum CourseTheme {
+        GROUND = 0;
+        UNDERGROUND = 1;
+        CASTLE = 2;
+        AIRSHIP = 3;
+        UNDERWATER = 4;
+        GHOUST_HOUSE = 5;
+    }
+    CourseTheme course_theme = 5; // uint8 at offset 0x6D
+    CourseTheme course_theme_sub = 6;
+    uint32 time = 7; // uint16 at offset 0x70
+    enum AutoScroll {
+        DISABLED = 0;
+        SLOW = 1;
+        MEDIUM = 2;
+        FAST = 3;
+    }
+    AutoScroll auto_scroll = 8; // uint8 at offset 0x72
+    AutoScroll auto_scroll_sub = 9; // uint8 at offset 0x72
+    uint32 width = 10; // uint16 at offset 0x76
+    uint32 widthSub = 11;
+    repeated Tile tiles = 12;
+    repeated Tile tiles_sub = 13;
+    repeated Sound sounds = 14;
+    repeated Sound sounds_sub = 15;
+    bytes thumbnail = 16; // jpeg wide
+    bytes thumbnail_preview = 17; // jpeg 4:3
+}

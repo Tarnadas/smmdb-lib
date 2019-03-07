@@ -1,0 +1,60 @@
+syntax = 'proto3';
+
+message Tile {
+    message TileDetails {
+        float x = 1; // uint16 at offset 0x2
+        float y = 2; // uint16 at offset 0x8
+        // start with origin (0,0)
+        uint32 dim_x = 3; // uint8 at offset 0xA
+        uint32 dim_y = 4; // uint8 at offset 0xB
+        uint32 orientation = 5; // uint8 at offset 0xF
+        uint32 z_index = 6; // uint16 at offset 0x6;
+        enum TileType {
+            // TODO find out all tile types and match their enum to their constant value
+            // TODO check naming convention
+            UNKNOWN = 0;
+            NORMAL = 4; // @container
+            QUESTIONMARK = 5; // @container
+            HARD = 6;
+            GROUND = 7;
+            COIN = 8;
+            PIPE = 9; // @linkable @id
+            BACKGROUND = 16; // @platform
+            MUSHROOM = 20; // @living
+            FALLING = 21; // @container
+            CLOUD = 22;
+            NOTE = 23; // @container
+            FINISH_PLATFORM = 26; // @unknown0
+            FINISH = 27; // @unknown0
+            KAIZO = 29; // @container
+            STAR = 35; // @living
+            START_PLATFORM = 37; // @unknown0
+            WOODEN_ARROW = 38; // @unknown0
+            BOO = 41; // @living
+            SPIKE = 43;
+            SPECIAL = 44; // @living @costume
+            FINISH_LINE = 49; // for castles
+            TRACK = 59; // @linkable @id @unknown1 @unknown2
+            ICE = 63;
+            START = 69;
+        }
+        TileType tile_type = 7; // uint
+        enum EntityType {
+            STATIC = 0;
+            LIVING = 1; // @living
+            PLATFORM = 65535; // @platform 0xFFFF
+        }
+        EntityType entity_type = 8; // uint16 at offset 0x4
+        uint32 link = 9; // uint8 at offset 0xD @linkable
+        uint32 id = 10; // uint16 at offset 0x1A @id
+        uint32 costume = 11; // uint8 at offset 0x1E and 0x1F @costume
+        uint32 container = 12; // uint8 at offset 0x19 @container
+        uint32 inknown_0 = 13; // uint32 at offset 0x10 @unknown0
+        uint32 unknown_1 = 14; // uint16 at offset 0x14 @unknown1
+        uint32 unknown_2 = 15; // uint16 at offset 0x16 @unknown2
+    }
+    oneof payload {
+        bytes tile_data = 1; // for the lazy ones
+        TileDetails tile_details = 2;
+    }
+}
