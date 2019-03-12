@@ -22,6 +22,7 @@ use protobuf::Message as Message_imported_for_functions;
 use protobuf::ProtobufEnum as ProtobufEnum_imported_for_functions;
 
 #[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct SMMCourse {
     // message fields
     pub modified: u64,
@@ -42,7 +43,9 @@ pub struct SMMCourse {
     pub thumbnail: ::bytes::Bytes,
     pub thumbnail_preview: ::bytes::Bytes,
     // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
     pub cached_size: ::protobuf::CachedSize,
 }
 
@@ -802,6 +805,7 @@ impl ::protobuf::reflect::ProtobufValue for SMMCourse {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum SMMCourse_GameStyle {
     M1 = 0,
     M3 = 1,
@@ -863,6 +867,7 @@ impl ::protobuf::reflect::ProtobufValue for SMMCourse_GameStyle {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum SMMCourse_CourseTheme {
     GROUND = 0,
     UNDERGROUND = 1,
@@ -930,6 +935,7 @@ impl ::protobuf::reflect::ProtobufValue for SMMCourse_CourseTheme {
 }
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum SMMCourse_AutoScroll {
     DISABLED = 0,
     SLOW = 1,

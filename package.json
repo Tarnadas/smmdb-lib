@@ -6,10 +6,13 @@
   "repository": "https://github.com/Tarnadas/cemu-smm",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server -d --env=dev",
+    "start": "yarn clean && webpack-dev-server -d --env=dev",
     "build": "yarn clean && webpack --env=prod",
     "pack": "wasm-pack build && wasm-pack pack",
-    "clean": "rimraf ./build && rimraf ./pkg"
+    "clean": "rimraf ./build && rimraf ./pkg",
+    "test": "yarn test:node && yarn test:web",
+    "test:node": "wasm-pack test --node",
+    "test:web": "wasm-pack test --headless --chrome --firefox"
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",

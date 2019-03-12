@@ -7,7 +7,7 @@ const dist = path.resolve(__dirname, 'dist');
 
 module.exports = {
   mode: 'development',
-  entry: './js/index.js',
+  entry: path.join(__dirname, 'js/index.js'),
   output: {
     path: dist,
     filename: 'bundle.js'
