@@ -18,7 +18,7 @@ protobuf-codegen-pure = "2.4"
 
 [dependencies]
 cfg-if = "0.1.7"
-js-sys = "=0.3.15"
+js-sys = "=0.3.16"
 serde = "1.0"
 serde_derive = "1.0"
 
@@ -36,18 +36,18 @@ version = "2.4"
 
 [dependencies.wasm-bindgen]
 features = ["serde-serialize"]
-version = "=0.2.38"
+version = "=0.2.39"
 
 [dependencies.web-sys]
 features = ["console", "Document", "Element", "HtmlElement", "Node", "Window"]
-version = "=0.3.15"
+version = "=0.3.16"
 
 [dependencies.wee_alloc]
 optional = true
 version = "0.4.3"
 
 [dev-dependencies]
-wasm-bindgen-test = "=0.2.38"
+wasm-bindgen-test = "=0.2.39"
 
 [features]
 default = ["console_error_panic_hook", "with-serde"]
