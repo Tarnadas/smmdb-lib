@@ -339,10 +339,10 @@ impl ::protobuf::reflect::ProtobufValue for Sound_SoundType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0bSound.proto\x12\0\"j\n\x05Sound\x12\x0b\n\x01x\x18\x01\x20\x01(\rB\
-    \0\x12\x0b\n\x01y\x18\x02\x20\x01(\rB\0\x12\x14\n\nsound_type\x18\x03\
-    \x20\x01(\rB\0\x12\x13\n\tvariation\x18\x04\x20\x01(\x08B\0\"\x1a\n\tSou\
-    ndType\x12\x0b\n\x07UNKNOWN\x10\0\x1a\0:\0B\0b\x06proto3\
+    \n\x0bSound.proto\x12\x08cemu_smm\"j\n\x05Sound\x12\x0b\n\x01x\x18\x01\
+    \x20\x01(\rB\0\x12\x0b\n\x01y\x18\x02\x20\x01(\rB\0\x12\x14\n\nsound_typ\
+    e\x18\x03\x20\x01(\rB\0\x12\x13\n\tvariation\x18\x04\x20\x01(\x08B\0\"\
+    \x1a\n\tSoundType\x12\x0b\n\x07UNKNOWN\x10\0\x1a\0:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

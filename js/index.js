@@ -7,7 +7,6 @@ import('../pkg/cemu_smm').then(module => {
       console.log(buffer);
       const deserialized = module.deserialize(new Uint8Array(buffer));
       console.log('DESERIALIZE', deserialized);
-      console.log('ECHO', deserialized, module.echo(deserialized));
       const serialized = module.serialize(deserialized);
       console.log('SERIALIZE', serialized, new Uint8Array(buffer));
       const deserialized2 = module.deserialize(serialized);

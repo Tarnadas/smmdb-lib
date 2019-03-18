@@ -1,5 +1,4 @@
 use crate::proto::SMMCourse::SMMCourse;
-use protobuf::CodedOutputStream;
 use protobuf::Message;
 use protobuf::parse_from_bytes;
 use wasm_bindgen::prelude::*;
@@ -20,14 +19,7 @@ pub fn deserialize_boxed(buffer: Box<[u8]>) -> JsValue {
 pub fn serialize(course: JsValue) -> Box<[u8]> {
     let course: SMMCourse = course.into_serde().expect("Course serialization failed");
     let mut out: Vec<u8> = vec![];
-    let mut output_stream = CodedOutputStream::vec(&mut out);
-    course.write_to(&mut output_stream).expect("Writing to CodedOutputStream failed");
+    course.write_to_vec(&mut out).expect("Writing to Vector failed");
     out.into_boxed_slice()
-}
-
-#[wasm_bindgen]
-pub fn echo(course: JsValue) -> JsValue {
-    let course: SMMCourse = course.into_serde().expect("Course serialization failed");
-    JsValue::from_serde(&course).unwrap()
 }
 

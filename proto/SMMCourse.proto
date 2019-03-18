@@ -1,7 +1,9 @@
-syntax = 'proto3';
+syntax = "proto3";
 
-import "./Tile.proto";
-import "./Sound.proto";
+package cemu_smm;
+
+import "Tile.proto";
+import "Sound.proto";
 
 message SMMCourse {
     uint64 modified = 1; // unix timestamp

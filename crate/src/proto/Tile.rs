@@ -94,7 +94,7 @@ impl Tile {
         }
     }
 
-    // .Tile.TileDetails tile_details = 2;
+    // .cemu_smm.Tile.TileDetails tile_details = 2;
 
     pub fn clear_tile_details(&mut self) {
         self.payload = ::std::option::Option::None;
@@ -424,7 +424,7 @@ impl Tile_TileDetails {
         self.z_index
     }
 
-    // .Tile.TileDetails.TileType tile_type = 7;
+    // .cemu_smm.Tile.TileDetails.TileType tile_type = 7;
 
     pub fn clear_tile_type(&mut self) {
         self.tile_type = Tile_TileDetails_TileType::UNKNOWN;
@@ -439,7 +439,7 @@ impl Tile_TileDetails {
         self.tile_type
     }
 
-    // .Tile.TileDetails.EntityType entity_type = 8;
+    // .cemu_smm.Tile.TileDetails.EntityType entity_type = 8;
 
     pub fn clear_entity_type(&mut self) {
         self.entity_type = Tile_TileDetails_EntityType::STATIC;
@@ -1129,31 +1129,31 @@ impl ::protobuf::reflect::ProtobufValue for Tile_TileDetails_EntityType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\nTile.proto\x12\0\"\xc3\x06\n\x04Tile\x12\x15\n\ttile_data\x18\x01\
-    \x20\x01(\x0cH\0B\0\x12+\n\x0ctile_details\x18\x02\x20\x01(\x0b2\x11.Til\
-    e.TileDetailsH\0B\0\x1a\xe9\x05\n\x0bTileDetails\x12\x0b\n\x01x\x18\x01\
-    \x20\x01(\x02B\0\x12\x0b\n\x01y\x18\x02\x20\x01(\x02B\0\x12\x0f\n\x05dim\
-    _x\x18\x03\x20\x01(\rB\0\x12\x0f\n\x05dim_y\x18\x04\x20\x01(\rB\0\x12\
-    \x15\n\x0borientation\x18\x05\x20\x01(\rB\0\x12\x11\n\x07z_index\x18\x06\
-    \x20\x01(\rB\0\x12/\n\ttile_type\x18\x07\x20\x01(\x0e2\x1a.Tile.TileDeta\
-    ils.TileTypeB\0\x123\n\x0bentity_type\x18\x08\x20\x01(\x0e2\x1c.Tile.Til\
-    eDetails.EntityTypeB\0\x12\x0e\n\x04link\x18\t\x20\x01(\rB\0\x12\x0c\n\
-    \x02id\x18\n\x20\x01(\rB\0\x12\x11\n\x07costume\x18\x0b\x20\x01(\rB\0\
-    \x12\x13\n\tcontainer\x18\x0c\x20\x01(\rB\0\x12\x13\n\tinknown_0\x18\r\
-    \x20\x01(\rB\0\x12\x13\n\tunknown_1\x18\x0e\x20\x01(\rB\0\x12\x13\n\tunk\
-    nown_2\x18\x0f\x20\x01(\rB\0\"\xce\x02\n\x08TileType\x12\x0b\n\x07UNKNOW\
-    N\x10\0\x12\n\n\x06NORMAL\x10\x04\x12\x10\n\x0cQUESTIONMARK\x10\x05\x12\
-    \x08\n\x04HARD\x10\x06\x12\n\n\x06GROUND\x10\x07\x12\x08\n\x04COIN\x10\
-    \x08\x12\x08\n\x04PIPE\x10\t\x12\x0e\n\nBACKGROUND\x10\x10\x12\x0c\n\x08\
-    MUSHROOM\x10\x14\x12\x0b\n\x07FALLING\x10\x15\x12\t\n\x05CLOUD\x10\x16\
-    \x12\x08\n\x04NOTE\x10\x17\x12\x13\n\x0fFINISH_PLATFORM\x10\x1a\x12\n\n\
-    \x06FINISH\x10\x1b\x12\t\n\x05KAIZO\x10\x1d\x12\x08\n\x04STAR\x10#\x12\
-    \x12\n\x0eSTART_PLATFORM\x10%\x12\x10\n\x0cWOODEN_ARROW\x10&\x12\x07\n\
-    \x03BOO\x10)\x12\t\n\x05SPIKE\x10+\x12\x0b\n\x07SPECIAL\x10,\x12\x0f\n\
-    \x0bFINISH_LINE\x101\x12\t\n\x05TRACK\x10;\x12\x07\n\x03ICE\x10?\x12\t\n\
-    \x05START\x10E\x1a\0\"6\n\nEntityType\x12\n\n\x06STATIC\x10\0\x12\n\n\
-    \x06LIVING\x10\x01\x12\x0e\n\x08PLATFORM\x10\xff\xff\x03\x1a\0:\0B\t\n\
-    \x07payload:\0B\0b\x06proto3\
+    \n\nTile.proto\x12\x08cemu_smm\"\xde\x06\n\x04Tile\x12\x15\n\ttile_data\
+    \x18\x01\x20\x01(\x0cH\0B\0\x124\n\x0ctile_details\x18\x02\x20\x01(\x0b2\
+    \x1a.cemu_smm.Tile.TileDetailsH\0B\0\x1a\xfb\x05\n\x0bTileDetails\x12\
+    \x0b\n\x01x\x18\x01\x20\x01(\x02B\0\x12\x0b\n\x01y\x18\x02\x20\x01(\x02B\
+    \0\x12\x0f\n\x05dim_x\x18\x03\x20\x01(\rB\0\x12\x0f\n\x05dim_y\x18\x04\
+    \x20\x01(\rB\0\x12\x15\n\x0borientation\x18\x05\x20\x01(\rB\0\x12\x11\n\
+    \x07z_index\x18\x06\x20\x01(\rB\0\x128\n\ttile_type\x18\x07\x20\x01(\x0e\
+    2#.cemu_smm.Tile.TileDetails.TileTypeB\0\x12<\n\x0bentity_type\x18\x08\
+    \x20\x01(\x0e2%.cemu_smm.Tile.TileDetails.EntityTypeB\0\x12\x0e\n\x04lin\
+    k\x18\t\x20\x01(\rB\0\x12\x0c\n\x02id\x18\n\x20\x01(\rB\0\x12\x11\n\x07c\
+    ostume\x18\x0b\x20\x01(\rB\0\x12\x13\n\tcontainer\x18\x0c\x20\x01(\rB\0\
+    \x12\x13\n\tinknown_0\x18\r\x20\x01(\rB\0\x12\x13\n\tunknown_1\x18\x0e\
+    \x20\x01(\rB\0\x12\x13\n\tunknown_2\x18\x0f\x20\x01(\rB\0\"\xce\x02\n\
+    \x08TileType\x12\x0b\n\x07UNKNOWN\x10\0\x12\n\n\x06NORMAL\x10\x04\x12\
+    \x10\n\x0cQUESTIONMARK\x10\x05\x12\x08\n\x04HARD\x10\x06\x12\n\n\x06GROU\
+    ND\x10\x07\x12\x08\n\x04COIN\x10\x08\x12\x08\n\x04PIPE\x10\t\x12\x0e\n\n\
+    BACKGROUND\x10\x10\x12\x0c\n\x08MUSHROOM\x10\x14\x12\x0b\n\x07FALLING\
+    \x10\x15\x12\t\n\x05CLOUD\x10\x16\x12\x08\n\x04NOTE\x10\x17\x12\x13\n\
+    \x0fFINISH_PLATFORM\x10\x1a\x12\n\n\x06FINISH\x10\x1b\x12\t\n\x05KAIZO\
+    \x10\x1d\x12\x08\n\x04STAR\x10#\x12\x12\n\x0eSTART_PLATFORM\x10%\x12\x10\
+    \n\x0cWOODEN_ARROW\x10&\x12\x07\n\x03BOO\x10)\x12\t\n\x05SPIKE\x10+\x12\
+    \x0b\n\x07SPECIAL\x10,\x12\x0f\n\x0bFINISH_LINE\x101\x12\t\n\x05TRACK\
+    \x10;\x12\x07\n\x03ICE\x10?\x12\t\n\x05START\x10E\x1a\0\"6\n\nEntityType\
+    \x12\n\n\x06STATIC\x10\0\x12\n\n\x06LIVING\x10\x01\x12\x0e\n\x08PLATFORM\
+    \x10\xff\xff\x03\x1a\0:\0B\t\n\x07payload:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {
