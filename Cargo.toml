@@ -8,19 +8,19 @@ name = "cemu-smm"
 readme = "./README.md"
 repository = "https://github.com/Tarnadas/cemu-smm"
 version = "4.0.1"
-
 [[bin]]
 name = "cemu-smm"
 path = "crate/src/main.rs"
 
 [build-dependencies]
-protobuf-codegen-pure = "2.4"
+protobuf-codegen-pure = "2.6"
 
 [dependencies]
-cfg-if = "0.1.7"
-js-sys = "=0.3.16"
+cfg-if = "0.1.9"
+js-sys = "=0.3.19"
 serde = "1.0"
 serde_derive = "1.0"
+serde_json = "1.0"
 
 [dependencies.bytes]
 features = ["serde"]
@@ -32,30 +32,30 @@ version = "0.1.6"
 
 [dependencies.protobuf]
 features = ["with-bytes", "with-serde"]
-version = "2.4"
+version = "2.6"
 
 [dependencies.wasm-bindgen]
 features = ["serde-serialize"]
-version = "=0.2.39"
+version = "=0.2.42"
 
 [dependencies.web-sys]
 features = ["console", "Document", "Element", "HtmlElement", "Node", "Window"]
-version = "=0.3.16"
+version = "=0.3.19"
 
 [dependencies.wee_alloc]
 optional = true
-version = "0.4.3"
+version = "0.4"
 
 [dev-dependencies]
-wasm-bindgen-test = "=0.2.39"
+wasm-bindgen-test = "=0.2.42"
 
 [features]
 default = ["console_error_panic_hook", "with-serde"]
 with-serde = []
 
 [lib]
-name = "cemu_smm"
 crate-type = ["cdylib", "rlib"]
+name = "cemu_smm"
 path = "crate/src/lib.rs"
 
 [profile]

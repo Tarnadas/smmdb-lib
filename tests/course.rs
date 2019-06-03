@@ -1,11 +1,8 @@
 extern crate cemu_smm;
 
-use protobuf::parse_from_bytes;
-use wasm_bindgen::prelude::*;
 use wasm_bindgen_test::*;
 
 use cemu_smm::course::*;
-use cemu_smm::proto::SMMCourse::SMMCourse;
 
 static COURSE_ASSETS: [&[u8]; 6] = [
     include_bytes!("assets/courses/course000/course"),
@@ -17,51 +14,40 @@ static COURSE_ASSETS: [&[u8]; 6] = [
 ];
 
 #[wasm_bindgen_test]
-fn deserialize_test() {
+fn course_from_proto() {
     for course in COURSE_ASSETS.iter() {
-        deserialize_test_once(course);
+        course_from_proto_once(course);
     }
 }
 
-fn deserialize_test_once(course: &[u8]) {
-    let expected_course: SMMCourse = parse_from_bytes(course).unwrap();
+fn course_from_proto_once(asset: &[u8]) {
+    let course = Course::from_proto(asset);
 
-    let result = deserialize(course);
-
-    assert_eq!(result.into_serde::<SMMCourse>().unwrap(), expected_course);
+    assert_eq!(course, Course::from_js(course.to_js()));
 }
 
 #[wasm_bindgen_test]
-fn deserialize_boxed_test() {
+fn course_from_boxed_proto() {
     for course in COURSE_ASSETS.iter() {
-        deserialize_boxed_test_once(course);
+        course_from_boxed_proto_once(course.to_vec().into_boxed_slice());
     }
 }
 
-fn deserialize_boxed_test_once(course: &[u8]) {
-    let expected_course: SMMCourse = parse_from_bytes(course).unwrap();
+fn course_from_boxed_proto_once(asset: Box<[u8]>) {
+    let course = Course::from_boxed_proto(asset);
 
-    let result = deserialize_boxed(course.to_vec().into_boxed_slice());
-
-    assert_eq!(result.into_serde::<SMMCourse>().unwrap(), expected_course);
+    assert_eq!(course, Course::from_js(course.to_js()));
 }
 
 #[wasm_bindgen_test]
-fn serialize_test() {
+fn course_to_proto() {
     for course in COURSE_ASSETS.iter() {
-        serialize_test_once(course);
+        course_to_proto_once(course);
     }
 }
 
-fn serialize_test_once(file: &[u8]) {
-    let course: SMMCourse = parse_from_bytes(file).unwrap();
-    let course = JsValue::from_serde(&course).unwrap();
+fn course_to_proto_once(asset: &[u8]) {
+    let course = Course::from_proto(asset);
 
-    let result = serialize(course);
-
-    assert_eq!(
-        deserialize_boxed(result).into_serde::<SMMCourse>().unwrap(),
-        deserialize_boxed(file.to_vec().into_boxed_slice()).into_serde::<SMMCourse>().unwrap()
-    );
+    assert_eq!(course, Course::from_proto(&course.to_proto()),);
 }
-
