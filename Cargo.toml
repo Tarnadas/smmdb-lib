@@ -9,12 +9,12 @@ readme = "./README.md"
 repository = "https://github.com/Tarnadas/cemu-smm"
 version = "4.0.3"
 include = [
-    "crate/src/**/*.rs",
-    "proto/**/*.proto",
-    "build.rs",
-    "Cargo.toml",
-    "README.md",
-    "LICENSE"
+    "/crate/src/**/*.rs",
+    "/proto/**/*.proto",
+    "/build.rs",
+    "/Cargo.toml",
+    "/README.md",
+    "/LICENSE"
 ]
 
 [[bin]]
