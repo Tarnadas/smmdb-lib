@@ -10,6 +10,13 @@ pub struct Course {
     course: SMMCourse,
 }
 
+impl Course {
+    pub fn get_course_ref(&self) -> &SMMCourse {
+        &self.course
+    }
+
+}
+
 #[wasm_bindgen]
 impl Course {
     #[wasm_bindgen]
