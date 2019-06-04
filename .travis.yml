@@ -12,15 +12,12 @@ install:
 
 jobs:
   include:
-    - stage: Test
-      script: yarn test
+    # - stage: Test
+    #   script: yarn test
     - stage: Deploy
       deploy:
         - provider: script
           skip_cleanup: true
-          script:
-            - yarn pack
-            - yarn publish
-            - npm dist-tag add cemu-smm@$(npx -c 'echo "$npm_package_version"') next
+          script: bash deploy.sh
           on:
             branch: dev
