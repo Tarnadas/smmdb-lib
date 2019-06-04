@@ -1,7 +1,7 @@
 [package]
 authors = ["Mario Reder <mreder1289@gmail.com>"]
-categories = ["wasm"]
-description = "This is a module to simplify all kinds of tasks with Loadiine Super Mario Maker save files and respectively Cemu"
+categories = ["wasm", "emulators"]
+description = "A utility library for Super Mario Maker and possibly Super Mario Maker 2 in the future to read and manipulate game files."
 edition = "2018"
 license = "MIT"
 name = "cemu-smm"
