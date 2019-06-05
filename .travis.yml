@@ -1,8 +1,7 @@
 language: rust
-
 env:
   global:
-    - secure: KG5eiAFJ6UE83YT9GZrTYB22jNe/yzar5GYBA29cK98gDiajcMvrB6Tn01L6gKtqquTDrrXtoSZKAC0bXfUdzLW5Winh5U+NPtDGHqJWK6hUqsle799f7lJMQhIz8huenPMOfXQ94P3SxL6b2pR9IJeoPpuaoLqk9gldjB4/1sZGCL1h+22iiU0W5B0z5UKhxdxSZ8MvOQ2louWw1ilFVIUBc+arb0ZROyyKrGgeLwmrCoE40BptJBhp9cv4tW8roAXrDqBeZR4y86gKzfSfs7tyR2cfSP6bMJkeG2I2mlEC7YbnPDkq1RCcPDyDrr0Nw147+MHCRh6dnlDjwgMyKWCqOoQrilCzInMFtG5vN2K+dvJLIjuGoYohD90S3uxTTkLWjOYG3ZD97Emt5H5VmbBbgK8b1B8oy/0bCaoegBIzmsV06ryWsgyL9z/4uJfzS3fLg7YPe5ClOC+yesqfc0ghyhiEvSJjH7oQeMsYx1ClQfF4tmxp1nzQCOfnOY8HhCYeGdRdL4TLERd1W5rZ0ihlTOR/a/wR1/A7J3mhX7OpU82ZW8wfrlApvK9fEMqLVK1o/UXabfZec7ZFs4HLXCVRP/KvmQZ9U/L8EH+DToWNKJL9HMX5x5I14Mz/e7M9y6U0kDs2WDfbpAIkeMhonSsVJCphDsDAag0eR35RYr8=
+    - secure: VKmbEYVEpNwgrKvsjCx1JYCYNKDtG1uq+uDjScgcNuNQRUbWK7c7vsnupuxHTIL0543YXtxJlI8CAOmDUblANrtLSvo3O2FxpgMlvNvs3c98qk0a6tS1wy6vFhn1BbeaAPeaRtVzVqBY/2gqZLHzjGbA6sbH6sYkGN/HRSa/+J7jtYt5khk3S6AhpZglthtGipmNNXylB1WvhdD3XC9dmdxjmJOHDYI5tIlxpNrHsyChN9hTKubzKHaYrXS+g4rHZBO3qvDmOpYMIGe81bQAmBX+IzOBFU4gCgQOrVZcr5BxSG+zmoNtAkAKYV/0ZUIbAhcz893MIBHgMRXrUQDtV0WyhXQZVaml3AntGY5wOM1n+WRfMl8dvpblTqSxRKrJCde9UUAsDzuDliXxeaRyrimTTyzo6oE5850KnFExL6fiTM+j8ZgN5KAzKKEhh8c/KCaJy0iQA0RwWBcB8P/MdhdXXFtjgDlOuYN8Tp9ZIpkFX6lT1wCUGuNXpvhNPEsJiuvNFWDEYJrVvHeMwJNyNcFifBR3WBnibxt+QS3uH6UBZUDHa9lmmANPCrjosPKdb3QKj+NEXd67s0ksflaIQiEBibs8S6WcvtadmI2Y7UtsOq9aZuvsItba7QvDZQHyiHYHcRDxwGoVuTbwfG/8MP2KZe6DenhsbRLoGqCyXco=
 
 install:
   - curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
@@ -10,12 +9,10 @@ install:
   - nvm install v10.5
   - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh -s -- -f
 
-script:
+cache: cargo
 
 jobs:
   include:
-    # - stage: Test
-    #   script: yarn test
     - stage: Deploy
       deploy:
         - provider: script
