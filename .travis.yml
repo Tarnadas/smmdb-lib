@@ -10,6 +10,8 @@ install:
   - nvm install v10.5
   - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh -s -- -f
 
+script:
+
 jobs:
   include:
     # - stage: Test
