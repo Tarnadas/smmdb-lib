@@ -13,6 +13,8 @@ cache: cargo
 
 jobs:
   include:
+    - stage: Test
+      script: yarn test
     - stage: Deploy
       script: echo "deploying..."
       deploy:
@@ -21,3 +23,4 @@ jobs:
           script: bash deploy.sh
           on:
             branch: dev
+            tags: true
