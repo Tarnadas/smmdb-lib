@@ -947,6 +947,7 @@ pub enum SMMCourse_AutoScroll {
     SLOW = 1,
     MEDIUM = 2,
     FAST = 3,
+    LOCK = 4,
 }
 
 impl ::protobuf::ProtobufEnum for SMMCourse_AutoScroll {
@@ -960,6 +961,7 @@ impl ::protobuf::ProtobufEnum for SMMCourse_AutoScroll {
             1 => ::std::option::Option::Some(SMMCourse_AutoScroll::SLOW),
             2 => ::std::option::Option::Some(SMMCourse_AutoScroll::MEDIUM),
             3 => ::std::option::Option::Some(SMMCourse_AutoScroll::FAST),
+            4 => ::std::option::Option::Some(SMMCourse_AutoScroll::LOCK),
             _ => ::std::option::Option::None
         }
     }
@@ -970,6 +972,7 @@ impl ::protobuf::ProtobufEnum for SMMCourse_AutoScroll {
             SMMCourse_AutoScroll::SLOW,
             SMMCourse_AutoScroll::MEDIUM,
             SMMCourse_AutoScroll::FAST,
+            SMMCourse_AutoScroll::LOCK,
         ];
         values
     }
@@ -1003,7 +1006,7 @@ impl ::protobuf::reflect::ProtobufValue for SMMCourse_AutoScroll {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fSMMCourse.proto\x12\x08cemu_smm\"\xad\x06\n\tSMMCourse\x12\x12\n\
+    \n\x0fSMMCourse.proto\x12\x08cemu_smm\"\xb7\x06\n\tSMMCourse\x12\x12\n\
     \x08modified\x18\x01\x20\x01(\x04B\0\x12\x0f\n\x05title\x18\x02\x20\x01(\
     \tB\0\x12\x0f\n\x05maker\x18\x03\x20\x01(\tB\0\x123\n\ngame_style\x18\
     \x04\x20\x01(\x0e2\x1d.cemu_smm.SMMCourse.GameStyleB\0\x127\n\x0ccourse_\
@@ -1022,9 +1025,9 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x1a\0\"g\n\x0bCourseTheme\
     \x12\n\n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CAS\
     TLE\x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\
-    \x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x1a\0\"<\n\nAutoScroll\x12\x0c\n\x08D\
+    \x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x1a\0\"F\n\nAutoScroll\x12\x0c\n\x08D\
     ISABLED\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\
-    \x08\n\x04FAST\x10\x03\x1a\0:\0B\0b\x06proto3\
+    \x08\n\x04FAST\x10\x03\x12\x08\n\x04LOCK\x10\x04\x1a\0:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

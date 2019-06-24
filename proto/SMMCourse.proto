@@ -33,6 +33,7 @@ message SMMCourse {
         SLOW = 1;
         MEDIUM = 2;
         FAST = 3;
+        LOCK = 4;
     }
     AutoScroll auto_scroll = 8; // uint8 at offset 0x72
     AutoScroll auto_scroll_sub = 9; // uint8 at offset 0x72
