@@ -17,8 +17,9 @@ fn main() {
     let new_course: SMMCourse = parse_from_bytes(out.as_slice()).unwrap();
     println!("{:?}", new_course.sounds);
 
-    Course::from_wii_u_course_data(
+    let course = Course::from_wii_u_course_data(
         &read("tests/assets/courses/course001/course_data.cdt").unwrap(),
         &read("tests/assets/courses/course001/course_data_sub.cdt").unwrap(),
     );
+    dbg!(&course);
 }

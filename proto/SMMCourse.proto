@@ -38,7 +38,7 @@ message SMMCourse {
     AutoScroll auto_scroll = 8; // uint8 at offset 0x72
     AutoScroll auto_scroll_sub = 9; // uint8 at offset 0x72
     uint32 width = 10; // uint16 at offset 0x76
-    uint32 widthSub = 11;
+    uint32 width_sub = 11;
     repeated Tile tiles = 12;
     repeated Tile tiles_sub = 13;
     repeated Sound sounds = 14;

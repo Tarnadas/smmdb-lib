@@ -35,7 +35,7 @@ pub struct SMMCourse {
     pub auto_scroll: SMMCourse_AutoScroll,
     pub auto_scroll_sub: SMMCourse_AutoScroll,
     pub width: u32,
-    pub widthSub: u32,
+    pub width_sub: u32,
     pub tiles: ::protobuf::RepeatedField<super::Tile::Tile>,
     pub tiles_sub: ::protobuf::RepeatedField<super::Tile::Tile>,
     pub sounds: ::protobuf::RepeatedField<super::Sound::Sound>,
@@ -232,19 +232,19 @@ impl SMMCourse {
         self.width = v;
     }
 
-    // uint32 widthSub = 11;
+    // uint32 width_sub = 11;
 
 
-    pub fn get_widthSub(&self) -> u32 {
-        self.widthSub
+    pub fn get_width_sub(&self) -> u32 {
+        self.width_sub
     }
-    pub fn clear_widthSub(&mut self) {
-        self.widthSub = 0;
+    pub fn clear_width_sub(&mut self) {
+        self.width_sub = 0;
     }
 
     // Param is passed by value, moved
-    pub fn set_widthSub(&mut self, v: u32) {
-        self.widthSub = v;
+    pub fn set_width_sub(&mut self, v: u32) {
+        self.width_sub = v;
     }
 
     // repeated .cemu_smm.Tile tiles = 12;
@@ -476,7 +476,7 @@ impl ::protobuf::Message for SMMCourse {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_uint32()?;
-                    self.widthSub = tmp;
+                    self.width_sub = tmp;
                 },
                 12 => {
                     ::protobuf::rt::read_repeated_message_into(wire_type, is, &mut self.tiles)?;
@@ -538,8 +538,8 @@ impl ::protobuf::Message for SMMCourse {
         if self.width != 0 {
             my_size += ::protobuf::rt::value_size(10, self.width, ::protobuf::wire_format::WireTypeVarint);
         }
-        if self.widthSub != 0 {
-            my_size += ::protobuf::rt::value_size(11, self.widthSub, ::protobuf::wire_format::WireTypeVarint);
+        if self.width_sub != 0 {
+            my_size += ::protobuf::rt::value_size(11, self.width_sub, ::protobuf::wire_format::WireTypeVarint);
         }
         for value in &self.tiles {
             let len = value.compute_size();
@@ -599,8 +599,8 @@ impl ::protobuf::Message for SMMCourse {
         if self.width != 0 {
             os.write_uint32(10, self.width)?;
         }
-        if self.widthSub != 0 {
-            os.write_uint32(11, self.widthSub)?;
+        if self.width_sub != 0 {
+            os.write_uint32(11, self.width_sub)?;
         }
         for v in &self.tiles {
             os.write_tag(12, ::protobuf::wire_format::WireTypeLengthDelimited)?;
@@ -721,9 +721,9 @@ impl ::protobuf::Message for SMMCourse {
                     |m: &mut SMMCourse| { &mut m.width },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
-                    "widthSub",
-                    |m: &SMMCourse| { &m.widthSub },
-                    |m: &mut SMMCourse| { &mut m.widthSub },
+                    "width_sub",
+                    |m: &SMMCourse| { &m.width_sub },
+                    |m: &mut SMMCourse| { &mut m.width_sub },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_repeated_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<super::Tile::Tile>>(
                     "tiles",
@@ -787,7 +787,7 @@ impl ::protobuf::Clear for SMMCourse {
         self.auto_scroll = SMMCourse_AutoScroll::DISABLED;
         self.auto_scroll_sub = SMMCourse_AutoScroll::DISABLED;
         self.width = 0;
-        self.widthSub = 0;
+        self.width_sub = 0;
         self.tiles.clear();
         self.tiles_sub.clear();
         self.sounds.clear();
@@ -1006,7 +1006,7 @@ impl ::protobuf::reflect::ProtobufValue for SMMCourse_AutoScroll {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fSMMCourse.proto\x12\x08cemu_smm\"\xb7\x06\n\tSMMCourse\x12\x12\n\
+    \n\x0fSMMCourse.proto\x12\x08cemu_smm\"\xb8\x06\n\tSMMCourse\x12\x12\n\
     \x08modified\x18\x01\x20\x01(\x04B\0\x12\x0f\n\x05title\x18\x02\x20\x01(\
     \tB\0\x12\x0f\n\x05maker\x18\x03\x20\x01(\tB\0\x123\n\ngame_style\x18\
     \x04\x20\x01(\x0e2\x1d.cemu_smm.SMMCourse.GameStyleB\0\x127\n\x0ccourse_\
@@ -1015,19 +1015,19 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ThemeB\0\x12\x0e\n\x04time\x18\x07\x20\x01(\rB\0\x125\n\x0bauto_scroll\
     \x18\x08\x20\x01(\x0e2\x1e.cemu_smm.SMMCourse.AutoScrollB\0\x129\n\x0fau\
     to_scroll_sub\x18\t\x20\x01(\x0e2\x1e.cemu_smm.SMMCourse.AutoScrollB\0\
-    \x12\x0f\n\x05width\x18\n\x20\x01(\rB\0\x12\x12\n\x08widthSub\x18\x0b\
-    \x20\x01(\rB\0\x12\x1f\n\x05tiles\x18\x0c\x20\x03(\x0b2\x0e.cemu_smm.Til\
-    eB\0\x12#\n\ttiles_sub\x18\r\x20\x03(\x0b2\x0e.cemu_smm.TileB\0\x12!\n\
-    \x06sounds\x18\x0e\x20\x03(\x0b2\x0f.cemu_smm.SoundB\0\x12%\n\nsounds_su\
-    b\x18\x0f\x20\x03(\x0b2\x0f.cemu_smm.SoundB\0\x12\x13\n\tthumbnail\x18\
-    \x10\x20\x01(\x0cB\0\x12\x1b\n\x11thumbnail_preview\x18\x11\x20\x01(\x0c\
-    B\0\"-\n\tGameStyle\x12\x06\n\x02M1\x10\0\x12\x06\n\x02M3\x10\x01\x12\
-    \x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x1a\0\"g\n\x0bCourseTheme\
-    \x12\n\n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CAS\
-    TLE\x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\
-    \x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x1a\0\"F\n\nAutoScroll\x12\x0c\n\x08D\
-    ISABLED\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\
-    \x08\n\x04FAST\x10\x03\x12\x08\n\x04LOCK\x10\x04\x1a\0:\0B\0b\x06proto3\
+    \x12\x0f\n\x05width\x18\n\x20\x01(\rB\0\x12\x13\n\twidth_sub\x18\x0b\x20\
+    \x01(\rB\0\x12\x1f\n\x05tiles\x18\x0c\x20\x03(\x0b2\x0e.cemu_smm.TileB\0\
+    \x12#\n\ttiles_sub\x18\r\x20\x03(\x0b2\x0e.cemu_smm.TileB\0\x12!\n\x06so\
+    unds\x18\x0e\x20\x03(\x0b2\x0f.cemu_smm.SoundB\0\x12%\n\nsounds_sub\x18\
+    \x0f\x20\x03(\x0b2\x0f.cemu_smm.SoundB\0\x12\x13\n\tthumbnail\x18\x10\
+    \x20\x01(\x0cB\0\x12\x1b\n\x11thumbnail_preview\x18\x11\x20\x01(\x0cB\0\
+    \"-\n\tGameStyle\x12\x06\n\x02M1\x10\0\x12\x06\n\x02M3\x10\x01\x12\x06\n\
+    \x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x1a\0\"g\n\x0bCourseTheme\x12\n\n\
+    \x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\x10\
+    \x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\x10\
+    \n\x0cGHOUST_HOUSE\x10\x05\x1a\0\"F\n\nAutoScroll\x12\x0c\n\x08DISABLED\
+    \x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04\
+    FAST\x10\x03\x12\x08\n\x04LOCK\x10\x04\x1a\0:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

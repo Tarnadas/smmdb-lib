@@ -26,11 +26,16 @@ pub const AUTO_SCROLL_OFFSET: usize = 0x72;
 pub const WIDTH_OFFSET: usize = 0x76;
 
 pub const TILE_AMOUNT_OFFSET: usize = 0xEE;
-
+pub const TILE_SIZE: usize = 0x20;
 pub const TILES_OFFSET: usize = 0xF0;
 
+pub const SOUND_SIZE: usize = 8;
 pub const SOUND_OFFSET: usize = 0x145F0;
 pub const SOUND_OFFSET_END: usize = 0x14F50;
+pub const SOUND_X_OFFSET: usize = 3;
+pub const SOUND_Y_OFFSET: usize = 4;
+pub const SOUND_TYPE_OFFSET: usize = 0;
+pub const SOUND_VARIATION_OFFSET: usize = 2;
 
 //   DS_HEADER_CRC_OFFSET: 0x4F014,
 //   DS_HEADER_LENGTH: 0x1C,
