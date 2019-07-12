@@ -6,6 +6,7 @@ extern crate serde_derive;
 
 use wasm_bindgen::prelude::*;
 
+pub mod constants;
 pub mod course;
 pub mod proto;
 

@@ -1,6 +1,6 @@
 extern crate protobuf_codegen_pure;
 
-use protobuf_codegen_pure::{Args, Customize, run};
+use protobuf_codegen_pure::{run, Args, Customize};
 use std::fs::create_dir;
 use std::path::Path;
 
@@ -12,12 +12,17 @@ fn main() {
     }
     run(Args {
         out_dir: OUT_DIR,
-        input: &["proto/SMMCourse.proto", "proto/Sound.proto", "proto/Tile.proto"],
+        input: &[
+            "proto/SMMCourse.proto",
+            "proto/Sound.proto",
+            "proto/Tile.proto",
+        ],
         includes: &["proto"],
         customize: Customize {
             serde_derive: Some(true),
             carllerche_bytes_for_bytes: Some(true),
             ..Default::default()
         },
-    }).expect("protoc");
+    })
+    .expect("protoc");
 }
