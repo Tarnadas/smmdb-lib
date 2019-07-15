@@ -10,7 +10,7 @@ install:
 cache: cargo
 jobs:
   include:
-    - stage: Test Node
+    - stage: Test WASM
       script: yarn test
     - stage: Test Rust
       script: cargo test
