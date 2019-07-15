@@ -10,8 +10,10 @@ install:
 cache: cargo
 jobs:
   include:
-    - stage: Test
+    - stage: Test Node
       script: yarn test
+    - stage: Test Rust
+      script: cargo test
     - stage: Deploy to NPM
       script: echo "deploying to NPM..."
       deploy:

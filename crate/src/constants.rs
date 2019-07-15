@@ -1,10 +1,11 @@
 pub const COURSE_SIZE: usize = 0x15000;
 pub const CRC_LENGTH: usize = 0x10;
-//   CRC_PRE_BUF: Buffer.from('000000000000000B', 'hex'),
-//   CRC_POST_BUF: Buffer.alloc(4),
 
-//   TIMESTAMP_0_OFFSET: 0x1,
-//   TIMESTAMP_1_OFFSET: 0x14,
+pub const YEAR_OFFSET: usize = 0x10;
+pub const MONTH_OFFSET: usize = 0x12;
+pub const DAY_OFFSET: usize = 0x13;
+pub const HOUR_OFFSET: usize = 0x14;
+pub const MINUTE_OFFSET: usize = 0x15;
 
 pub const TITLE_OFFSET: usize = 0x29;
 pub const TITLE_LENGTH: usize = 0x40;
@@ -36,6 +37,7 @@ pub const SOUND_X_OFFSET: usize = 3;
 pub const SOUND_Y_OFFSET: usize = 4;
 pub const SOUND_TYPE_OFFSET: usize = 0;
 pub const SOUND_VARIATION_OFFSET: usize = 2;
+pub const SOUND_DEFAULT: [u8; 8] = [0xFF, 0xFF, 0, 0xFF, 0xFF, 0, 0, 0];
 
 //   DS_HEADER_CRC_OFFSET: 0x4F014,
 //   DS_HEADER_LENGTH: 0x1C,

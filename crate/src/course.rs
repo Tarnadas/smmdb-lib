@@ -6,6 +6,7 @@ use crate::proto::Sound::Sound;
 use crate::proto::Tile::Tile;
 
 use bytes::Bytes;
+use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
 use itertools::Itertools;
 use protobuf::{parse_from_bytes, Message, ProtobufEnum, RepeatedField};
 use wasm_bindgen::prelude::*;
@@ -19,6 +20,22 @@ pub struct Course {
 impl Course {
     pub fn get_course_ref(&self) -> &SMMCourse {
         &self.course
+    }
+
+    pub fn get_course_ref_mut(&mut self) -> &SMMCourse {
+        &mut self.course
+    }
+
+    pub fn set_modified(&mut self, modified: u64) {
+        self.course.set_modified(modified);
+    }
+
+    pub fn set_thumbnail(&mut self, thumbnail: Bytes) {
+        self.course.set_thumbnail(thumbnail);
+    }
+
+    pub fn set_thumbnail_preview(&mut self, thumbnail: Bytes) {
+        self.course.set_thumbnail_preview(thumbnail);
     }
 }
 
@@ -58,10 +75,13 @@ impl Course {
 }
 
 impl Course {
-    pub fn from_wii_u_course_data(
+    pub fn from_wii_u_files(
         course_data: &[u8],
         course_data_sub: &[u8],
+        thumbnail: &[u8],
+        thumbnail_preview: &[u8],
     ) -> Result<Course, CourseConvertError> {
+        let modified = Course::get_modified(course_data);
         let title =
             Course::get_utf16_string_from_slice(&course_data[TITLE_OFFSET..TITLE_OFFSET_END]);
         let maker =
@@ -92,8 +112,11 @@ impl Course {
         let tiles_sub = Course::get_tiles(&course_data_sub);
         let sounds = Course::get_sounds(&course_data)?;
         let sounds_sub = Course::get_sounds(&course_data_sub)?;
+        let thumbnail = Course::get_thumbnail(&thumbnail);
+        let thumbnail_preview = Course::get_thumbnail(&thumbnail_preview);
         Ok(Course {
             course: SMMCourse {
+                modified,
                 title,
                 maker,
                 game_style,
@@ -108,9 +131,24 @@ impl Course {
                 tiles_sub,
                 sounds,
                 sounds_sub,
+                thumbnail,
+                thumbnail_preview,
                 ..SMMCourse::default()
             },
         })
+    }
+
+    fn get_modified(course_data: &[u8]) -> u64 {
+        let year = u16::from_be_bytes([course_data[YEAR_OFFSET], course_data[YEAR_OFFSET + 1]]);
+        let month = course_data[MONTH_OFFSET];
+        let day = course_data[DAY_OFFSET];
+        let hour = course_data[HOUR_OFFSET];
+        let minute = course_data[MINUTE_OFFSET];
+        let time = NaiveDateTime::new(
+            NaiveDate::from_ymd(year as i32, month as u32, day as u32),
+            NaiveTime::from_hms(hour as u32, minute as u32, 0),
+        );
+        time.timestamp() as u64
     }
 
     fn get_utf16_string_from_slice(bytes: &[u8]) -> String {
@@ -136,9 +174,9 @@ impl Course {
 
     fn get_tiles(slice: &[u8]) -> RepeatedField<Tile> {
         let mut tiles: Vec<Tile> = vec![];
-        for offset in
-            (TILES_OFFSET..TILES_OFFSET + TILE_AMOUNT_OFFSET * TILE_SIZE).step_by(TILE_SIZE)
-        {
+        let tile_amount =
+            u16::from_be_bytes([slice[TILE_AMOUNT_OFFSET], slice[TILE_AMOUNT_OFFSET + 1]]) as usize;
+        for offset in (TILES_OFFSET..TILES_OFFSET + tile_amount * TILE_SIZE).step_by(TILE_SIZE) {
             let mut tile = Tile::new();
             let tile_data = &slice[offset..offset + TILE_SIZE];
             tile.set_tile_data(Bytes::from(tile_data));
@@ -151,6 +189,9 @@ impl Course {
         let mut sounds: Vec<Sound> = vec![];
         for offset in (SOUND_OFFSET..SOUND_OFFSET_END).step_by(SOUND_SIZE) {
             let sound_data = &slice[offset..offset + SOUND_SIZE];
+            if sound_data == SOUND_DEFAULT {
+                continue;
+            }
             let x = sound_data[SOUND_X_OFFSET] as u32;
             let y = sound_data[SOUND_Y_OFFSET] as u32;
             let sound_type = sound_data[SOUND_TYPE_OFFSET] as u32;
@@ -165,6 +206,13 @@ impl Course {
             sounds.push(sound);
         }
         Ok(RepeatedField::from_vec(sounds))
+    }
+
+    fn get_thumbnail(slice: &[u8]) -> Bytes {
+        let length = u32::from_be_bytes([slice[4], slice[5], slice[6], slice[7]]) as usize;
+        dbg!(u32::from_be_bytes([slice[4], slice[5], slice[6], slice[7]]));
+        dbg!(length);
+        Bytes::from(&slice[8..8 + length])
     }
 }
 
