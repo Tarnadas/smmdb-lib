@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package cemu_smm;
+
+// import "Tile.proto";
+// import "Sound.proto";
+
+message SMMCourse {
+    uint64 modified = 1; // unix timestamp
+    string title = 2; // 64 bytes ucs-2 offset 0xF4
+    string description = 3; // 150 bytes ucs-2 offset 0x136
+    enum GameStyle {
+        M1 = 0; // Super Mario Bros
+        M3 = 1; // Super Mario Bros 3
+        MW = 2; // Super Mario World
+        WU = 3; // New Super Mario Bros U
+        W3 = 4; // Super Mario 3D World = 3W
+        
+    }
+    GameStyle game_style = 4; // two chars at offset 0xF1
+    enum CourseTheme {
+        GROUND = 0;
+        UNDERGROUND = 1;
+        CASTLE = 2;
+        AIRSHIP = 3;
+        UNDERWATER = 4;
+        GHOUST_HOUSE = 5;
+        SNOW = 6;
+        DESERT = 7;
+        SKY = 8;
+        FOREST = 9;
+    }
+    CourseTheme course_theme = 5; // u8 at offset 0x200
+    CourseTheme course_theme_sub = 6;
+    uint32 time = 7; // u16 at offset 0x04
+    uint32 start_y = 8; // u8 at offset 0x00
+    uint32 finish_y = 9; // u8 at offset 0x01
+    uint32 finish_x = 10; // u16 at offset 0x02
+    uint32 water_max = 11; // u8 at 0x204
+    enum WaterMode {
+        FIXED = 0;
+        ONE_WAY = 1;
+        OSCILLATING = 2;
+    }
+    WaterMode water_mode = 12; // 0x205
+    enum WaterSpeed {
+        NONE = 0;
+        SLOW = 1;
+        MEDIUM = 2;
+        FAST = 3;
+    }
+    WaterSpeed water_speed = 13;
+    uint32 water_min = 14; // u8 at 0x207
+    enum AutoScroll {
+        NONE = 0;
+        SLOW = 1;
+        MEDIUM = 2;
+        FAST = 3;
+        CUSTOM = 4;
+    }
+    AutoScroll auto_scroll = 15; // u8 at offset 0x201
+    AutoScroll auto_scroll_sub = 16;
+    enum ClearConditionType {
+        NONE = 0;
+        PARTS = 1;
+        STATUS = 2;
+        ACTION = 3;
+    }
+    ClearConditionType clear_condition_type = 17;
+}

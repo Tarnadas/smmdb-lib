@@ -14,6 +14,7 @@ fn main() {
         out_dir: OUT_DIR,
         input: &[
             "proto/SMMCourse.proto",
+            "proto/SMM2Course.proto",
             "proto/Sound.proto",
             "proto/Tile.proto",
         ],
