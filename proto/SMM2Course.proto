@@ -5,7 +5,7 @@ package cemu_smm;
 // import "Tile.proto";
 // import "Sound.proto";
 
-message SMMCourse {
+message SMM2Course {
     uint64 modified = 1; // unix timestamp
     string title = 2; // 64 bytes ucs-2 offset 0xF4
     string description = 3; // 150 bytes ucs-2 offset 0x136
