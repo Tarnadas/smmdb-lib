@@ -82,6 +82,9 @@ crate-type = ["cdylib", "rlib"]
 name = "cemu_smm"
 path = "crate/src/lib.rs"
 
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
 [profile]
 [profile.release]
 debug = false
