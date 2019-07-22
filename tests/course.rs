@@ -5,56 +5,63 @@ use cemu_smm::course::*;
 use wasm_bindgen_test::*;
 
 #[derive(Clone)]
-struct CourseAssets {
+struct CourseTestAssets {
     proto: &'static [u8],
+    zip: &'static [u8],
     course_data: &'static [u8],
     course_data_sub: &'static [u8],
-    thumbnail0: &'static [u8],
-    thumbnail1: &'static [u8],
+    thumbnail_0: &'static [u8],
+    thumbnail_1: &'static [u8],
 }
 
-static COURSE_ASSETS: [CourseAssets; 6] = [
-    CourseAssets {
+static COURSE_ASSETS: [CourseTestAssets; 6] = [
+    CourseTestAssets {
         proto: include_bytes!("assets/courses/course000/course"),
+        zip: include_bytes!("assets/courses/course000/course.zip"),
         course_data: include_bytes!("assets/courses/course000/course_data.cdt"),
         course_data_sub: include_bytes!("assets/courses/course000/course_data_sub.cdt"),
-        thumbnail0: include_bytes!("assets/courses/course000/thumbnail0.tnl"),
-        thumbnail1: include_bytes!("assets/courses/course000/thumbnail1.tnl"),
+        thumbnail_0: include_bytes!("assets/courses/course000/thumbnail0.tnl"),
+        thumbnail_1: include_bytes!("assets/courses/course000/thumbnail1.tnl"),
     },
-    CourseAssets {
+    CourseTestAssets {
         proto: include_bytes!("assets/courses/course001/course"),
+        zip: include_bytes!("assets/courses/course001/course.zip"),
         course_data: include_bytes!("assets/courses/course001/course_data.cdt"),
         course_data_sub: include_bytes!("assets/courses/course001/course_data_sub.cdt"),
-        thumbnail0: include_bytes!("assets/courses/course001/thumbnail0.tnl"),
-        thumbnail1: include_bytes!("assets/courses/course001/thumbnail1.tnl"),
+        thumbnail_0: include_bytes!("assets/courses/course001/thumbnail0.tnl"),
+        thumbnail_1: include_bytes!("assets/courses/course001/thumbnail1.tnl"),
     },
-    CourseAssets {
+    CourseTestAssets {
         proto: include_bytes!("assets/courses/course002/course"),
+        zip: include_bytes!("assets/courses/course002/course.zip"),
         course_data: include_bytes!("assets/courses/course002/course_data.cdt"),
         course_data_sub: include_bytes!("assets/courses/course002/course_data_sub.cdt"),
-        thumbnail0: include_bytes!("assets/courses/course002/thumbnail0.tnl"),
-        thumbnail1: include_bytes!("assets/courses/course002/thumbnail1.tnl"),
+        thumbnail_0: include_bytes!("assets/courses/course002/thumbnail0.tnl"),
+        thumbnail_1: include_bytes!("assets/courses/course002/thumbnail1.tnl"),
     },
-    CourseAssets {
+    CourseTestAssets {
         proto: include_bytes!("assets/courses/course003/course"),
+        zip: include_bytes!("assets/courses/course003/course.zip"),
         course_data: include_bytes!("assets/courses/course003/course_data.cdt"),
         course_data_sub: include_bytes!("assets/courses/course003/course_data_sub.cdt"),
-        thumbnail0: include_bytes!("assets/courses/course003/thumbnail0.tnl"),
-        thumbnail1: include_bytes!("assets/courses/course003/thumbnail1.tnl"),
+        thumbnail_0: include_bytes!("assets/courses/course003/thumbnail0.tnl"),
+        thumbnail_1: include_bytes!("assets/courses/course003/thumbnail1.tnl"),
     },
-    CourseAssets {
+    CourseTestAssets {
         proto: include_bytes!("assets/courses/course004/course"),
+        zip: include_bytes!("assets/courses/course004/course.zip"),
         course_data: include_bytes!("assets/courses/course004/course_data.cdt"),
         course_data_sub: include_bytes!("assets/courses/course004/course_data_sub.cdt"),
-        thumbnail0: include_bytes!("assets/courses/course004/thumbnail0.tnl"),
-        thumbnail1: include_bytes!("assets/courses/course004/thumbnail1.tnl"),
+        thumbnail_0: include_bytes!("assets/courses/course004/thumbnail0.tnl"),
+        thumbnail_1: include_bytes!("assets/courses/course004/thumbnail1.tnl"),
     },
-    CourseAssets {
+    CourseTestAssets {
         proto: include_bytes!("assets/courses/course005/course"),
+        zip: include_bytes!("assets/courses/course005/course.zip"),
         course_data: include_bytes!("assets/courses/course005/course_data.cdt"),
         course_data_sub: include_bytes!("assets/courses/course005/course_data_sub.cdt"),
-        thumbnail0: include_bytes!("assets/courses/course005/thumbnail0.tnl"),
-        thumbnail1: include_bytes!("assets/courses/course005/thumbnail1.tnl"),
+        thumbnail_0: include_bytes!("assets/courses/course005/thumbnail0.tnl"),
+        thumbnail_1: include_bytes!("assets/courses/course005/thumbnail1.tnl"),
     },
 ];
 
@@ -65,12 +72,12 @@ fn course_from_wii_u_files() {
     }
 }
 
-fn course_from_wii_u_file(assets: &mut CourseAssets) {
+fn course_from_wii_u_file(assets: &mut CourseTestAssets) {
     let mut course = Course::from_wii_u_files(
         assets.course_data,
         assets.course_data_sub,
-        assets.thumbnail0,
-        assets.thumbnail1,
+        assets.thumbnail_0,
+        assets.thumbnail_1,
     )
     .unwrap();
     let mut course_proto = Course::from_proto(assets.proto);
@@ -153,41 +160,97 @@ fn course_from_wii_u_file(assets: &mut CourseAssets) {
     assert_eq!(course, course_proto);
 }
 
-#[wasm_bindgen_test]
+#[test]
+fn course_from_packed() {
+    for course in COURSE_ASSETS.iter() {
+        course_from_packed_once(course.zip);
+    }
+}
+
+fn course_from_packed_once(asset: &[u8]) {
+    let courses = Course::from_packed(asset).unwrap();
+
+    assert_eq!(courses.len(), 1);
+}
+
+#[test]
 fn course_from_proto() {
     for course in COURSE_ASSETS.iter() {
-        course_from_proto_once(course.proto);
+        course_from_proto_once(course.proto, course.zip);
     }
 }
 
-fn course_from_proto_once(asset: &[u8]) {
-    let course = Course::from_proto(asset);
+fn course_from_proto_once(asset: &[u8], zip: &[u8]) {
+    let mut course = Course::from_proto(asset);
+    let mut course_packed = Course::from_packed(zip).unwrap().pop().unwrap();
 
-    assert_eq!(course, Course::from_js(course.to_js()));
+    let modified = course.get_course_ref().modified;
+    course.set_modified((modified / 60) * 60);
+    course.set_thumbnail(Bytes::new());
+    course_packed.set_thumbnail(Bytes::new());
+    course.set_thumbnail_preview(Bytes::new());
+    course_packed.set_thumbnail_preview(Bytes::new());
+
+    assert_eq!(course, course_packed);
 }
 
 #[wasm_bindgen_test]
+fn course_from_proto_wasm() {
+    for course in COURSE_ASSETS.iter() {
+        course_from_proto_wasm_once(course.proto);
+    }
+}
+
+fn course_from_proto_wasm_once(asset: &[u8]) {
+    let course = Course::from_proto(asset);
+
+    assert_eq!(course, Course::from_js(course.into_js()));
+}
+
+#[test]
 fn course_from_boxed_proto() {
     for course in COURSE_ASSETS.iter() {
-        course_from_boxed_proto_once(course.proto.to_vec().into_boxed_slice());
+        course_from_boxed_proto_once(course.proto.to_vec().into_boxed_slice(), course.zip);
     }
 }
 
-fn course_from_boxed_proto_once(asset: Box<[u8]>) {
-    let course = Course::from_boxed_proto(asset);
+fn course_from_boxed_proto_once(asset: Box<[u8]>, zip: &[u8]) {
+    let mut course = Course::from_boxed_proto(asset);
+    let mut course_packed = Course::from_packed(zip).unwrap().pop().unwrap();
 
-    assert_eq!(course, Course::from_js(course.to_js()));
+    let modified = course.get_course_ref().modified;
+    course.set_modified((modified / 60) * 60);
+    course.set_thumbnail(Bytes::new());
+    course_packed.set_thumbnail(Bytes::new());
+    course.set_thumbnail_preview(Bytes::new());
+    course_packed.set_thumbnail_preview(Bytes::new());
+
+    assert_eq!(course, course_packed);
 }
 
 #[wasm_bindgen_test]
-fn course_to_proto() {
+fn course_from_boxed_proto_wasm() {
     for course in COURSE_ASSETS.iter() {
-        course_to_proto_once(course.proto);
+        course_from_boxed_proto_wasm_once(course.proto.to_vec().into_boxed_slice());
     }
 }
 
-fn course_to_proto_once(asset: &[u8]) {
+fn course_from_boxed_proto_wasm_once(asset: Box<[u8]>) {
+    let course = Course::from_boxed_proto(asset);
+
+    assert_eq!(course, Course::from_js(course.into_js()));
+}
+
+#[test]
+#[wasm_bindgen_test]
+fn course_into_proto() {
+    for course in COURSE_ASSETS.iter() {
+        course_into_proto_once(course.proto);
+    }
+}
+
+fn course_into_proto_once(asset: &[u8]) {
     let course = Course::from_proto(asset);
 
-    assert_eq!(course, Course::from_proto(&course.to_proto()),);
+    assert_eq!(course, Course::from_proto(&course.into_proto()),);
 }

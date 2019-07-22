@@ -1,3 +1,8 @@
+pub const COURSE_DATA_NAME: &str = "course_data.cdt";
+pub const COURSE_DATA_SUB_NAME: &str = "course_data_sub.cdt";
+pub const THUMBNAIL_0_NAME: &str = "thumbnail0.tnl";
+pub const THUMBNAIL_1_NAME: &str = "thumbnail1.tnl";
+
 pub const COURSE_SIZE: usize = 0x15000;
 pub const CRC_LENGTH: usize = 0x10;
 

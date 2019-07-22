@@ -8,8 +8,13 @@ use crate::proto::Tile::Tile;
 use bytes::Bytes;
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
 use itertools::Itertools;
+use mime::Mime;
 use protobuf::{parse_from_bytes, Message, ProtobufEnum, RepeatedField};
+use regex::Regex;
+use std::io::{Cursor, Read};
+use tree_magic::from_u8;
 use wasm_bindgen::prelude::*;
+use zip::{result::ZipError, ZipArchive};
 
 #[wasm_bindgen]
 #[derive(Debug, PartialEq)]
@@ -28,6 +33,10 @@ impl Course {
 
     pub fn set_modified(&mut self, modified: u64) {
         self.course.set_modified(modified);
+    }
+
+    pub fn set_tiles(&mut self, tiles: Vec<Tile>) {
+        self.course.tiles = tiles.into();
     }
 
     pub fn set_thumbnail(&mut self, thumbnail: Bytes) {
@@ -60,7 +69,21 @@ impl Course {
     }
 
     #[wasm_bindgen]
-    pub fn to_proto(&self) -> Box<[u8]> {
+    pub fn from_packed_js(buffer: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
+        let courses: Vec<JsValue> = Course::from_packed(buffer)
+            .map_err(|e| match e {
+                DecompressionError::Zip(err) => {
+                    JsValue::from(format!("[DecompressionError] {}", err))
+                }
+            })?
+            .iter()
+            .map(|course| course.into_js())
+            .collect();
+        Ok(courses.into_boxed_slice())
+    }
+
+    #[wasm_bindgen]
+    pub fn into_proto(&self) -> Box<[u8]> {
         let mut out: Vec<u8> = vec![];
         self.course
             .write_to_vec(&mut out)
@@ -69,12 +92,30 @@ impl Course {
     }
 
     #[wasm_bindgen]
-    pub fn to_js(&self) -> JsValue {
+    pub fn into_js(&self) -> JsValue {
         JsValue::from_serde(&self.course).unwrap()
     }
 }
 
 impl Course {
+    pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course>, DecompressionError> {
+        let mut res = vec![];
+
+        let mime: Mime = from_u8(buffer).parse().unwrap();
+
+        match (mime.type_(), mime.subtype().as_ref()) {
+            (mime::APPLICATION, "zip") => {
+                Course::decompress_zip(&mut res, buffer)
+                    .map_err(|err| DecompressionError::Zip(err))?;
+            }
+            (_, _) => {
+                // unimplemented!();
+            }
+        };
+
+        Ok(res)
+    }
+
     pub fn from_wii_u_files(
         course_data: &[u8],
         course_data_sub: &[u8],
@@ -210,9 +251,68 @@ impl Course {
 
     fn get_thumbnail(slice: &[u8]) -> Bytes {
         let length = u32::from_be_bytes([slice[4], slice[5], slice[6], slice[7]]) as usize;
-        dbg!(u32::from_be_bytes([slice[4], slice[5], slice[6], slice[7]]));
-        dbg!(length);
         Bytes::from(&slice[8..8 + length])
+    }
+
+    fn decompress_zip(res: &mut Vec<Course>, buffer: &[u8]) -> Result<(), ZipError> {
+        let reader = Cursor::new(buffer);
+        let mut zip = zip::ZipArchive::new(reader)?;
+
+        let mut courses = vec![];
+        for i in 0..zip.len() {
+            if let Ok(file) = zip.by_index(i) {
+                let re: Regex = Regex::new(r"course\d{3}/$").unwrap();
+                if re.is_match(file.name()) {
+                    courses.push(file.name().to_owned());
+                }
+            };
+        }
+        for course in courses {
+            let course_assets = Course::get_course_assets(&mut zip, course)?;
+            if let Ok(course) = Course::from_wii_u_files(
+                &course_assets.course_data[..],
+                &course_assets.course_data_sub[..],
+                &course_assets.thumbnail_0[..],
+                &course_assets.thumbnail_1[..],
+            ) {
+                res.push(course);
+            };
+        }
+
+        Ok(())
+    }
+
+    fn get_course_assets(
+        zip: &mut ZipArchive<Cursor<&[u8]>>,
+        course: String,
+    ) -> Result<CourseAssets, ZipError> {
+        let mut course_data_file = zip.by_name(&format!("{}{}", course, COURSE_DATA_NAME))?;
+        let mut course_data = vec![0; course_data_file.size() as usize];
+        course_data_file.read_exact(&mut course_data)?;
+        drop(course_data_file);
+
+        let mut course_data_sub_file =
+            zip.by_name(&format!("{}{}", course, COURSE_DATA_SUB_NAME))?;
+        let mut course_data_sub = vec![0; course_data_sub_file.size() as usize];
+        course_data_sub_file.read_exact(&mut course_data_sub)?;
+        drop(course_data_sub_file);
+
+        let mut thumbnail_0_file = zip.by_name(&format!("{}{}", course, THUMBNAIL_0_NAME))?;
+        let mut thumbnail_0 = vec![0; thumbnail_0_file.size() as usize];
+        thumbnail_0_file.read_exact(&mut thumbnail_0)?;
+        drop(thumbnail_0_file);
+
+        let mut thumbnail_1_file = zip.by_name(&format!("{}{}", course, THUMBNAIL_1_NAME))?;
+        let mut thumbnail_1 = vec![0; thumbnail_1_file.size() as usize];
+        thumbnail_1_file.read_exact(&mut thumbnail_1)?;
+        drop(thumbnail_1_file);
+
+        Ok(CourseAssets {
+            course_data,
+            course_data_sub,
+            thumbnail_0,
+            thumbnail_1,
+        })
     }
 }
 
@@ -222,4 +322,16 @@ pub enum CourseConvertError {
     CourseThemeParseError,
     AutoScrollParseError,
     SoundTypeConvertError,
+}
+
+struct CourseAssets {
+    course_data: Vec<u8>,
+    course_data_sub: Vec<u8>,
+    thumbnail_0: Vec<u8>,
+    thumbnail_1: Vec<u8>,
+}
+
+#[derive(Debug)]
+pub enum DecompressionError {
+    Zip(ZipError),
 }

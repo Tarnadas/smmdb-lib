@@ -31,9 +31,11 @@ chrono = "0.4"
 compression = "0.1"
 itertools = "0.8"
 js-sys = "=0.3.25"
+mime = "0.3"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
+tree_magic = "0.2"
 
 [dependencies.bytes]
 features = ["serde"]
@@ -47,6 +49,10 @@ version = "0.1.6"
 features = ["with-bytes", "with-serde"]
 version = "2.7"
 
+[dependencies.regex]
+features = ["pattern"]
+version = "1.1"
+
 [dependencies.wasm-bindgen]
 features = ["serde-serialize"]
 version = "=0.2.48"
@@ -58,6 +64,11 @@ version = "=0.3.25"
 [dependencies.wee_alloc]
 optional = true
 version = "0.4"
+
+[dependencies.zip]
+default-features = false
+features = ["deflate"]
+version = "0.5"
 
 [dev-dependencies]
 wasm-bindgen-test = "=0.2.48"
