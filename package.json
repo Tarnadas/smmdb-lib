@@ -1,7 +1,7 @@
 {
   "author": "Mario Reder <mreder1289@gmail.com>",
   "name": "cemu-smm",
-  "version": "4.0.7",
+  "version": "4.0.8",
   "description": "A utility library for Super Mario Maker and possibly Super Mario Maker 2 in the future to read and manipulate game files.",
   "repository": "https://github.com/Tarnadas/cemu-smm",
   "license": "MIT",
