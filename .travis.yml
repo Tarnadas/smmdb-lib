@@ -21,14 +21,15 @@ jobs:
       script: yarn test
     - stage: Test Rust
       script: cargo test
-    - if: tag IS present
-      if: branch = dev
-      stage: Deploy to NPM
+    - stage: Deploy to NPM
       script: echo "deploying to NPM..."
       deploy:
         - provider: script
           skip_cleanup: true
           script: bash deploy.sh
+          on:
+            branch: dev
+            tags: true
     - stage: Deploy to Crates.io
       script: echo "deploying to crates.io..."
       deploy:
