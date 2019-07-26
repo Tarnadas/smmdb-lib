@@ -23,5 +23,10 @@ fn main() {
         &read("tests/assets/courses/course001/thumbnail0.tnl").unwrap(),
         &read("tests/assets/courses/course001/thumbnail1.tnl").unwrap(),
     );
-    dbg!(&course);
+    // dbg!(&course);
+
+    let file = read("tests/assets/saves/smm2/course_data_120.bcd").unwrap();
+    let decrypted = cemu_smm::course2::Course2::decrypt(file.to_vec());
+    dbg!(&decrypted[0..0xF2]);
+    dbg!(decrypted[0xF1] as char);
 }

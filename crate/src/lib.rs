@@ -4,10 +4,13 @@ extern crate cfg_if;
 #[macro_use]
 extern crate serde_derive;
 
+extern crate aes_soft as aes;
+
 use wasm_bindgen::prelude::*;
 
 pub mod constants;
 pub mod course;
+pub mod course2;
 pub mod proto;
 
 cfg_if! {
