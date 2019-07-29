@@ -57,17 +57,17 @@ impl Course2 {
         let mut rand_state = [0; 4];
         Course2::rand_init(
             &mut rand_state,
-            u32::from_be_bytes(end[0x10..0x14].try_into().unwrap()),
-            u32::from_be_bytes(end[0x14..0x18].try_into().unwrap()),
-            u32::from_be_bytes(end[0x18..0x1C].try_into().unwrap()),
-            u32::from_be_bytes(end[0x1C..0x20].try_into().unwrap()),
+            u32::from_le_bytes(end[0x10..0x14].try_into().unwrap()),
+            u32::from_le_bytes(end[0x14..0x18].try_into().unwrap()),
+            u32::from_le_bytes(end[0x18..0x1C].try_into().unwrap()),
+            u32::from_le_bytes(end[0x1C..0x20].try_into().unwrap()),
         );
-
         let key = Course2::gen_key(&mut rand_state);
 
-        type Aes128Cbc = Cbc<Aes128, Pkcs7>;
+        type Aes128Cbc = Cbc<Aes128, ZeroPadding>;
         let cipher = Aes128Cbc::new_fix(&key, &iv);
-        let decrypted = cipher.decrypt(&mut course[0x10..]).unwrap();
+        let end_index = course.len() - 0x30;
+        let decrypted = cipher.decrypt(&mut course[0x10..end_index]).unwrap();
 
         decrypted.to_vec()
     }
@@ -86,7 +86,7 @@ impl Course2 {
         let mut key = [0u32; 4];
         for i in 0..4 {
             for _j in 0..4 {
-                key[i] = key[i] << 8;
+                key[i] <<= 8;
                 key[i] |= (AES_KEY_TABLE[(Course2::rand_gen(rand_state) >> 26) as usize]
                     >> ((Course2::rand_gen(rand_state) >> 27) & 24))
                     & 0xFF;

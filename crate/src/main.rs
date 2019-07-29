@@ -27,6 +27,5 @@ fn main() {
 
     let file = read("tests/assets/saves/smm2/course_data_120.bcd").unwrap();
     let decrypted = cemu_smm::course2::Course2::decrypt(file.to_vec());
-    dbg!(&decrypted[0..0xF2]);
-    dbg!(decrypted[0xF1] as char);
+    dbg!(decrypted[0xF1] as char, decrypted[0xF2] as char);
 }
