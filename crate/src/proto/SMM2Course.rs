@@ -30,23 +30,9 @@ const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_8_0;
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct SMM2Course {
     // message fields
-    pub modified: u64,
-    pub title: ::std::string::String,
-    pub description: ::std::string::String,
-    pub game_style: SMM2Course_GameStyle,
-    pub course_theme: SMM2Course_CourseTheme,
-    pub course_theme_sub: SMM2Course_CourseTheme,
-    pub time: u32,
-    pub start_y: u32,
-    pub finish_y: u32,
-    pub finish_x: u32,
-    pub water_max: u32,
-    pub water_mode: SMM2Course_WaterMode,
-    pub water_speed: SMM2Course_WaterSpeed,
-    pub water_min: u32,
-    pub auto_scroll: SMM2Course_AutoScroll,
-    pub auto_scroll_sub: SMM2Course_AutoScroll,
-    pub clear_condition_type: SMM2Course_ClearConditionType,
+    pub header: ::protobuf::SingularPtrField<SMM2CourseHeader>,
+    pub course_area: ::protobuf::SingularPtrField<SMM2CourseArea>,
+    pub course_sub_area: ::protobuf::SingularPtrField<SMM2CourseArea>,
     // special fields
     #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -62,6 +48,313 @@ impl<'a> ::std::default::Default for &'a SMM2Course {
 
 impl SMM2Course {
     pub fn new() -> SMM2Course {
+        ::std::default::Default::default()
+    }
+
+    // .cemu_smm.SMM2CourseHeader header = 1;
+
+
+    pub fn get_header(&self) -> &SMM2CourseHeader {
+        self.header.as_ref().unwrap_or_else(|| SMM2CourseHeader::default_instance())
+    }
+    pub fn clear_header(&mut self) {
+        self.header.clear();
+    }
+
+    pub fn has_header(&self) -> bool {
+        self.header.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_header(&mut self, v: SMM2CourseHeader) {
+        self.header = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_header(&mut self) -> &mut SMM2CourseHeader {
+        if self.header.is_none() {
+            self.header.set_default();
+        }
+        self.header.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_header(&mut self) -> SMM2CourseHeader {
+        self.header.take().unwrap_or_else(|| SMM2CourseHeader::new())
+    }
+
+    // .cemu_smm.SMM2CourseArea course_area = 2;
+
+
+    pub fn get_course_area(&self) -> &SMM2CourseArea {
+        self.course_area.as_ref().unwrap_or_else(|| SMM2CourseArea::default_instance())
+    }
+    pub fn clear_course_area(&mut self) {
+        self.course_area.clear();
+    }
+
+    pub fn has_course_area(&self) -> bool {
+        self.course_area.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_course_area(&mut self, v: SMM2CourseArea) {
+        self.course_area = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_course_area(&mut self) -> &mut SMM2CourseArea {
+        if self.course_area.is_none() {
+            self.course_area.set_default();
+        }
+        self.course_area.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_course_area(&mut self) -> SMM2CourseArea {
+        self.course_area.take().unwrap_or_else(|| SMM2CourseArea::new())
+    }
+
+    // .cemu_smm.SMM2CourseArea course_sub_area = 3;
+
+
+    pub fn get_course_sub_area(&self) -> &SMM2CourseArea {
+        self.course_sub_area.as_ref().unwrap_or_else(|| SMM2CourseArea::default_instance())
+    }
+    pub fn clear_course_sub_area(&mut self) {
+        self.course_sub_area.clear();
+    }
+
+    pub fn has_course_sub_area(&self) -> bool {
+        self.course_sub_area.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_course_sub_area(&mut self, v: SMM2CourseArea) {
+        self.course_sub_area = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_course_sub_area(&mut self) -> &mut SMM2CourseArea {
+        if self.course_sub_area.is_none() {
+            self.course_sub_area.set_default();
+        }
+        self.course_sub_area.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_course_sub_area(&mut self) -> SMM2CourseArea {
+        self.course_sub_area.take().unwrap_or_else(|| SMM2CourseArea::new())
+    }
+}
+
+impl ::protobuf::Message for SMM2Course {
+    fn is_initialized(&self) -> bool {
+        for v in &self.header {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.course_area {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.course_sub_area {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.header)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.course_area)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.course_sub_area)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if let Some(ref v) = self.header.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.course_area.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.course_sub_area.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
+        if let Some(ref v) = self.header.as_ref() {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.course_area.as_ref() {
+            os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.course_sub_area.as_ref() {
+            os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> SMM2Course {
+        SMM2Course::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                let mut fields = ::std::vec::Vec::new();
+                fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SMM2CourseHeader>>(
+                    "header",
+                    |m: &SMM2Course| { &m.header },
+                    |m: &mut SMM2Course| { &mut m.header },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SMM2CourseArea>>(
+                    "course_area",
+                    |m: &SMM2Course| { &m.course_area },
+                    |m: &mut SMM2Course| { &mut m.course_area },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<SMM2CourseArea>>(
+                    "course_sub_area",
+                    |m: &SMM2Course| { &m.course_sub_area },
+                    |m: &mut SMM2Course| { &mut m.course_sub_area },
+                ));
+                ::protobuf::reflect::MessageDescriptor::new::<SMM2Course>(
+                    "SMM2Course",
+                    fields,
+                    file_descriptor_proto()
+                )
+            })
+        }
+    }
+
+    fn default_instance() -> &'static SMM2Course {
+        static mut instance: ::protobuf::lazy::Lazy<SMM2Course> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const SMM2Course,
+        };
+        unsafe {
+            instance.get(SMM2Course::new)
+        }
+    }
+}
+
+impl ::protobuf::Clear for SMM2Course {
+    fn clear(&mut self) {
+        self.header.clear();
+        self.course_area.clear();
+        self.course_sub_area.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for SMM2Course {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SMM2Course {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub struct SMM2CourseHeader {
+    // message fields
+    pub modified: u64,
+    pub title: ::std::string::String,
+    pub description: ::std::string::String,
+    pub start_y: u32,
+    pub finish_y: u32,
+    pub finish_x: u32,
+    pub time: u32,
+    pub game_style: SMM2CourseHeader_GameStyle,
+    pub clear_condition_type: SMM2CourseHeader_ClearConditionType,
+    // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
+    pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a SMM2CourseHeader {
+    fn default() -> &'a SMM2CourseHeader {
+        <SMM2CourseHeader as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl SMM2CourseHeader {
+    pub fn new() -> SMM2CourseHeader {
         ::std::default::Default::default()
     }
 
@@ -132,49 +425,49 @@ impl SMM2Course {
         ::std::mem::replace(&mut self.description, ::std::string::String::new())
     }
 
-    // .cemu_smm.SMM2Course.GameStyle game_style = 4;
+    // uint32 start_y = 4;
 
 
-    pub fn get_game_style(&self) -> SMM2Course_GameStyle {
-        self.game_style
+    pub fn get_start_y(&self) -> u32 {
+        self.start_y
     }
-    pub fn clear_game_style(&mut self) {
-        self.game_style = SMM2Course_GameStyle::M1;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_game_style(&mut self, v: SMM2Course_GameStyle) {
-        self.game_style = v;
-    }
-
-    // .cemu_smm.SMM2Course.CourseTheme course_theme = 5;
-
-
-    pub fn get_course_theme(&self) -> SMM2Course_CourseTheme {
-        self.course_theme
-    }
-    pub fn clear_course_theme(&mut self) {
-        self.course_theme = SMM2Course_CourseTheme::GROUND;
+    pub fn clear_start_y(&mut self) {
+        self.start_y = 0;
     }
 
     // Param is passed by value, moved
-    pub fn set_course_theme(&mut self, v: SMM2Course_CourseTheme) {
-        self.course_theme = v;
+    pub fn set_start_y(&mut self, v: u32) {
+        self.start_y = v;
     }
 
-    // .cemu_smm.SMM2Course.CourseTheme course_theme_sub = 6;
+    // uint32 finish_y = 5;
 
 
-    pub fn get_course_theme_sub(&self) -> SMM2Course_CourseTheme {
-        self.course_theme_sub
+    pub fn get_finish_y(&self) -> u32 {
+        self.finish_y
     }
-    pub fn clear_course_theme_sub(&mut self) {
-        self.course_theme_sub = SMM2Course_CourseTheme::GROUND;
+    pub fn clear_finish_y(&mut self) {
+        self.finish_y = 0;
     }
 
     // Param is passed by value, moved
-    pub fn set_course_theme_sub(&mut self, v: SMM2Course_CourseTheme) {
-        self.course_theme_sub = v;
+    pub fn set_finish_y(&mut self, v: u32) {
+        self.finish_y = v;
+    }
+
+    // uint32 finish_x = 6;
+
+
+    pub fn get_finish_x(&self) -> u32 {
+        self.finish_x
+    }
+    pub fn clear_finish_x(&mut self) {
+        self.finish_x = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_finish_x(&mut self, v: u32) {
+        self.finish_x = v;
     }
 
     // uint32 time = 7;
@@ -192,158 +485,38 @@ impl SMM2Course {
         self.time = v;
     }
 
-    // uint32 start_y = 8;
+    // .cemu_smm.SMM2CourseHeader.GameStyle game_style = 8;
 
 
-    pub fn get_start_y(&self) -> u32 {
-        self.start_y
+    pub fn get_game_style(&self) -> SMM2CourseHeader_GameStyle {
+        self.game_style
     }
-    pub fn clear_start_y(&mut self) {
-        self.start_y = 0;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_start_y(&mut self, v: u32) {
-        self.start_y = v;
-    }
-
-    // uint32 finish_y = 9;
-
-
-    pub fn get_finish_y(&self) -> u32 {
-        self.finish_y
-    }
-    pub fn clear_finish_y(&mut self) {
-        self.finish_y = 0;
+    pub fn clear_game_style(&mut self) {
+        self.game_style = SMM2CourseHeader_GameStyle::M1;
     }
 
     // Param is passed by value, moved
-    pub fn set_finish_y(&mut self, v: u32) {
-        self.finish_y = v;
+    pub fn set_game_style(&mut self, v: SMM2CourseHeader_GameStyle) {
+        self.game_style = v;
     }
 
-    // uint32 finish_x = 10;
+    // .cemu_smm.SMM2CourseHeader.ClearConditionType clear_condition_type = 9;
 
 
-    pub fn get_finish_x(&self) -> u32 {
-        self.finish_x
-    }
-    pub fn clear_finish_x(&mut self) {
-        self.finish_x = 0;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_finish_x(&mut self, v: u32) {
-        self.finish_x = v;
-    }
-
-    // uint32 water_max = 11;
-
-
-    pub fn get_water_max(&self) -> u32 {
-        self.water_max
-    }
-    pub fn clear_water_max(&mut self) {
-        self.water_max = 0;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_water_max(&mut self, v: u32) {
-        self.water_max = v;
-    }
-
-    // .cemu_smm.SMM2Course.WaterMode water_mode = 12;
-
-
-    pub fn get_water_mode(&self) -> SMM2Course_WaterMode {
-        self.water_mode
-    }
-    pub fn clear_water_mode(&mut self) {
-        self.water_mode = SMM2Course_WaterMode::FIXED;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_water_mode(&mut self, v: SMM2Course_WaterMode) {
-        self.water_mode = v;
-    }
-
-    // .cemu_smm.SMM2Course.WaterSpeed water_speed = 13;
-
-
-    pub fn get_water_speed(&self) -> SMM2Course_WaterSpeed {
-        self.water_speed
-    }
-    pub fn clear_water_speed(&mut self) {
-        self.water_speed = SMM2Course_WaterSpeed::NONE;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_water_speed(&mut self, v: SMM2Course_WaterSpeed) {
-        self.water_speed = v;
-    }
-
-    // uint32 water_min = 14;
-
-
-    pub fn get_water_min(&self) -> u32 {
-        self.water_min
-    }
-    pub fn clear_water_min(&mut self) {
-        self.water_min = 0;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_water_min(&mut self, v: u32) {
-        self.water_min = v;
-    }
-
-    // .cemu_smm.SMM2Course.AutoScroll auto_scroll = 15;
-
-
-    pub fn get_auto_scroll(&self) -> SMM2Course_AutoScroll {
-        self.auto_scroll
-    }
-    pub fn clear_auto_scroll(&mut self) {
-        self.auto_scroll = SMM2Course_AutoScroll::NONE;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_auto_scroll(&mut self, v: SMM2Course_AutoScroll) {
-        self.auto_scroll = v;
-    }
-
-    // .cemu_smm.SMM2Course.AutoScroll auto_scroll_sub = 16;
-
-
-    pub fn get_auto_scroll_sub(&self) -> SMM2Course_AutoScroll {
-        self.auto_scroll_sub
-    }
-    pub fn clear_auto_scroll_sub(&mut self) {
-        self.auto_scroll_sub = SMM2Course_AutoScroll::NONE;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_auto_scroll_sub(&mut self, v: SMM2Course_AutoScroll) {
-        self.auto_scroll_sub = v;
-    }
-
-    // .cemu_smm.SMM2Course.ClearConditionType clear_condition_type = 17;
-
-
-    pub fn get_clear_condition_type(&self) -> SMM2Course_ClearConditionType {
+    pub fn get_clear_condition_type(&self) -> SMM2CourseHeader_ClearConditionType {
         self.clear_condition_type
     }
     pub fn clear_clear_condition_type(&mut self) {
-        self.clear_condition_type = SMM2Course_ClearConditionType::NONE;
+        self.clear_condition_type = SMM2CourseHeader_ClearConditionType::NONE;
     }
 
     // Param is passed by value, moved
-    pub fn set_clear_condition_type(&mut self, v: SMM2Course_ClearConditionType) {
+    pub fn set_clear_condition_type(&mut self, v: SMM2CourseHeader_ClearConditionType) {
         self.clear_condition_type = v;
     }
 }
 
-impl ::protobuf::Message for SMM2Course {
+impl ::protobuf::Message for SMM2CourseHeader {
     fn is_initialized(&self) -> bool {
         true
     }
@@ -366,13 +539,25 @@ impl ::protobuf::Message for SMM2Course {
                     ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.description)?;
                 },
                 4 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.game_style, 4, &mut self.unknown_fields)?
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.start_y = tmp;
                 },
                 5 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.course_theme, 5, &mut self.unknown_fields)?
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.finish_y = tmp;
                 },
                 6 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.course_theme_sub, 6, &mut self.unknown_fields)?
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.finish_x = tmp;
                 },
                 7 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
@@ -382,54 +567,10 @@ impl ::protobuf::Message for SMM2Course {
                     self.time = tmp;
                 },
                 8 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_uint32()?;
-                    self.start_y = tmp;
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.game_style, 8, &mut self.unknown_fields)?
                 },
                 9 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_uint32()?;
-                    self.finish_y = tmp;
-                },
-                10 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_uint32()?;
-                    self.finish_x = tmp;
-                },
-                11 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_uint32()?;
-                    self.water_max = tmp;
-                },
-                12 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.water_mode, 12, &mut self.unknown_fields)?
-                },
-                13 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.water_speed, 13, &mut self.unknown_fields)?
-                },
-                14 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_uint32()?;
-                    self.water_min = tmp;
-                },
-                15 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.auto_scroll, 15, &mut self.unknown_fields)?
-                },
-                16 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.auto_scroll_sub, 16, &mut self.unknown_fields)?
-                },
-                17 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.clear_condition_type, 17, &mut self.unknown_fields)?
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.clear_condition_type, 9, &mut self.unknown_fields)?
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -452,47 +593,23 @@ impl ::protobuf::Message for SMM2Course {
         if !self.description.is_empty() {
             my_size += ::protobuf::rt::string_size(3, &self.description);
         }
-        if self.game_style != SMM2Course_GameStyle::M1 {
-            my_size += ::protobuf::rt::enum_size(4, self.game_style);
+        if self.start_y != 0 {
+            my_size += ::protobuf::rt::value_size(4, self.start_y, ::protobuf::wire_format::WireTypeVarint);
         }
-        if self.course_theme != SMM2Course_CourseTheme::GROUND {
-            my_size += ::protobuf::rt::enum_size(5, self.course_theme);
+        if self.finish_y != 0 {
+            my_size += ::protobuf::rt::value_size(5, self.finish_y, ::protobuf::wire_format::WireTypeVarint);
         }
-        if self.course_theme_sub != SMM2Course_CourseTheme::GROUND {
-            my_size += ::protobuf::rt::enum_size(6, self.course_theme_sub);
+        if self.finish_x != 0 {
+            my_size += ::protobuf::rt::value_size(6, self.finish_x, ::protobuf::wire_format::WireTypeVarint);
         }
         if self.time != 0 {
             my_size += ::protobuf::rt::value_size(7, self.time, ::protobuf::wire_format::WireTypeVarint);
         }
-        if self.start_y != 0 {
-            my_size += ::protobuf::rt::value_size(8, self.start_y, ::protobuf::wire_format::WireTypeVarint);
+        if self.game_style != SMM2CourseHeader_GameStyle::M1 {
+            my_size += ::protobuf::rt::enum_size(8, self.game_style);
         }
-        if self.finish_y != 0 {
-            my_size += ::protobuf::rt::value_size(9, self.finish_y, ::protobuf::wire_format::WireTypeVarint);
-        }
-        if self.finish_x != 0 {
-            my_size += ::protobuf::rt::value_size(10, self.finish_x, ::protobuf::wire_format::WireTypeVarint);
-        }
-        if self.water_max != 0 {
-            my_size += ::protobuf::rt::value_size(11, self.water_max, ::protobuf::wire_format::WireTypeVarint);
-        }
-        if self.water_mode != SMM2Course_WaterMode::FIXED {
-            my_size += ::protobuf::rt::enum_size(12, self.water_mode);
-        }
-        if self.water_speed != SMM2Course_WaterSpeed::NONE {
-            my_size += ::protobuf::rt::enum_size(13, self.water_speed);
-        }
-        if self.water_min != 0 {
-            my_size += ::protobuf::rt::value_size(14, self.water_min, ::protobuf::wire_format::WireTypeVarint);
-        }
-        if self.auto_scroll != SMM2Course_AutoScroll::NONE {
-            my_size += ::protobuf::rt::enum_size(15, self.auto_scroll);
-        }
-        if self.auto_scroll_sub != SMM2Course_AutoScroll::NONE {
-            my_size += ::protobuf::rt::enum_size(16, self.auto_scroll_sub);
-        }
-        if self.clear_condition_type != SMM2Course_ClearConditionType::NONE {
-            my_size += ::protobuf::rt::enum_size(17, self.clear_condition_type);
+        if self.clear_condition_type != SMM2CourseHeader_ClearConditionType::NONE {
+            my_size += ::protobuf::rt::enum_size(9, self.clear_condition_type);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -509,47 +626,23 @@ impl ::protobuf::Message for SMM2Course {
         if !self.description.is_empty() {
             os.write_string(3, &self.description)?;
         }
-        if self.game_style != SMM2Course_GameStyle::M1 {
-            os.write_enum(4, self.game_style.value())?;
+        if self.start_y != 0 {
+            os.write_uint32(4, self.start_y)?;
         }
-        if self.course_theme != SMM2Course_CourseTheme::GROUND {
-            os.write_enum(5, self.course_theme.value())?;
+        if self.finish_y != 0 {
+            os.write_uint32(5, self.finish_y)?;
         }
-        if self.course_theme_sub != SMM2Course_CourseTheme::GROUND {
-            os.write_enum(6, self.course_theme_sub.value())?;
+        if self.finish_x != 0 {
+            os.write_uint32(6, self.finish_x)?;
         }
         if self.time != 0 {
             os.write_uint32(7, self.time)?;
         }
-        if self.start_y != 0 {
-            os.write_uint32(8, self.start_y)?;
+        if self.game_style != SMM2CourseHeader_GameStyle::M1 {
+            os.write_enum(8, self.game_style.value())?;
         }
-        if self.finish_y != 0 {
-            os.write_uint32(9, self.finish_y)?;
-        }
-        if self.finish_x != 0 {
-            os.write_uint32(10, self.finish_x)?;
-        }
-        if self.water_max != 0 {
-            os.write_uint32(11, self.water_max)?;
-        }
-        if self.water_mode != SMM2Course_WaterMode::FIXED {
-            os.write_enum(12, self.water_mode.value())?;
-        }
-        if self.water_speed != SMM2Course_WaterSpeed::NONE {
-            os.write_enum(13, self.water_speed.value())?;
-        }
-        if self.water_min != 0 {
-            os.write_uint32(14, self.water_min)?;
-        }
-        if self.auto_scroll != SMM2Course_AutoScroll::NONE {
-            os.write_enum(15, self.auto_scroll.value())?;
-        }
-        if self.auto_scroll_sub != SMM2Course_AutoScroll::NONE {
-            os.write_enum(16, self.auto_scroll_sub.value())?;
-        }
-        if self.clear_condition_type != SMM2Course_ClearConditionType::NONE {
-            os.write_enum(17, self.clear_condition_type.value())?;
+        if self.clear_condition_type != SMM2CourseHeader_ClearConditionType::NONE {
+            os.write_enum(9, self.clear_condition_type.value())?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -581,8 +674,8 @@ impl ::protobuf::Message for SMM2Course {
         Self::descriptor_static()
     }
 
-    fn new() -> SMM2Course {
-        SMM2Course::new()
+    fn new() -> SMM2CourseHeader {
+        SMM2CourseHeader::new()
     }
 
     fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
@@ -595,91 +688,51 @@ impl ::protobuf::Message for SMM2Course {
                 let mut fields = ::std::vec::Vec::new();
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint64>(
                     "modified",
-                    |m: &SMM2Course| { &m.modified },
-                    |m: &mut SMM2Course| { &mut m.modified },
+                    |m: &SMM2CourseHeader| { &m.modified },
+                    |m: &mut SMM2CourseHeader| { &mut m.modified },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                     "title",
-                    |m: &SMM2Course| { &m.title },
-                    |m: &mut SMM2Course| { &mut m.title },
+                    |m: &SMM2CourseHeader| { &m.title },
+                    |m: &mut SMM2CourseHeader| { &mut m.title },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
                     "description",
-                    |m: &SMM2Course| { &m.description },
-                    |m: &mut SMM2Course| { &mut m.description },
-                ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2Course_GameStyle>>(
-                    "game_style",
-                    |m: &SMM2Course| { &m.game_style },
-                    |m: &mut SMM2Course| { &mut m.game_style },
-                ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2Course_CourseTheme>>(
-                    "course_theme",
-                    |m: &SMM2Course| { &m.course_theme },
-                    |m: &mut SMM2Course| { &mut m.course_theme },
-                ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2Course_CourseTheme>>(
-                    "course_theme_sub",
-                    |m: &SMM2Course| { &m.course_theme_sub },
-                    |m: &mut SMM2Course| { &mut m.course_theme_sub },
-                ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
-                    "time",
-                    |m: &SMM2Course| { &m.time },
-                    |m: &mut SMM2Course| { &mut m.time },
+                    |m: &SMM2CourseHeader| { &m.description },
+                    |m: &mut SMM2CourseHeader| { &mut m.description },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
                     "start_y",
-                    |m: &SMM2Course| { &m.start_y },
-                    |m: &mut SMM2Course| { &mut m.start_y },
+                    |m: &SMM2CourseHeader| { &m.start_y },
+                    |m: &mut SMM2CourseHeader| { &mut m.start_y },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
                     "finish_y",
-                    |m: &SMM2Course| { &m.finish_y },
-                    |m: &mut SMM2Course| { &mut m.finish_y },
+                    |m: &SMM2CourseHeader| { &m.finish_y },
+                    |m: &mut SMM2CourseHeader| { &mut m.finish_y },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
                     "finish_x",
-                    |m: &SMM2Course| { &m.finish_x },
-                    |m: &mut SMM2Course| { &mut m.finish_x },
+                    |m: &SMM2CourseHeader| { &m.finish_x },
+                    |m: &mut SMM2CourseHeader| { &mut m.finish_x },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
-                    "water_max",
-                    |m: &SMM2Course| { &m.water_max },
-                    |m: &mut SMM2Course| { &mut m.water_max },
+                    "time",
+                    |m: &SMM2CourseHeader| { &m.time },
+                    |m: &mut SMM2CourseHeader| { &mut m.time },
                 ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2Course_WaterMode>>(
-                    "water_mode",
-                    |m: &SMM2Course| { &m.water_mode },
-                    |m: &mut SMM2Course| { &mut m.water_mode },
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseHeader_GameStyle>>(
+                    "game_style",
+                    |m: &SMM2CourseHeader| { &m.game_style },
+                    |m: &mut SMM2CourseHeader| { &mut m.game_style },
                 ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2Course_WaterSpeed>>(
-                    "water_speed",
-                    |m: &SMM2Course| { &m.water_speed },
-                    |m: &mut SMM2Course| { &mut m.water_speed },
-                ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
-                    "water_min",
-                    |m: &SMM2Course| { &m.water_min },
-                    |m: &mut SMM2Course| { &mut m.water_min },
-                ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2Course_AutoScroll>>(
-                    "auto_scroll",
-                    |m: &SMM2Course| { &m.auto_scroll },
-                    |m: &mut SMM2Course| { &mut m.auto_scroll },
-                ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2Course_AutoScroll>>(
-                    "auto_scroll_sub",
-                    |m: &SMM2Course| { &m.auto_scroll_sub },
-                    |m: &mut SMM2Course| { &mut m.auto_scroll_sub },
-                ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2Course_ClearConditionType>>(
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseHeader_ClearConditionType>>(
                     "clear_condition_type",
-                    |m: &SMM2Course| { &m.clear_condition_type },
-                    |m: &mut SMM2Course| { &mut m.clear_condition_type },
+                    |m: &SMM2CourseHeader| { &m.clear_condition_type },
+                    |m: &mut SMM2CourseHeader| { &mut m.clear_condition_type },
                 ));
-                ::protobuf::reflect::MessageDescriptor::new::<SMM2Course>(
-                    "SMM2Course",
+                ::protobuf::reflect::MessageDescriptor::new::<SMM2CourseHeader>(
+                    "SMM2CourseHeader",
                     fields,
                     file_descriptor_proto()
                 )
@@ -687,47 +740,39 @@ impl ::protobuf::Message for SMM2Course {
         }
     }
 
-    fn default_instance() -> &'static SMM2Course {
-        static mut instance: ::protobuf::lazy::Lazy<SMM2Course> = ::protobuf::lazy::Lazy {
+    fn default_instance() -> &'static SMM2CourseHeader {
+        static mut instance: ::protobuf::lazy::Lazy<SMM2CourseHeader> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
-            ptr: 0 as *const SMM2Course,
+            ptr: 0 as *const SMM2CourseHeader,
         };
         unsafe {
-            instance.get(SMM2Course::new)
+            instance.get(SMM2CourseHeader::new)
         }
     }
 }
 
-impl ::protobuf::Clear for SMM2Course {
+impl ::protobuf::Clear for SMM2CourseHeader {
     fn clear(&mut self) {
         self.modified = 0;
         self.title.clear();
         self.description.clear();
-        self.game_style = SMM2Course_GameStyle::M1;
-        self.course_theme = SMM2Course_CourseTheme::GROUND;
-        self.course_theme_sub = SMM2Course_CourseTheme::GROUND;
-        self.time = 0;
         self.start_y = 0;
         self.finish_y = 0;
         self.finish_x = 0;
-        self.water_max = 0;
-        self.water_mode = SMM2Course_WaterMode::FIXED;
-        self.water_speed = SMM2Course_WaterSpeed::NONE;
-        self.water_min = 0;
-        self.auto_scroll = SMM2Course_AutoScroll::NONE;
-        self.auto_scroll_sub = SMM2Course_AutoScroll::NONE;
-        self.clear_condition_type = SMM2Course_ClearConditionType::NONE;
+        self.time = 0;
+        self.game_style = SMM2CourseHeader_GameStyle::M1;
+        self.clear_condition_type = SMM2CourseHeader_ClearConditionType::NONE;
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for SMM2Course {
+impl ::std::fmt::Debug for SMM2CourseHeader {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SMM2Course {
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseHeader {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Message(self)
     }
@@ -735,7 +780,7 @@ impl ::protobuf::reflect::ProtobufValue for SMM2Course {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub enum SMM2Course_GameStyle {
+pub enum SMM2CourseHeader_GameStyle {
     M1 = 0,
     M3 = 1,
     MW = 2,
@@ -743,29 +788,29 @@ pub enum SMM2Course_GameStyle {
     W3 = 4,
 }
 
-impl ::protobuf::ProtobufEnum for SMM2Course_GameStyle {
+impl ::protobuf::ProtobufEnum for SMM2CourseHeader_GameStyle {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<SMM2Course_GameStyle> {
+    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseHeader_GameStyle> {
         match value {
-            0 => ::std::option::Option::Some(SMM2Course_GameStyle::M1),
-            1 => ::std::option::Option::Some(SMM2Course_GameStyle::M3),
-            2 => ::std::option::Option::Some(SMM2Course_GameStyle::MW),
-            3 => ::std::option::Option::Some(SMM2Course_GameStyle::WU),
-            4 => ::std::option::Option::Some(SMM2Course_GameStyle::W3),
+            0 => ::std::option::Option::Some(SMM2CourseHeader_GameStyle::M1),
+            1 => ::std::option::Option::Some(SMM2CourseHeader_GameStyle::M3),
+            2 => ::std::option::Option::Some(SMM2CourseHeader_GameStyle::MW),
+            3 => ::std::option::Option::Some(SMM2CourseHeader_GameStyle::WU),
+            4 => ::std::option::Option::Some(SMM2CourseHeader_GameStyle::W3),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [SMM2Course_GameStyle] = &[
-            SMM2Course_GameStyle::M1,
-            SMM2Course_GameStyle::M3,
-            SMM2Course_GameStyle::MW,
-            SMM2Course_GameStyle::WU,
-            SMM2Course_GameStyle::W3,
+        static values: &'static [SMM2CourseHeader_GameStyle] = &[
+            SMM2CourseHeader_GameStyle::M1,
+            SMM2CourseHeader_GameStyle::M3,
+            SMM2CourseHeader_GameStyle::MW,
+            SMM2CourseHeader_GameStyle::WU,
+            SMM2CourseHeader_GameStyle::W3,
         ];
         values
     }
@@ -777,22 +822,22 @@ impl ::protobuf::ProtobufEnum for SMM2Course_GameStyle {
         };
         unsafe {
             descriptor.get(|| {
-                ::protobuf::reflect::EnumDescriptor::new("SMM2Course_GameStyle", file_descriptor_proto())
+                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseHeader_GameStyle", file_descriptor_proto())
             })
         }
     }
 }
 
-impl ::std::marker::Copy for SMM2Course_GameStyle {
+impl ::std::marker::Copy for SMM2CourseHeader_GameStyle {
 }
 
-impl ::std::default::Default for SMM2Course_GameStyle {
+impl ::std::default::Default for SMM2CourseHeader_GameStyle {
     fn default() -> Self {
-        SMM2Course_GameStyle::M1
+        SMM2CourseHeader_GameStyle::M1
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SMM2Course_GameStyle {
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseHeader_GameStyle {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
     }
@@ -800,7 +845,393 @@ impl ::protobuf::reflect::ProtobufValue for SMM2Course_GameStyle {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub enum SMM2Course_CourseTheme {
+pub enum SMM2CourseHeader_ClearConditionType {
+    NONE = 0,
+    PARTS = 1,
+    STATUS = 2,
+    ACTION = 3,
+}
+
+impl ::protobuf::ProtobufEnum for SMM2CourseHeader_ClearConditionType {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseHeader_ClearConditionType> {
+        match value {
+            0 => ::std::option::Option::Some(SMM2CourseHeader_ClearConditionType::NONE),
+            1 => ::std::option::Option::Some(SMM2CourseHeader_ClearConditionType::PARTS),
+            2 => ::std::option::Option::Some(SMM2CourseHeader_ClearConditionType::STATUS),
+            3 => ::std::option::Option::Some(SMM2CourseHeader_ClearConditionType::ACTION),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [SMM2CourseHeader_ClearConditionType] = &[
+            SMM2CourseHeader_ClearConditionType::NONE,
+            SMM2CourseHeader_ClearConditionType::PARTS,
+            SMM2CourseHeader_ClearConditionType::STATUS,
+            SMM2CourseHeader_ClearConditionType::ACTION,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::EnumDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::EnumDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseHeader_ClearConditionType", file_descriptor_proto())
+            })
+        }
+    }
+}
+
+impl ::std::marker::Copy for SMM2CourseHeader_ClearConditionType {
+}
+
+impl ::std::default::Default for SMM2CourseHeader_ClearConditionType {
+    fn default() -> Self {
+        SMM2CourseHeader_ClearConditionType::NONE
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseHeader_ClearConditionType {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub struct SMM2CourseArea {
+    // message fields
+    pub course_theme: SMM2CourseArea_CourseTheme,
+    pub auto_scroll: SMM2CourseArea_AutoScroll,
+    pub water_max: u32,
+    pub water_mode: SMM2CourseArea_WaterMode,
+    pub water_speed: SMM2CourseArea_WaterSpeed,
+    pub water_min: u32,
+    // special fields
+    #[cfg_attr(feature = "with-serde", serde(skip))]
+    pub unknown_fields: ::protobuf::UnknownFields,
+    #[cfg_attr(feature = "with-serde", serde(skip))]
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a SMM2CourseArea {
+    fn default() -> &'a SMM2CourseArea {
+        <SMM2CourseArea as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl SMM2CourseArea {
+    pub fn new() -> SMM2CourseArea {
+        ::std::default::Default::default()
+    }
+
+    // .cemu_smm.SMM2CourseArea.CourseTheme course_theme = 1;
+
+
+    pub fn get_course_theme(&self) -> SMM2CourseArea_CourseTheme {
+        self.course_theme
+    }
+    pub fn clear_course_theme(&mut self) {
+        self.course_theme = SMM2CourseArea_CourseTheme::GROUND;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_course_theme(&mut self, v: SMM2CourseArea_CourseTheme) {
+        self.course_theme = v;
+    }
+
+    // .cemu_smm.SMM2CourseArea.AutoScroll auto_scroll = 2;
+
+
+    pub fn get_auto_scroll(&self) -> SMM2CourseArea_AutoScroll {
+        self.auto_scroll
+    }
+    pub fn clear_auto_scroll(&mut self) {
+        self.auto_scroll = SMM2CourseArea_AutoScroll::NONE;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_auto_scroll(&mut self, v: SMM2CourseArea_AutoScroll) {
+        self.auto_scroll = v;
+    }
+
+    // uint32 water_max = 3;
+
+
+    pub fn get_water_max(&self) -> u32 {
+        self.water_max
+    }
+    pub fn clear_water_max(&mut self) {
+        self.water_max = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_water_max(&mut self, v: u32) {
+        self.water_max = v;
+    }
+
+    // .cemu_smm.SMM2CourseArea.WaterMode water_mode = 4;
+
+
+    pub fn get_water_mode(&self) -> SMM2CourseArea_WaterMode {
+        self.water_mode
+    }
+    pub fn clear_water_mode(&mut self) {
+        self.water_mode = SMM2CourseArea_WaterMode::FIXED;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_water_mode(&mut self, v: SMM2CourseArea_WaterMode) {
+        self.water_mode = v;
+    }
+
+    // .cemu_smm.SMM2CourseArea.WaterSpeed water_speed = 5;
+
+
+    pub fn get_water_speed(&self) -> SMM2CourseArea_WaterSpeed {
+        self.water_speed
+    }
+    pub fn clear_water_speed(&mut self) {
+        self.water_speed = SMM2CourseArea_WaterSpeed::NONE;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_water_speed(&mut self, v: SMM2CourseArea_WaterSpeed) {
+        self.water_speed = v;
+    }
+
+    // uint32 water_min = 6;
+
+
+    pub fn get_water_min(&self) -> u32 {
+        self.water_min
+    }
+    pub fn clear_water_min(&mut self) {
+        self.water_min = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_water_min(&mut self, v: u32) {
+        self.water_min = v;
+    }
+}
+
+impl ::protobuf::Message for SMM2CourseArea {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.course_theme, 1, &mut self.unknown_fields)?
+                },
+                2 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.auto_scroll, 2, &mut self.unknown_fields)?
+                },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.water_max = tmp;
+                },
+                4 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.water_mode, 4, &mut self.unknown_fields)?
+                },
+                5 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.water_speed, 5, &mut self.unknown_fields)?
+                },
+                6 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.water_min = tmp;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if self.course_theme != SMM2CourseArea_CourseTheme::GROUND {
+            my_size += ::protobuf::rt::enum_size(1, self.course_theme);
+        }
+        if self.auto_scroll != SMM2CourseArea_AutoScroll::NONE {
+            my_size += ::protobuf::rt::enum_size(2, self.auto_scroll);
+        }
+        if self.water_max != 0 {
+            my_size += ::protobuf::rt::value_size(3, self.water_max, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.water_mode != SMM2CourseArea_WaterMode::FIXED {
+            my_size += ::protobuf::rt::enum_size(4, self.water_mode);
+        }
+        if self.water_speed != SMM2CourseArea_WaterSpeed::NONE {
+            my_size += ::protobuf::rt::enum_size(5, self.water_speed);
+        }
+        if self.water_min != 0 {
+            my_size += ::protobuf::rt::value_size(6, self.water_min, ::protobuf::wire_format::WireTypeVarint);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream) -> ::protobuf::ProtobufResult<()> {
+        if self.course_theme != SMM2CourseArea_CourseTheme::GROUND {
+            os.write_enum(1, self.course_theme.value())?;
+        }
+        if self.auto_scroll != SMM2CourseArea_AutoScroll::NONE {
+            os.write_enum(2, self.auto_scroll.value())?;
+        }
+        if self.water_max != 0 {
+            os.write_uint32(3, self.water_max)?;
+        }
+        if self.water_mode != SMM2CourseArea_WaterMode::FIXED {
+            os.write_enum(4, self.water_mode.value())?;
+        }
+        if self.water_speed != SMM2CourseArea_WaterSpeed::NONE {
+            os.write_enum(5, self.water_speed.value())?;
+        }
+        if self.water_min != 0 {
+            os.write_uint32(6, self.water_min)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> SMM2CourseArea {
+        SMM2CourseArea::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                let mut fields = ::std::vec::Vec::new();
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_CourseTheme>>(
+                    "course_theme",
+                    |m: &SMM2CourseArea| { &m.course_theme },
+                    |m: &mut SMM2CourseArea| { &mut m.course_theme },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_AutoScroll>>(
+                    "auto_scroll",
+                    |m: &SMM2CourseArea| { &m.auto_scroll },
+                    |m: &mut SMM2CourseArea| { &mut m.auto_scroll },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "water_max",
+                    |m: &SMM2CourseArea| { &m.water_max },
+                    |m: &mut SMM2CourseArea| { &mut m.water_max },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_WaterMode>>(
+                    "water_mode",
+                    |m: &SMM2CourseArea| { &m.water_mode },
+                    |m: &mut SMM2CourseArea| { &mut m.water_mode },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_WaterSpeed>>(
+                    "water_speed",
+                    |m: &SMM2CourseArea| { &m.water_speed },
+                    |m: &mut SMM2CourseArea| { &mut m.water_speed },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "water_min",
+                    |m: &SMM2CourseArea| { &m.water_min },
+                    |m: &mut SMM2CourseArea| { &mut m.water_min },
+                ));
+                ::protobuf::reflect::MessageDescriptor::new::<SMM2CourseArea>(
+                    "SMM2CourseArea",
+                    fields,
+                    file_descriptor_proto()
+                )
+            })
+        }
+    }
+
+    fn default_instance() -> &'static SMM2CourseArea {
+        static mut instance: ::protobuf::lazy::Lazy<SMM2CourseArea> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const SMM2CourseArea,
+        };
+        unsafe {
+            instance.get(SMM2CourseArea::new)
+        }
+    }
+}
+
+impl ::protobuf::Clear for SMM2CourseArea {
+    fn clear(&mut self) {
+        self.course_theme = SMM2CourseArea_CourseTheme::GROUND;
+        self.auto_scroll = SMM2CourseArea_AutoScroll::NONE;
+        self.water_max = 0;
+        self.water_mode = SMM2CourseArea_WaterMode::FIXED;
+        self.water_speed = SMM2CourseArea_WaterSpeed::NONE;
+        self.water_min = 0;
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for SMM2CourseArea {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Message(self)
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub enum SMM2CourseArea_CourseTheme {
     GROUND = 0,
     UNDERGROUND = 1,
     CASTLE = 2,
@@ -813,39 +1244,39 @@ pub enum SMM2Course_CourseTheme {
     FOREST = 9,
 }
 
-impl ::protobuf::ProtobufEnum for SMM2Course_CourseTheme {
+impl ::protobuf::ProtobufEnum for SMM2CourseArea_CourseTheme {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<SMM2Course_CourseTheme> {
+    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_CourseTheme> {
         match value {
-            0 => ::std::option::Option::Some(SMM2Course_CourseTheme::GROUND),
-            1 => ::std::option::Option::Some(SMM2Course_CourseTheme::UNDERGROUND),
-            2 => ::std::option::Option::Some(SMM2Course_CourseTheme::CASTLE),
-            3 => ::std::option::Option::Some(SMM2Course_CourseTheme::AIRSHIP),
-            4 => ::std::option::Option::Some(SMM2Course_CourseTheme::UNDERWATER),
-            5 => ::std::option::Option::Some(SMM2Course_CourseTheme::GHOUST_HOUSE),
-            6 => ::std::option::Option::Some(SMM2Course_CourseTheme::SNOW),
-            7 => ::std::option::Option::Some(SMM2Course_CourseTheme::DESERT),
-            8 => ::std::option::Option::Some(SMM2Course_CourseTheme::SKY),
-            9 => ::std::option::Option::Some(SMM2Course_CourseTheme::FOREST),
+            0 => ::std::option::Option::Some(SMM2CourseArea_CourseTheme::GROUND),
+            1 => ::std::option::Option::Some(SMM2CourseArea_CourseTheme::UNDERGROUND),
+            2 => ::std::option::Option::Some(SMM2CourseArea_CourseTheme::CASTLE),
+            3 => ::std::option::Option::Some(SMM2CourseArea_CourseTheme::AIRSHIP),
+            4 => ::std::option::Option::Some(SMM2CourseArea_CourseTheme::UNDERWATER),
+            5 => ::std::option::Option::Some(SMM2CourseArea_CourseTheme::GHOUST_HOUSE),
+            6 => ::std::option::Option::Some(SMM2CourseArea_CourseTheme::SNOW),
+            7 => ::std::option::Option::Some(SMM2CourseArea_CourseTheme::DESERT),
+            8 => ::std::option::Option::Some(SMM2CourseArea_CourseTheme::SKY),
+            9 => ::std::option::Option::Some(SMM2CourseArea_CourseTheme::FOREST),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [SMM2Course_CourseTheme] = &[
-            SMM2Course_CourseTheme::GROUND,
-            SMM2Course_CourseTheme::UNDERGROUND,
-            SMM2Course_CourseTheme::CASTLE,
-            SMM2Course_CourseTheme::AIRSHIP,
-            SMM2Course_CourseTheme::UNDERWATER,
-            SMM2Course_CourseTheme::GHOUST_HOUSE,
-            SMM2Course_CourseTheme::SNOW,
-            SMM2Course_CourseTheme::DESERT,
-            SMM2Course_CourseTheme::SKY,
-            SMM2Course_CourseTheme::FOREST,
+        static values: &'static [SMM2CourseArea_CourseTheme] = &[
+            SMM2CourseArea_CourseTheme::GROUND,
+            SMM2CourseArea_CourseTheme::UNDERGROUND,
+            SMM2CourseArea_CourseTheme::CASTLE,
+            SMM2CourseArea_CourseTheme::AIRSHIP,
+            SMM2CourseArea_CourseTheme::UNDERWATER,
+            SMM2CourseArea_CourseTheme::GHOUST_HOUSE,
+            SMM2CourseArea_CourseTheme::SNOW,
+            SMM2CourseArea_CourseTheme::DESERT,
+            SMM2CourseArea_CourseTheme::SKY,
+            SMM2CourseArea_CourseTheme::FOREST,
         ];
         values
     }
@@ -857,22 +1288,22 @@ impl ::protobuf::ProtobufEnum for SMM2Course_CourseTheme {
         };
         unsafe {
             descriptor.get(|| {
-                ::protobuf::reflect::EnumDescriptor::new("SMM2Course_CourseTheme", file_descriptor_proto())
+                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseArea_CourseTheme", file_descriptor_proto())
             })
         }
     }
 }
 
-impl ::std::marker::Copy for SMM2Course_CourseTheme {
+impl ::std::marker::Copy for SMM2CourseArea_CourseTheme {
 }
 
-impl ::std::default::Default for SMM2Course_CourseTheme {
+impl ::std::default::Default for SMM2CourseArea_CourseTheme {
     fn default() -> Self {
-        SMM2Course_CourseTheme::GROUND
+        SMM2CourseArea_CourseTheme::GROUND
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SMM2Course_CourseTheme {
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_CourseTheme {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
     }
@@ -880,128 +1311,7 @@ impl ::protobuf::reflect::ProtobufValue for SMM2Course_CourseTheme {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub enum SMM2Course_WaterMode {
-    FIXED = 0,
-    ONE_WAY = 1,
-    OSCILLATING = 2,
-}
-
-impl ::protobuf::ProtobufEnum for SMM2Course_WaterMode {
-    fn value(&self) -> i32 {
-        *self as i32
-    }
-
-    fn from_i32(value: i32) -> ::std::option::Option<SMM2Course_WaterMode> {
-        match value {
-            0 => ::std::option::Option::Some(SMM2Course_WaterMode::FIXED),
-            1 => ::std::option::Option::Some(SMM2Course_WaterMode::ONE_WAY),
-            2 => ::std::option::Option::Some(SMM2Course_WaterMode::OSCILLATING),
-            _ => ::std::option::Option::None
-        }
-    }
-
-    fn values() -> &'static [Self] {
-        static values: &'static [SMM2Course_WaterMode] = &[
-            SMM2Course_WaterMode::FIXED,
-            SMM2Course_WaterMode::ONE_WAY,
-            SMM2Course_WaterMode::OSCILLATING,
-        ];
-        values
-    }
-
-    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
-        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::EnumDescriptor> = ::protobuf::lazy::Lazy {
-            lock: ::protobuf::lazy::ONCE_INIT,
-            ptr: 0 as *const ::protobuf::reflect::EnumDescriptor,
-        };
-        unsafe {
-            descriptor.get(|| {
-                ::protobuf::reflect::EnumDescriptor::new("SMM2Course_WaterMode", file_descriptor_proto())
-            })
-        }
-    }
-}
-
-impl ::std::marker::Copy for SMM2Course_WaterMode {
-}
-
-impl ::std::default::Default for SMM2Course_WaterMode {
-    fn default() -> Self {
-        SMM2Course_WaterMode::FIXED
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for SMM2Course_WaterMode {
-    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
-        ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
-    }
-}
-
-#[derive(Clone,PartialEq,Eq,Debug,Hash)]
-#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub enum SMM2Course_WaterSpeed {
-    NONE = 0,
-    SLOW = 1,
-    MEDIUM = 2,
-    FAST = 3,
-}
-
-impl ::protobuf::ProtobufEnum for SMM2Course_WaterSpeed {
-    fn value(&self) -> i32 {
-        *self as i32
-    }
-
-    fn from_i32(value: i32) -> ::std::option::Option<SMM2Course_WaterSpeed> {
-        match value {
-            0 => ::std::option::Option::Some(SMM2Course_WaterSpeed::NONE),
-            1 => ::std::option::Option::Some(SMM2Course_WaterSpeed::SLOW),
-            2 => ::std::option::Option::Some(SMM2Course_WaterSpeed::MEDIUM),
-            3 => ::std::option::Option::Some(SMM2Course_WaterSpeed::FAST),
-            _ => ::std::option::Option::None
-        }
-    }
-
-    fn values() -> &'static [Self] {
-        static values: &'static [SMM2Course_WaterSpeed] = &[
-            SMM2Course_WaterSpeed::NONE,
-            SMM2Course_WaterSpeed::SLOW,
-            SMM2Course_WaterSpeed::MEDIUM,
-            SMM2Course_WaterSpeed::FAST,
-        ];
-        values
-    }
-
-    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
-        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::EnumDescriptor> = ::protobuf::lazy::Lazy {
-            lock: ::protobuf::lazy::ONCE_INIT,
-            ptr: 0 as *const ::protobuf::reflect::EnumDescriptor,
-        };
-        unsafe {
-            descriptor.get(|| {
-                ::protobuf::reflect::EnumDescriptor::new("SMM2Course_WaterSpeed", file_descriptor_proto())
-            })
-        }
-    }
-}
-
-impl ::std::marker::Copy for SMM2Course_WaterSpeed {
-}
-
-impl ::std::default::Default for SMM2Course_WaterSpeed {
-    fn default() -> Self {
-        SMM2Course_WaterSpeed::NONE
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for SMM2Course_WaterSpeed {
-    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
-        ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
-    }
-}
-
-#[derive(Clone,PartialEq,Eq,Debug,Hash)]
-#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub enum SMM2Course_AutoScroll {
+pub enum SMM2CourseArea_AutoScroll {
     NONE = 0,
     SLOW = 1,
     MEDIUM = 2,
@@ -1009,29 +1319,29 @@ pub enum SMM2Course_AutoScroll {
     CUSTOM = 4,
 }
 
-impl ::protobuf::ProtobufEnum for SMM2Course_AutoScroll {
+impl ::protobuf::ProtobufEnum for SMM2CourseArea_AutoScroll {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<SMM2Course_AutoScroll> {
+    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_AutoScroll> {
         match value {
-            0 => ::std::option::Option::Some(SMM2Course_AutoScroll::NONE),
-            1 => ::std::option::Option::Some(SMM2Course_AutoScroll::SLOW),
-            2 => ::std::option::Option::Some(SMM2Course_AutoScroll::MEDIUM),
-            3 => ::std::option::Option::Some(SMM2Course_AutoScroll::FAST),
-            4 => ::std::option::Option::Some(SMM2Course_AutoScroll::CUSTOM),
+            0 => ::std::option::Option::Some(SMM2CourseArea_AutoScroll::NONE),
+            1 => ::std::option::Option::Some(SMM2CourseArea_AutoScroll::SLOW),
+            2 => ::std::option::Option::Some(SMM2CourseArea_AutoScroll::MEDIUM),
+            3 => ::std::option::Option::Some(SMM2CourseArea_AutoScroll::FAST),
+            4 => ::std::option::Option::Some(SMM2CourseArea_AutoScroll::CUSTOM),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [SMM2Course_AutoScroll] = &[
-            SMM2Course_AutoScroll::NONE,
-            SMM2Course_AutoScroll::SLOW,
-            SMM2Course_AutoScroll::MEDIUM,
-            SMM2Course_AutoScroll::FAST,
-            SMM2Course_AutoScroll::CUSTOM,
+        static values: &'static [SMM2CourseArea_AutoScroll] = &[
+            SMM2CourseArea_AutoScroll::NONE,
+            SMM2CourseArea_AutoScroll::SLOW,
+            SMM2CourseArea_AutoScroll::MEDIUM,
+            SMM2CourseArea_AutoScroll::FAST,
+            SMM2CourseArea_AutoScroll::CUSTOM,
         ];
         values
     }
@@ -1043,22 +1353,22 @@ impl ::protobuf::ProtobufEnum for SMM2Course_AutoScroll {
         };
         unsafe {
             descriptor.get(|| {
-                ::protobuf::reflect::EnumDescriptor::new("SMM2Course_AutoScroll", file_descriptor_proto())
+                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseArea_AutoScroll", file_descriptor_proto())
             })
         }
     }
 }
 
-impl ::std::marker::Copy for SMM2Course_AutoScroll {
+impl ::std::marker::Copy for SMM2CourseArea_AutoScroll {
 }
 
-impl ::std::default::Default for SMM2Course_AutoScroll {
+impl ::std::default::Default for SMM2CourseArea_AutoScroll {
     fn default() -> Self {
-        SMM2Course_AutoScroll::NONE
+        SMM2CourseArea_AutoScroll::NONE
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SMM2Course_AutoScroll {
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_AutoScroll {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
     }
@@ -1066,34 +1376,31 @@ impl ::protobuf::reflect::ProtobufValue for SMM2Course_AutoScroll {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub enum SMM2Course_ClearConditionType {
-    NONE = 0,
-    PARTS = 1,
-    STATUS = 2,
-    ACTION = 3,
+pub enum SMM2CourseArea_WaterMode {
+    FIXED = 0,
+    ONE_WAY = 1,
+    OSCILLATING = 2,
 }
 
-impl ::protobuf::ProtobufEnum for SMM2Course_ClearConditionType {
+impl ::protobuf::ProtobufEnum for SMM2CourseArea_WaterMode {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<SMM2Course_ClearConditionType> {
+    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_WaterMode> {
         match value {
-            0 => ::std::option::Option::Some(SMM2Course_ClearConditionType::NONE),
-            1 => ::std::option::Option::Some(SMM2Course_ClearConditionType::PARTS),
-            2 => ::std::option::Option::Some(SMM2Course_ClearConditionType::STATUS),
-            3 => ::std::option::Option::Some(SMM2Course_ClearConditionType::ACTION),
+            0 => ::std::option::Option::Some(SMM2CourseArea_WaterMode::FIXED),
+            1 => ::std::option::Option::Some(SMM2CourseArea_WaterMode::ONE_WAY),
+            2 => ::std::option::Option::Some(SMM2CourseArea_WaterMode::OSCILLATING),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [SMM2Course_ClearConditionType] = &[
-            SMM2Course_ClearConditionType::NONE,
-            SMM2Course_ClearConditionType::PARTS,
-            SMM2Course_ClearConditionType::STATUS,
-            SMM2Course_ClearConditionType::ACTION,
+        static values: &'static [SMM2CourseArea_WaterMode] = &[
+            SMM2CourseArea_WaterMode::FIXED,
+            SMM2CourseArea_WaterMode::ONE_WAY,
+            SMM2CourseArea_WaterMode::OSCILLATING,
         ];
         values
     }
@@ -1105,58 +1412,122 @@ impl ::protobuf::ProtobufEnum for SMM2Course_ClearConditionType {
         };
         unsafe {
             descriptor.get(|| {
-                ::protobuf::reflect::EnumDescriptor::new("SMM2Course_ClearConditionType", file_descriptor_proto())
+                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseArea_WaterMode", file_descriptor_proto())
             })
         }
     }
 }
 
-impl ::std::marker::Copy for SMM2Course_ClearConditionType {
+impl ::std::marker::Copy for SMM2CourseArea_WaterMode {
 }
 
-impl ::std::default::Default for SMM2Course_ClearConditionType {
+impl ::std::default::Default for SMM2CourseArea_WaterMode {
     fn default() -> Self {
-        SMM2Course_ClearConditionType::NONE
+        SMM2CourseArea_WaterMode::FIXED
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SMM2Course_ClearConditionType {
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_WaterMode {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub enum SMM2CourseArea_WaterSpeed {
+    NONE = 0,
+    SLOW = 1,
+    MEDIUM = 2,
+    FAST = 3,
+}
+
+impl ::protobuf::ProtobufEnum for SMM2CourseArea_WaterSpeed {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_WaterSpeed> {
+        match value {
+            0 => ::std::option::Option::Some(SMM2CourseArea_WaterSpeed::NONE),
+            1 => ::std::option::Option::Some(SMM2CourseArea_WaterSpeed::SLOW),
+            2 => ::std::option::Option::Some(SMM2CourseArea_WaterSpeed::MEDIUM),
+            3 => ::std::option::Option::Some(SMM2CourseArea_WaterSpeed::FAST),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [SMM2CourseArea_WaterSpeed] = &[
+            SMM2CourseArea_WaterSpeed::NONE,
+            SMM2CourseArea_WaterSpeed::SLOW,
+            SMM2CourseArea_WaterSpeed::MEDIUM,
+            SMM2CourseArea_WaterSpeed::FAST,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::EnumDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::EnumDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseArea_WaterSpeed", file_descriptor_proto())
+            })
+        }
+    }
+}
+
+impl ::std::marker::Copy for SMM2CourseArea_WaterSpeed {
+}
+
+impl ::std::default::Default for SMM2CourseArea_WaterSpeed {
+    fn default() -> Self {
+        SMM2CourseArea_WaterSpeed::NONE
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_WaterSpeed {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
     }
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x10SMM2Course.proto\x12\x08cemu_smm\"\xe1\x08\n\nSMM2Course\x12\x12\n\
-    \x08modified\x18\x01\x20\x01(\x04B\0\x12\x0f\n\x05title\x18\x02\x20\x01(\
-    \tB\0\x12\x15\n\x0bdescription\x18\x03\x20\x01(\tB\0\x124\n\ngame_style\
-    \x18\x04\x20\x01(\x0e2\x1e.cemu_smm.SMM2Course.GameStyleB\0\x128\n\x0cco\
-    urse_theme\x18\x05\x20\x01(\x0e2\x20.cemu_smm.SMM2Course.CourseThemeB\0\
-    \x12<\n\x10course_theme_sub\x18\x06\x20\x01(\x0e2\x20.cemu_smm.SMM2Cours\
-    e.CourseThemeB\0\x12\x0e\n\x04time\x18\x07\x20\x01(\rB\0\x12\x11\n\x07st\
-    art_y\x18\x08\x20\x01(\rB\0\x12\x12\n\x08finish_y\x18\t\x20\x01(\rB\0\
-    \x12\x12\n\x08finish_x\x18\n\x20\x01(\rB\0\x12\x13\n\twater_max\x18\x0b\
-    \x20\x01(\rB\0\x124\n\nwater_mode\x18\x0c\x20\x01(\x0e2\x1e.cemu_smm.SMM\
-    2Course.WaterModeB\0\x126\n\x0bwater_speed\x18\r\x20\x01(\x0e2\x1f.cemu_\
-    smm.SMM2Course.WaterSpeedB\0\x12\x13\n\twater_min\x18\x0e\x20\x01(\rB\0\
-    \x126\n\x0bauto_scroll\x18\x0f\x20\x01(\x0e2\x1f.cemu_smm.SMM2Course.Aut\
-    oScrollB\0\x12:\n\x0fauto_scroll_sub\x18\x10\x20\x01(\x0e2\x1f.cemu_smm.\
-    SMM2Course.AutoScrollB\0\x12G\n\x14clear_condition_type\x18\x11\x20\x01(\
-    \x0e2'.cemu_smm.SMM2Course.ClearConditionTypeB\0\"5\n\tGameStyle\x12\x06\
-    \n\x02M1\x10\0\x12\x06\n\x02M3\x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\
-    \x02WU\x10\x03\x12\x06\n\x02W3\x10\x04\x1a\0\"\x92\x01\n\x0bCourseTheme\
-    \x12\n\n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CAS\
-    TLE\x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\
-    \x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\x06\
-    DESERT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\0\"6\
-    \n\tWaterMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\
+    \n\x10SMM2Course.proto\x12\x08cemu_smm\"\xa2\x01\n\nSMM2Course\x12,\n\
+    \x06header\x18\x01\x20\x01(\x0b2\x1a.cemu_smm.SMM2CourseHeaderB\0\x12/\n\
+    \x0bcourse_area\x18\x02\x20\x01(\x0b2\x18.cemu_smm.SMM2CourseAreaB\0\x12\
+    3\n\x0fcourse_sub_area\x18\x03\x20\x01(\x0b2\x18.cemu_smm.SMM2CourseArea\
+    B\0:\0\"\xa2\x03\n\x10SMM2CourseHeader\x12\x12\n\x08modified\x18\x01\x20\
+    \x01(\x04B\0\x12\x0f\n\x05title\x18\x02\x20\x01(\tB\0\x12\x15\n\x0bdescr\
+    iption\x18\x03\x20\x01(\tB\0\x12\x11\n\x07start_y\x18\x04\x20\x01(\rB\0\
+    \x12\x12\n\x08finish_y\x18\x05\x20\x01(\rB\0\x12\x12\n\x08finish_x\x18\
+    \x06\x20\x01(\rB\0\x12\x0e\n\x04time\x18\x07\x20\x01(\rB\0\x12:\n\ngame_\
+    style\x18\x08\x20\x01(\x0e2$.cemu_smm.SMM2CourseHeader.GameStyleB\0\x12M\
+    \n\x14clear_condition_type\x18\t\x20\x01(\x0e2-.cemu_smm.SMM2CourseHeade\
+    r.ClearConditionTypeB\0\"5\n\tGameStyle\x12\x06\n\x02M1\x10\0\x12\x06\n\
+    \x02M3\x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x12\x06\n\
+    \x02W3\x10\x04\x1a\0\"C\n\x12ClearConditionType\x12\x08\n\x04NONE\x10\0\
+    \x12\t\n\x05PARTS\x10\x01\x12\n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\
+    \x10\x03\x1a\0:\0\"\xf9\x04\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\
+    \x18\x01\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\x12:\n\
+    \x0bauto_scroll\x18\x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrol\
+    lB\0\x12\x13\n\twater_max\x18\x03\x20\x01(\rB\0\x128\n\nwater_mode\x18\
+    \x04\x20\x01(\x0e2\".cemu_smm.SMM2CourseArea.WaterModeB\0\x12:\n\x0bwate\
+    r_speed\x18\x05\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.WaterSpeedB\0\x12\
+    \x13\n\twater_min\x18\x06\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTheme\x12\n\
+    \n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\
+    \x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\
+    \x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\x06DESE\
+    RT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\0\"D\n\n\
+    AutoScroll\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06\
+    MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\x10\x04\x1a\0\
+    \"6\n\tWaterMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\
     \x0f\n\x0bOSCILLATING\x10\x02\x1a\0\"8\n\nWaterSpeed\x12\x08\n\x04NONE\
     \x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04\
-    FAST\x10\x03\x1a\0\"D\n\nAutoScroll\x12\x08\n\x04NONE\x10\0\x12\x08\n\
-    \x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x12\
-    \n\n\x06CUSTOM\x10\x04\x1a\0\"C\n\x12ClearConditionType\x12\x08\n\x04NON\
-    E\x10\0\x12\t\n\x05PARTS\x10\x01\x12\n\n\x06STATUS\x10\x02\x12\n\n\x06AC\
-    TION\x10\x03\x1a\0:\0B\0b\x06proto3\
+    FAST\x10\x03\x1a\0:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

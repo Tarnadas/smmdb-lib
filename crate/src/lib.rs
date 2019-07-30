@@ -9,6 +9,7 @@ extern crate aes_soft as aes;
 use wasm_bindgen::prelude::*;
 
 pub mod constants;
+pub mod constants2;
 pub mod course;
 pub mod course2;
 pub mod proto;

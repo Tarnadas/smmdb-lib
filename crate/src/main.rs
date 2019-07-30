@@ -7,6 +7,7 @@ use protobuf::Message;
 use std::fs::read;
 
 use cemu_smm::course::Course;
+use cemu_smm::course2::Course2;
 use cemu_smm::proto::SMMCourse::SMMCourse;
 
 fn main() {
@@ -27,7 +28,13 @@ fn main() {
     );
     // dbg!(&course);
 
-    let file = read("tests/assets/saves/smm2/course_data_120.bcd").unwrap();
-    let decrypted = cemu_smm::course2::Course2::decrypt(file.to_vec());
-    dbg!(decrypted[0xF1] as char, decrypted[0xF2] as char);
+    let mut file = read("tests/assets/saves/smm2/course_data_120.bcd").unwrap();
+    let course = Course2::from_switch_file(&mut file[..]).unwrap();
+    dbg!(&course);
+    dbg!(&course.get_course_ref().get_header().game_style);
+    dbg!(&course.get_course_ref().get_course_area().auto_scroll);
+    dbg!(&course.get_course_ref().get_course_sub_area().auto_scroll);
+
+    // let decrypted = cemu_smm::course2::Course2::decrypt(file.to_vec());
+    // dbg!(decrypted[0xF1] as char, decrypted[0xF2] as char);
 }
