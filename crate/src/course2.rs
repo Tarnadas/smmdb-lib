@@ -51,7 +51,8 @@ impl Course2 {
 
     #[wasm_bindgen]
     pub fn decrypt(mut course: Vec<u8>) -> Vec<u8> {
-        let end = &course[course.len() - 0x30..];
+        let end_index = course.len() - 0x30;
+        let end = &course[end_index..];
         let iv = GenericArray::from_slice(&end[0..16]);
 
         let mut rand_state = [0; 4];
@@ -66,10 +67,9 @@ impl Course2 {
 
         type Aes128Cbc = Cbc<Aes128, ZeroPadding>;
         let cipher = Aes128Cbc::new_fix(&key, &iv);
-        let end_index = course.len() - 0x30;
-        let decrypted = cipher.decrypt(&mut course[0x10..end_index]).unwrap();
+        cipher.decrypt(&mut course[0x10..end_index]).unwrap();
 
-        decrypted.to_vec()
+        course
     }
 }
 

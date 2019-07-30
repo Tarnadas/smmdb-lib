@@ -1,3 +1,5 @@
+#![allow(unused_variables)]
+
 extern crate cemu_smm;
 
 use protobuf::parse_from_bytes;
