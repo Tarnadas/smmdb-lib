@@ -1,3 +1,11 @@
+//! A utility library for Super Mario Maker and Super Mario Maker 2 to read and manipulate game files.
+//!
+//! The library compiles to WebAssembly for the web or can be used as a standard Rust Crate.
+//!
+//! This library is used by my website [SMMDB](https://smmdb.ddns.net), which is the only platform, where you can share Super Mario Maker courses platform independently.
+//! This is particularly useful for emulation and the 3DS, which is unable to download specific course files from the Nintendo servers.
+//! Courses are serialized via Protocol Buffer.
+
 #[macro_use]
 extern crate cfg_if;
 
@@ -8,8 +16,8 @@ extern crate aes_soft as aes;
 
 use wasm_bindgen::prelude::*;
 
-pub mod constants;
-pub mod constants2;
+pub(crate) mod constants;
+pub(crate) mod constants2;
 pub mod course;
 pub mod course2;
 pub mod proto;

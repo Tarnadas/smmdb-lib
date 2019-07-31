@@ -1,3 +1,5 @@
+//! Super Mario Maker file manipulation.
+
 use crate::constants::*;
 use crate::proto::SMMCourse::{
     SMMCourse, SMMCourse_AutoScroll, SMMCourse_CourseTheme, SMMCourse_GameStyle,
@@ -16,38 +18,16 @@ use tree_magic::from_u8;
 use wasm_bindgen::prelude::*;
 use zip::{result::ZipError, ZipArchive};
 
+/// Super Mario Maker course file.
+///
+/// This struct is a wrapper to hold a [SMMCourse](crate::proto::SMMCourse) struct which can be serialized via Protocol Buffer.
 #[wasm_bindgen]
 #[derive(Debug, PartialEq)]
 pub struct Course {
     course: SMMCourse,
 }
 
-impl Course {
-    pub fn get_course_ref(&self) -> &SMMCourse {
-        &self.course
-    }
-
-    pub fn get_course_ref_mut(&mut self) -> &SMMCourse {
-        &mut self.course
-    }
-
-    pub fn set_modified(&mut self, modified: u64) {
-        self.course.set_modified(modified);
-    }
-
-    pub fn set_tiles(&mut self, tiles: Vec<Tile>) {
-        self.course.tiles = tiles.into();
-    }
-
-    pub fn set_thumbnail(&mut self, thumbnail: Bytes) {
-        self.course.set_thumbnail(thumbnail);
-    }
-
-    pub fn set_thumbnail_preview(&mut self, thumbnail: Bytes) {
-        self.course.set_thumbnail_preview(thumbnail);
-    }
-}
-
+/// WebAssembly compatible functions.
 #[wasm_bindgen]
 impl Course {
     #[wasm_bindgen]
@@ -97,7 +77,38 @@ impl Course {
     }
 }
 
+/// Functions which aren't compatible with WebAssembly.
 impl Course {
+    /// Get a reference to the inner course struct.
+    pub fn get_course_ref(&self) -> &SMMCourse {
+        &self.course
+    }
+
+    /// Get a mutable reference to the inner course struct.
+    pub fn get_course_ref_mut(&mut self) -> &SMMCourse {
+        &mut self.course
+    }
+
+    /// Sets the "last modified" timestamp as Unix timestamp.
+    pub fn set_modified(&mut self, modified: u64) {
+        self.course.set_modified(modified);
+    }
+
+    /// Set tiles.
+    pub fn set_tiles(&mut self, tiles: Vec<Tile>) {
+        self.course.tiles = tiles.into();
+    }
+
+    /// Set thumbnail.
+    pub fn set_thumbnail(&mut self, thumbnail: Bytes) {
+        self.course.set_thumbnail(thumbnail);
+    }
+
+    /// Set thumbnail preview image.
+    pub fn set_thumbnail_preview(&mut self, thumbnail: Bytes) {
+        self.course.set_thumbnail_preview(thumbnail);
+    }
+
     pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course>, DecompressionError> {
         let mut res = vec![];
 

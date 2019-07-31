@@ -1,4 +1,5 @@
 #![allow(unused_variables)]
+#![doc(hidden)]
 
 extern crate cemu_smm;
 

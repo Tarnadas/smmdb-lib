@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub const COURSE_DATA_NAME: &str = "course_data.cdt";
 pub const COURSE_DATA_SUB_NAME: &str = "course_data_sub.cdt";
 pub const THUMBNAIL_0_NAME: &str = "thumbnail0.tnl";
