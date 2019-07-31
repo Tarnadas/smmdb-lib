@@ -8,9 +8,9 @@ import('../pkg/cemu_smm').then(module => {
       const buffer = await readFile(file);
       console.log(buffer);
       const course = Course.from_proto(new Uint8Array(buffer));
-      console.log('TO JS', course.to_js());
-      console.log('TO PROTO', course.to_proto(), new Uint8Array(buffer));
-      console.log('TEST', JSON.stringify(Course.from_proto(course.to_proto()).to_js()) === JSON.stringify(course.to_js()));
+      console.log('TO JS', course.into_js());
+      console.log('TO PROTO', course.into_proto(), new Uint8Array(buffer));
+      console.log('TEST', JSON.stringify(Course.from_proto(course.into_proto()).into_js()) === JSON.stringify(course.into_js()));
       // const serialized = module.serialize(deserialized);
       // console.log('SERIALIZE', serialized, new Uint8Array(buffer));
       // const deserialized2 = module.deserialize(serialized);
