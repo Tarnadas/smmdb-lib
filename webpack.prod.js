@@ -5,7 +5,8 @@ const webpack = require('webpack');
 
 const dist = path.resolve(__dirname, 'dist');
 
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin;
 
 module.exports = {
   mode: 'production',
@@ -35,7 +36,7 @@ module.exports = {
     })
   ],
   resolve: {
-    extensions: [ '.ts', '.tsx', '.js', '.jsx', '.json', '.wasm' ]
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.wasm']
   },
   module: {
     rules: [
@@ -48,23 +49,30 @@ module.exports = {
             query: {
               babelrc: false,
               presets: [
-                ['@babel/env', {
-                  targets: {
-                    browsers: [
-                      'edge >= 17',
-                      'ff >= 61',
-                      'chrome >= 63',
-                      'safari >= 11.1'
-                    ]
-                  },
-                  useBuiltIns: 'usage',
-                  modules: false
-                }]
+                [
+                  '@babel/env',
+                  {
+                    targets: {
+                      browsers: [
+                        'edge >= 17',
+                        'ff >= 61',
+                        'chrome >= 63',
+                        'safari >= 11.1'
+                      ]
+                    },
+                    useBuiltIns: 'usage',
+                    modules: false,
+                    corejs: 3
+                  }
+                ]
               ],
               plugins: [
-                [ '@babel/plugin-transform-typescript', {
-                  isTSX: true
-                }],
+                [
+                  '@babel/plugin-transform-typescript',
+                  {
+                    isTSX: true
+                  }
+                ],
                 '@babel/plugin-syntax-dynamic-import'
               ]
             }

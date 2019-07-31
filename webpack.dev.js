@@ -14,7 +14,7 @@ module.exports = {
   },
   devtool: 'inline-source-map',
   devServer: {
-    contentBase: dist,
+    contentBase: dist
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -28,12 +28,10 @@ module.exports = {
     })
   ],
   resolve: {
-    extensions: [ '.ts', '.tsx', '.js', '.jsx', '.json', '.wasm' ]
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.wasm']
   },
   watchOptions: {
-    ignored: [
-      /target\/.*/
-    ]
+    ignored: [/target\/.*/]
   },
   module: {
     rules: [
@@ -46,24 +44,31 @@ module.exports = {
             query: {
               babelrc: false,
               presets: [
-                ['@babel/env', {
-                  targets: {
-                    browsers: [
-                      'edge >= 17',
-                      'ff >= 61',
-                      'chrome >= 63',
-                      'safari >= 11.1'
-                    ]
-                  },
-                  useBuiltIns: 'usage',
-                  modules: false
-                }]
+                [
+                  '@babel/env',
+                  {
+                    targets: {
+                      browsers: [
+                        'edge >= 17',
+                        'ff >= 61',
+                        'chrome >= 63',
+                        'safari >= 11.1'
+                      ]
+                    },
+                    useBuiltIns: 'usage',
+                    modules: false,
+                    corejs: 3
+                  }
+                ]
               ],
               plugins: [
-                [ '@babel/plugin-transform-typescript', {
-                  isTSX: true,
-                  jsxPragma: 'h'
-                }],
+                [
+                  '@babel/plugin-transform-typescript',
+                  {
+                    isTSX: true,
+                    jsxPragma: 'h'
+                  }
+                ],
                 '@babel/plugin-syntax-dynamic-import'
               ]
             }
