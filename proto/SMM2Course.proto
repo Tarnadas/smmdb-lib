@@ -3,9 +3,10 @@ syntax = "proto3";
 package cemu_smm;
 
 message SMM2Course {
-    SMM2CourseHeader header = 1;
-    SMM2CourseArea course_area = 2;
-    SMM2CourseArea course_sub_area = 3;
+    uint32 version = 1;
+    SMM2CourseHeader header = 2;
+    SMM2CourseArea course_area = 3;
+    SMM2CourseArea course_sub_area = 4;
 }
 
 message SMM2CourseHeader {

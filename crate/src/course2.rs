@@ -8,6 +8,7 @@ use crate::proto::SMM2Course::{
 use aes::block_cipher_trait::generic_array::GenericArray;
 use aes::Aes128;
 use block_modes::{block_padding::*, BlockMode, Cbc};
+use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
 use itertools::Itertools;
 use protobuf::{parse_from_bytes, Message, ProtobufEnum, SingularPtrField};
 use std::convert::TryInto;
@@ -109,6 +110,7 @@ impl Course2 {
     fn get_course_header(
         course_data: &[u8],
     ) -> Result<SingularPtrField<SMM2CourseHeader>, Course2ConvertError> {
+        let modified = Course2::get_modified(course_data);
         let title =
             Course2::get_utf16_string_from_slice(&course_data[TITLE_OFFSET..TITLE_OFFSET_END]);
         let description = Course2::get_utf16_string_from_slice(
@@ -128,6 +130,7 @@ impl Course2 {
             u16::from_be_bytes([course_data[TIME_OFFSET], course_data[TIME_OFFSET + 1]]) as u32;
 
         Ok(SingularPtrField::some(SMM2CourseHeader {
+            modified,
             title,
             description,
             game_style,
@@ -170,6 +173,19 @@ impl Course2 {
             water_min,
             ..SMM2CourseArea::default()
         }))
+    }
+
+    fn get_modified(course_data: &[u8]) -> u64 {
+        let year = u16::from_be_bytes([course_data[YEAR_OFFSET], course_data[YEAR_OFFSET + 1]]);
+        let month = course_data[MONTH_OFFSET];
+        let day = course_data[DAY_OFFSET];
+        let hour = course_data[HOUR_OFFSET];
+        let minute = course_data[MINUTE_OFFSET];
+        let time = NaiveDateTime::new(
+            NaiveDate::from_ymd(year as i32, month as u32, day as u32),
+            NaiveTime::from_hms(hour as u32, minute as u32, 0),
+        );
+        time.timestamp() as u64
     }
 
     fn get_utf16_string_from_slice(bytes: &[u8]) -> String {
