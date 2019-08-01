@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+pub const VERSION: u32 = 1;
+
 pub const LEVEL_HEADER_OFFSET: usize = 0x10;
 pub const LEVEL_AREA_OFFSET: usize = 0x210;
 pub const LEVEL_AREA_SUB_OFFSET: usize = 0x2E0F0;

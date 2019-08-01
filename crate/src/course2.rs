@@ -99,6 +99,7 @@ impl Course2 {
 
         Ok(Course2 {
             course: SMM2Course {
+                version: VERSION,
                 header,
                 course_area,
                 course_sub_area,
