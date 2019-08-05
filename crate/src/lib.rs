@@ -20,7 +20,12 @@ pub(crate) mod constants;
 pub(crate) mod constants2;
 pub mod course;
 pub mod course2;
+mod decrypt;
+pub(crate) mod key_tables;
 pub mod proto;
+pub mod thumbnail2;
+
+pub(crate) use decrypt::decrypt;
 
 cfg_if! {
     if #[cfg(feature = "console_error_panic_hook")] {

@@ -1,18 +1,15 @@
 use crate::constants2::*;
+use crate::decrypt;
+use crate::key_tables::*;
 use crate::proto::SMM2Course::{
     SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
     SMM2CourseArea_WaterMode, SMM2CourseArea_WaterSpeed, SMM2CourseHeader,
     SMM2CourseHeader_GameStyle,
 };
 
-use aes::block_cipher_trait::generic_array::GenericArray;
-use aes::Aes128;
-use block_modes::{block_padding::*, BlockMode, Cbc};
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
 use itertools::Itertools;
 use protobuf::{parse_from_bytes, Message, ProtobufEnum, SingularPtrField};
-use std::convert::TryInto;
-use typenum::*;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -66,26 +63,13 @@ impl Course2 {
     }
 
     #[wasm_bindgen]
-    pub fn decrypt(mut course: Vec<u8>) -> Vec<u8> {
-        let end_index = course.len() - 0x30;
-        let end = &course[end_index..];
-        let iv = GenericArray::from_slice(&end[0..16]);
-
-        let mut rand_state = [0; 4];
-        Course2::rand_init(
-            &mut rand_state,
-            u32::from_le_bytes(end[0x10..0x14].try_into().unwrap()),
-            u32::from_le_bytes(end[0x14..0x18].try_into().unwrap()),
-            u32::from_le_bytes(end[0x18..0x1C].try_into().unwrap()),
-            u32::from_le_bytes(end[0x1C..0x20].try_into().unwrap()),
-        );
-        let key = Course2::gen_key(&mut rand_state);
-
-        type Aes128Cbc = Cbc<Aes128, ZeroPadding>;
-        let cipher = Aes128Cbc::new_fix(&key, &iv);
-        cipher.decrypt(&mut course[0x10..end_index]).unwrap();
-
-        course
+    pub fn decrypt(course: Vec<u8>) -> Vec<u8> {
+        [
+            &course[..0x10],
+            &decrypt(course[0x10..].to_vec(), &COURSE_KEY_TABLE)[..],
+            &course[course.len() - 0x30..],
+        ]
+        .concat()
     }
 }
 
@@ -177,7 +161,7 @@ impl Course2 {
     }
 
     fn get_modified(course_data: &[u8]) -> u64 {
-        let year = u16::from_be_bytes([course_data[YEAR_OFFSET], course_data[YEAR_OFFSET + 1]]);
+        let year = u16::from_le_bytes([course_data[YEAR_OFFSET], course_data[YEAR_OFFSET + 1]]);
         let month = course_data[MONTH_OFFSET];
         let day = course_data[DAY_OFFSET];
         let hour = course_data[HOUR_OFFSET];
@@ -211,45 +195,6 @@ impl Course2 {
             "W3" => Ok(SMM2CourseHeader_GameStyle::W3),
             _ => Err(Course2ConvertError::GameStyleParseError),
         }
-    }
-
-    fn rand_init(rand_state: &mut [u32; 4], in0: u32, in1: u32, in2: u32, in3: u32) {
-        let cond = (in0 | in1 | in2 | in3) != 0;
-        rand_state[0] = if cond { in0 } else { 1 };
-        rand_state[1] = if cond { in1 } else { 0x6C078967 };
-        rand_state[2] = if cond { in2 } else { 0x714ACB41 };
-        rand_state[3] = if cond { in3 } else { 0x48077044 };
-    }
-
-    fn gen_key(rand_state: &mut [u32; 4]) -> GenericArray<u8, U16> {
-        let mut key = [0u32; 4];
-        for i in 0..4 {
-            for _j in 0..4 {
-                key[i] <<= 8;
-                key[i] |= (AES_KEY_TABLE[(Course2::rand_gen(rand_state) >> 26) as usize]
-                    >> ((Course2::rand_gen(rand_state) >> 27) & 24))
-                    & 0xFF;
-            }
-        }
-        let mut u8_key = vec![];
-        key.iter().for_each(|i| {
-            u8_key.push((*i & 0xFF) as u8);
-            u8_key.push(((*i & 0xFF00) >> 8) as u8);
-            u8_key.push(((*i & 0xFF0000) >> 16) as u8);
-            u8_key.push(((*i & 0xFF000000) >> 24) as u8);
-        });
-        GenericArray::clone_from_slice(u8_key.as_slice())
-    }
-
-    fn rand_gen(rand_state: &mut [u32; 4]) -> u32 {
-        let mut n: u32 = rand_state[0] ^ rand_state[0] << 11;
-        n ^= n >> 8 ^ rand_state[3] ^ rand_state[3] >> 19;
-
-        rand_state[0] = rand_state[1];
-        rand_state[1] = rand_state[2];
-        rand_state[2] = rand_state[3];
-        rand_state[3] = n;
-        n
     }
 }
 
