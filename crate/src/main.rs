@@ -36,6 +36,14 @@ fn main() {
     dbg!(&course.get_course_ref().get_course_area().auto_scroll);
     dbg!(&course.get_course_ref().get_course_sub_area().auto_scroll);
 
+    let file = read("tests/assets/saves/save.zip").unwrap();
+    let courses = Course2::from_packed(&file[..]).unwrap();
+    let courses: Vec<String> = courses
+        .into_iter()
+        .map(|course| course.get_course_ref().get_header().get_title().to_owned())
+        .collect();
+    dbg!(courses);
+
     // let decrypted = cemu_smm::course2::Course2::decrypt(file.to_vec());
     // dbg!(decrypted[0xF1] as char, decrypted[0xF2] as char);
 }

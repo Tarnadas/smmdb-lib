@@ -9,8 +9,13 @@ use crate::proto::SMM2Course::{
 
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
 use itertools::Itertools;
+use mime::Mime;
 use protobuf::{parse_from_bytes, Message, ProtobufEnum, SingularPtrField};
+use regex::Regex;
+use std::io::{Cursor, Read};
+use tree_magic::from_u8;
 use wasm_bindgen::prelude::*;
+use zip::{result::ZipError, ZipArchive};
 
 #[wasm_bindgen]
 #[derive(Debug, PartialEq)]
@@ -49,6 +54,20 @@ impl Course2 {
     }
 
     #[wasm_bindgen]
+    pub fn from_packed_js(buffer: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
+        let courses: Vec<JsValue> = Course2::from_packed(buffer)
+            .map_err(|e| match e {
+                DecompressionError::Zip(err) => {
+                    JsValue::from(format!("[DecompressionError] {}", err))
+                }
+            })?
+            .iter()
+            .map(|course| course.into_js())
+            .collect();
+        Ok(courses.into_boxed_slice())
+    }
+
+    #[wasm_bindgen]
     pub fn into_proto(&self) -> Box<[u8]> {
         let mut out: Vec<u8> = vec![];
         self.course
@@ -74,6 +93,24 @@ impl Course2 {
 }
 
 impl Course2 {
+    pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course2>, DecompressionError> {
+        let mut res = vec![];
+
+        let mime: Mime = from_u8(buffer).parse().unwrap();
+
+        match (mime.type_(), mime.subtype().as_ref()) {
+            (mime::APPLICATION, "zip") => {
+                Course2::decompress_zip(&mut res, buffer)
+                    .map_err(|err| DecompressionError::Zip(err))?;
+            }
+            (_, _) => {
+                // unimplemented!();
+            }
+        };
+
+        Ok(res)
+    }
+
     pub fn from_switch_file(course_data: &mut [u8]) -> Result<Course2, Course2ConvertError> {
         let course_data = Course2::decrypt(course_data.to_vec());
 
@@ -90,6 +127,40 @@ impl Course2 {
                 ..SMM2Course::default()
             },
         })
+    }
+
+    fn decompress_zip(res: &mut Vec<Course2>, buffer: &[u8]) -> Result<(), ZipError> {
+        let reader = Cursor::new(buffer);
+        let mut zip = zip::ZipArchive::new(reader)?;
+
+        let mut courses = vec![];
+        for i in 0..zip.len() {
+            if let Ok(file) = zip.by_index(i) {
+                let re: Regex = Regex::new(r".*course_data_\d{3}\.bcd$").unwrap();
+                if re.is_match(file.name()) {
+                    courses.push(file.name().to_owned());
+                }
+            };
+        }
+        for course in courses {
+            let mut course_data = Course2::get_course_data(&mut zip, course)?;
+            if let Ok(course) = Course2::from_switch_file(&mut course_data[..]) {
+                res.push(course);
+            };
+        }
+
+        Ok(())
+    }
+
+    fn get_course_data(
+        zip: &mut ZipArchive<Cursor<&[u8]>>,
+        course: String,
+    ) -> Result<Vec<u8>, ZipError> {
+        let mut course_data_file = zip.by_name(&course)?;
+        let mut course_data = vec![0; course_data_file.size() as usize];
+        course_data_file.read_exact(&mut course_data)?;
+
+        Ok(course_data)
     }
 
     fn get_course_header(
@@ -206,4 +277,9 @@ pub enum Course2ConvertError {
     WaterModeParseError,
     WaterSpeedParseError,
     SoundTypeConvertError,
+}
+
+#[derive(Debug)]
+pub enum DecompressionError {
+    Zip(ZipError),
 }

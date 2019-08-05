@@ -2,6 +2,9 @@
 
 pub const VERSION: u32 = 1;
 
+pub const COURSE_DATA_PREFIX: &str = "course_data_";
+pub const COURSE_DATA_SUFFIX: &str = ".bcd";
+
 pub const LEVEL_HEADER_OFFSET: usize = 0x10;
 pub const LEVEL_AREA_OFFSET: usize = 0x210;
 pub const LEVEL_AREA_SUB_OFFSET: usize = 0x2E0F0;
