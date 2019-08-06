@@ -48,7 +48,7 @@ impl Course2 {
 #[wasm_bindgen]
 impl Course2 {
     #[wasm_bindgen]
-    pub fn from_proto(buffer: &[u8], thumb: Option<&[u8]>) -> Course2 {
+    pub fn from_proto(buffer: &[u8], thumb: Option<Box<[u8]>>) -> Course2 {
         let course: SMM2Course = parse_from_bytes(buffer).unwrap();
         Course2 {
             course,
@@ -68,7 +68,7 @@ impl Course2 {
     }
 
     #[wasm_bindgen]
-    pub fn from_js(course: JsValue, thumb: Option<&[u8]>) -> Course2 {
+    pub fn from_js(course: JsValue, thumb: Option<Box<[u8]>>) -> Course2 {
         let course: SMM2Course = course.into_serde().expect("Course serialization failed");
         Course2 {
             course,
