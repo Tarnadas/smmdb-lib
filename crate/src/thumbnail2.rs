@@ -1,3 +1,5 @@
+//! Super Mario Maker 2 thumbnail file manipulation.
+
 use crate::decrypt;
 use crate::key_tables::*;
 

@@ -1,3 +1,5 @@
+//! Super Mario Maker 2 file manipulation.
+
 use crate::proto::SMM2Course::{
     SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
     SMM2CourseArea_WaterMode, SMM2CourseArea_WaterSpeed, SMM2CourseHeader,
@@ -222,7 +224,7 @@ impl Course2 {
         );
         let game_style = Course2::get_game_style_from_str(
             String::from_utf8(course_data[GAME_STYLE_OFFSET..GAME_STYLE_OFFSET_END].to_vec())
-                .map_err(|_| Course2ConvertError::GameStyleParseError)?,
+                .map_err(|_| Course2ConvertError::GameStyleParse)?,
         )?;
         let start_y = course_data[START_Y_OFFSET] as u32;
         let finish_y = course_data[FINISH_Y_OFFSET] as u32;
@@ -253,19 +255,19 @@ impl Course2 {
         let course_theme = SMM2CourseArea_CourseTheme::from_i32(
             course_data[COURSE_THEME_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2ConvertError::CourseThemeParseError)?;
+        .ok_or(Course2ConvertError::CourseThemeParse)?;
         let auto_scroll = SMM2CourseArea_AutoScroll::from_i32(
             course_data[AUTO_SCROLL_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2ConvertError::AutoScrollParseError)?;
+        .ok_or(Course2ConvertError::AutoScrollParse)?;
         let water_max = course_data[WATER_MAX_OFFSET[const_index]] as u32;
         let water_mode =
             SMM2CourseArea_WaterMode::from_i32(course_data[WATER_MODE_OFFSET[const_index]] as i32)
-                .ok_or(Course2ConvertError::WaterModeParseError)?;
+                .ok_or(Course2ConvertError::WaterModeParse)?;
         let water_speed = SMM2CourseArea_WaterSpeed::from_i32(
             course_data[WATER_SPEED_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2ConvertError::WaterSpeedParseError)?;
+        .ok_or(Course2ConvertError::WaterSpeedParse)?;
         let water_min = course_data[WATER_MIN_OFFSET[const_index]] as u32;
 
         Ok(SingularPtrField::some(SMM2CourseArea {
@@ -312,7 +314,7 @@ impl Course2 {
             "MW" => Ok(SMM2CourseHeader_GameStyle::MW),
             "WU" => Ok(SMM2CourseHeader_GameStyle::WU),
             "W3" => Ok(SMM2CourseHeader_GameStyle::W3),
-            _ => Err(Course2ConvertError::GameStyleParseError),
+            _ => Err(Course2ConvertError::GameStyleParse),
         }
     }
 }
