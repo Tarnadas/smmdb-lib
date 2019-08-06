@@ -1,11 +1,11 @@
 //! Super Mario Maker file manipulation.
 
-use crate::constants::*;
 use crate::proto::SMMCourse::{
     SMMCourse, SMMCourse_AutoScroll, SMMCourse_CourseTheme, SMMCourse_GameStyle,
 };
 use crate::proto::Sound::Sound;
 use crate::proto::Tile::Tile;
+use crate::{constants::*, CourseConvertError, DecompressionError};
 
 use bytes::Bytes;
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
@@ -80,12 +80,12 @@ impl Course {
 /// Functions which aren't compatible with WebAssembly.
 impl Course {
     /// Get a reference to the inner course struct.
-    pub fn get_course_ref(&self) -> &SMMCourse {
+    pub fn get_course(&self) -> &SMMCourse {
         &self.course
     }
 
     /// Get a mutable reference to the inner course struct.
-    pub fn get_course_ref_mut(&mut self) -> &SMMCourse {
+    pub fn get_course_mut(&mut self) -> &mut SMMCourse {
         &mut self.course
     }
 
@@ -327,22 +327,9 @@ impl Course {
     }
 }
 
-#[derive(Debug)]
-pub enum CourseConvertError {
-    GameStyleParseError,
-    CourseThemeParseError,
-    AutoScrollParseError,
-    SoundTypeConvertError,
-}
-
 struct CourseAssets {
     course_data: Vec<u8>,
     course_data_sub: Vec<u8>,
     thumbnail_0: Vec<u8>,
     thumbnail_1: Vec<u8>,
-}
-
-#[derive(Debug)]
-pub enum DecompressionError {
-    Zip(ZipError),
 }

@@ -82,56 +82,44 @@ fn course_from_wii_u_file(assets: &mut CourseTestAssets) {
     .unwrap();
     let mut course_proto = Course::from_proto(assets.proto);
 
-    let modified = course_proto.get_course_ref().modified;
+    let modified = course_proto.get_course().modified;
     course_proto.set_modified((modified / 60) * 60);
     assert_eq!(
-        course.get_course_ref().modified,
-        course_proto.get_course_ref().modified
+        course.get_course().modified,
+        course_proto.get_course().modified
+    );
+    assert_eq!(course.get_course().title, course_proto.get_course().title);
+    assert_eq!(course.get_course().maker, course_proto.get_course().maker);
+    assert_eq!(
+        course.get_course().game_style,
+        course_proto.get_course().game_style
     );
     assert_eq!(
-        course.get_course_ref().title,
-        course_proto.get_course_ref().title
+        course.get_course().course_theme,
+        course_proto.get_course().course_theme
     );
     assert_eq!(
-        course.get_course_ref().maker,
-        course_proto.get_course_ref().maker
+        course.get_course().course_theme_sub,
+        course_proto.get_course().course_theme_sub
+    );
+    assert_eq!(course.get_course().time, course_proto.get_course().time);
+    assert_eq!(
+        course.get_course().auto_scroll,
+        course_proto.get_course().auto_scroll
     );
     assert_eq!(
-        course.get_course_ref().game_style,
-        course_proto.get_course_ref().game_style
+        course.get_course().auto_scroll_sub,
+        course_proto.get_course().auto_scroll_sub
     );
+    assert_eq!(course.get_course().width, course_proto.get_course().width);
     assert_eq!(
-        course.get_course_ref().course_theme,
-        course_proto.get_course_ref().course_theme
+        course.get_course().width_sub,
+        course_proto.get_course().width_sub
     );
-    assert_eq!(
-        course.get_course_ref().course_theme_sub,
-        course_proto.get_course_ref().course_theme_sub
-    );
-    assert_eq!(
-        course.get_course_ref().time,
-        course_proto.get_course_ref().time
-    );
-    assert_eq!(
-        course.get_course_ref().auto_scroll,
-        course_proto.get_course_ref().auto_scroll
-    );
-    assert_eq!(
-        course.get_course_ref().auto_scroll_sub,
-        course_proto.get_course_ref().auto_scroll_sub
-    );
-    assert_eq!(
-        course.get_course_ref().width,
-        course_proto.get_course_ref().width
-    );
-    assert_eq!(
-        course.get_course_ref().width_sub,
-        course_proto.get_course_ref().width_sub
-    );
-    let course_tiles = &course.get_course_ref().tiles;
-    let course_tiles_sub = &course.get_course_ref().tiles_sub;
-    let course_proto_tiles = &course_proto.get_course_ref().tiles;
-    let course_proto_tiles_sub = &course_proto.get_course_ref().tiles_sub;
+    let course_tiles = &course.get_course().tiles;
+    let course_tiles_sub = &course.get_course().tiles_sub;
+    let course_proto_tiles = &course_proto.get_course().tiles;
+    let course_proto_tiles_sub = &course_proto.get_course().tiles_sub;
     assert_eq!(course_tiles.len(), course_proto_tiles.len());
     assert_eq!(course_tiles_sub.len(), course_proto_tiles_sub.len());
     for i in 0..course_tiles.len() {
@@ -140,10 +128,10 @@ fn course_from_wii_u_file(assets: &mut CourseTestAssets) {
     for i in 0..course_tiles_sub.len() {
         assert_eq!(course_tiles_sub[i], course_proto_tiles_sub[i]);
     }
-    let course_sounds = &course.get_course_ref().sounds;
-    let course_sounds_sub = &course.get_course_ref().sounds_sub;
-    let course_proto_sounds = &course_proto.get_course_ref().sounds;
-    let course_proto_sounds_sub = &course_proto.get_course_ref().sounds_sub;
+    let course_sounds = &course.get_course().sounds;
+    let course_sounds_sub = &course.get_course().sounds_sub;
+    let course_proto_sounds = &course_proto.get_course().sounds;
+    let course_proto_sounds_sub = &course_proto.get_course().sounds_sub;
     assert_eq!(course_sounds.len(), course_proto_sounds.len());
     assert_eq!(course_sounds_sub.len(), course_proto_sounds_sub.len());
     for i in 0..course_sounds.len() {
@@ -184,7 +172,7 @@ fn course_from_proto_once(asset: &[u8], zip: &[u8]) {
     let mut course = Course::from_proto(asset);
     let mut course_packed = Course::from_packed(zip).unwrap().pop().unwrap();
 
-    let modified = course.get_course_ref().modified;
+    let modified = course.get_course().modified;
     course.set_modified((modified / 60) * 60);
     course.set_thumbnail(Bytes::new());
     course_packed.set_thumbnail(Bytes::new());
@@ -218,7 +206,7 @@ fn course_from_boxed_proto_once(asset: Box<[u8]>, zip: &[u8]) {
     let mut course = Course::from_boxed_proto(asset);
     let mut course_packed = Course::from_packed(zip).unwrap().pop().unwrap();
 
-    let modified = course.get_course_ref().modified;
+    let modified = course.get_course().modified;
     course.set_modified((modified / 60) * 60);
     course.set_thumbnail(Bytes::new());
     course_packed.set_thumbnail(Bytes::new());

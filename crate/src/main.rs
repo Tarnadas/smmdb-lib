@@ -30,17 +30,17 @@ fn main() {
     // dbg!(&course);
 
     let mut file = read("tests/assets/saves/smm2/course_data_120.bcd").unwrap();
-    let course = Course2::from_switch_file(&mut file[..]).unwrap();
+    let course = Course2::from_switch_files(&mut file[..], None).unwrap();
     dbg!(&course);
-    dbg!(&course.get_course_ref().get_header().game_style);
-    dbg!(&course.get_course_ref().get_course_area().auto_scroll);
-    dbg!(&course.get_course_ref().get_course_sub_area().auto_scroll);
+    dbg!(&course.get_course().get_header().game_style);
+    dbg!(&course.get_course().get_course_area().auto_scroll);
+    dbg!(&course.get_course().get_course_sub_area().auto_scroll);
 
     let file = read("tests/assets/saves/save.zip").unwrap();
     let courses = Course2::from_packed(&file[..]).unwrap();
     let courses: Vec<String> = courses
         .into_iter()
-        .map(|course| course.get_course_ref().get_header().get_title().to_owned())
+        .map(|course| course.get_course().get_header().get_title().to_owned())
         .collect();
     dbg!(courses);
 

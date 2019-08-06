@@ -3,7 +3,10 @@ use crate::key_tables::*;
 
 use image::jpeg::JPEGEncoder;
 use image::{load_from_memory, DynamicImage, ImageError};
+use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
+#[derive(Debug, PartialEq)]
 pub struct Thumbnail2 {
     encrypted: Vec<u8>,
     jpeg: Option<Vec<u8>>,

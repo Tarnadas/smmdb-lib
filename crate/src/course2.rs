@@ -1,10 +1,10 @@
-use crate::constants2::*;
-use crate::decrypt;
-use crate::key_tables::*;
 use crate::proto::SMM2Course::{
     SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
     SMM2CourseArea_WaterMode, SMM2CourseArea_WaterSpeed, SMM2CourseHeader,
     SMM2CourseHeader_GameStyle,
+};
+use crate::{
+    constants2::*, decrypt, key_tables::*, Course2ConvertError, DecompressionError, Thumbnail2,
 };
 
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
@@ -21,36 +21,58 @@ use zip::{result::ZipError, ZipArchive};
 #[derive(Debug, PartialEq)]
 pub struct Course2 {
     course: SMM2Course,
+    data: Vec<u8>,
+    thumb: Option<Thumbnail2>,
 }
 
 impl Course2 {
-    pub fn get_course_ref(&self) -> &SMM2Course {
+    pub fn get_course(&self) -> &SMM2Course {
         &self.course
     }
 
-    pub fn get_course_ref_mut(&mut self) -> &SMM2Course {
+    pub fn get_course_mut(&mut self) -> &mut SMM2Course {
         &mut self.course
+    }
+
+    pub fn get_course_data(&self) -> &Vec<u8> {
+        &self.data
+    }
+
+    pub fn get_course_thumb(&self) -> Option<&Thumbnail2> {
+        self.thumb.as_ref()
     }
 }
 
 #[wasm_bindgen]
 impl Course2 {
     #[wasm_bindgen]
-    pub fn from_proto(buffer: &[u8]) -> Course2 {
+    pub fn from_proto(buffer: &[u8], thumb: Option<&[u8]>) -> Course2 {
         let course: SMM2Course = parse_from_bytes(buffer).unwrap();
-        Course2 { course }
+        Course2 {
+            course,
+            data: vec![], // TODO
+            thumb: thumb.map(|thumb| Thumbnail2::new(thumb.to_vec())),
+        }
     }
 
     #[wasm_bindgen]
-    pub fn from_boxed_proto(buffer: Box<[u8]>) -> Course2 {
+    pub fn from_boxed_proto(buffer: Box<[u8]>, thumb: Option<Box<[u8]>>) -> Course2 {
         let course: SMM2Course = parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
-        Course2 { course }
+        Course2 {
+            course,
+            data: vec![], // TODO
+            thumb: thumb.map(|thumb| Thumbnail2::new(thumb.to_vec())),
+        }
     }
 
     #[wasm_bindgen]
-    pub fn from_js(course: JsValue) -> Course2 {
+    pub fn from_js(course: JsValue, thumb: Option<&[u8]>) -> Course2 {
         let course: SMM2Course = course.into_serde().expect("Course serialization failed");
-        Course2 { course }
+        Course2 {
+            course,
+            data: vec![], // TODO
+            thumb: thumb.map(|thumb| Thumbnail2::new(thumb.to_vec())),
+        }
     }
 
     #[wasm_bindgen]
@@ -111,12 +133,15 @@ impl Course2 {
         Ok(res)
     }
 
-    pub fn from_switch_file(course_data: &mut [u8]) -> Result<Course2, Course2ConvertError> {
-        let course_data = Course2::decrypt(course_data.to_vec());
+    pub fn from_switch_files(
+        course_data: &[u8],
+        thumb: Option<Vec<u8>>,
+    ) -> Result<Course2, Course2ConvertError> {
+        let data = Course2::decrypt(course_data.to_vec());
 
-        let header = Course2::get_course_header(&course_data)?;
-        let course_area = Course2::get_course_area(&course_data, 0)?;
-        let course_sub_area = Course2::get_course_area(&course_data, 1)?;
+        let header = Course2::get_course_header(&data)?;
+        let course_area = Course2::get_course_area(&data, 0)?;
+        let course_sub_area = Course2::get_course_area(&data, 1)?;
 
         Ok(Course2 {
             course: SMM2Course {
@@ -126,25 +151,21 @@ impl Course2 {
                 course_sub_area,
                 ..SMM2Course::default()
             },
+            data,
+            thumb: thumb.map(|t| Thumbnail2::new(t)),
         })
     }
 
     fn decompress_zip(res: &mut Vec<Course2>, buffer: &[u8]) -> Result<(), ZipError> {
         let reader = Cursor::new(buffer);
-        let mut zip = zip::ZipArchive::new(reader)?;
+        let mut zip = ZipArchive::new(reader)?;
 
-        let mut courses = vec![];
-        for i in 0..zip.len() {
-            if let Ok(file) = zip.by_index(i) {
-                let re: Regex = Regex::new(r".*course_data_\d{3}\.bcd$").unwrap();
-                if re.is_match(file.name()) {
-                    courses.push(file.name().to_owned());
-                }
-            };
-        }
-        for course in courses {
-            let mut course_data = Course2::get_course_data(&mut zip, course)?;
-            if let Ok(course) = Course2::from_switch_file(&mut course_data[..]) {
+        let courses = Course2::get_course_files_from_archive(&mut zip);
+
+        for (course, thumb) in courses {
+            let course_data = Course2::read_file_from_archive(&mut zip, course)?;
+            let course_thumb = Course2::read_file_from_archive(&mut zip, thumb)?;
+            if let Ok(course) = Course2::from_switch_files(&course_data[..], Some(course_thumb)) {
                 res.push(course);
             };
         }
@@ -152,15 +173,42 @@ impl Course2 {
         Ok(())
     }
 
-    fn get_course_data(
-        zip: &mut ZipArchive<Cursor<&[u8]>>,
-        course: String,
-    ) -> Result<Vec<u8>, ZipError> {
-        let mut course_data_file = zip.by_name(&course)?;
-        let mut course_data = vec![0; course_data_file.size() as usize];
-        course_data_file.read_exact(&mut course_data)?;
+    fn get_course_files_from_archive(zip: &mut ZipArchive<Cursor<&[u8]>>) -> Vec<(String, String)> {
+        let mut files: Vec<(String, String)> = vec![];
+        for i in 0..zip.len() {
+            if let Ok(file_name) = zip.by_index(i).map(|file| file.name().to_owned()) {
+                let re_data: Regex = Regex::new(r".*course_data_(\d{3})\.bcd$").unwrap();
+                if re_data.is_match(&file_name) {
+                    let re_thumb: Regex = Regex::new(r".*course_thumb_\d{3}\.btl$").unwrap();
+                    if let Some(thumb) = Course2::find_file_by_regex(zip, re_thumb) {
+                        files.push((file_name, thumb));
+                    }
+                }
+            };
+        }
+        files
+    }
 
-        Ok(course_data)
+    fn find_file_by_regex(zip: &mut ZipArchive<Cursor<&[u8]>>, re: Regex) -> Option<String> {
+        for i in 0..zip.len() {
+            if let Ok(file) = zip.by_index(i) {
+                if re.is_match(file.name()) {
+                    return Some(file.name().to_owned());
+                }
+            };
+        }
+        None
+    }
+
+    fn read_file_from_archive(
+        zip: &mut ZipArchive<Cursor<&[u8]>>,
+        name: String,
+    ) -> Result<Vec<u8>, ZipError> {
+        let mut zip_file = zip.by_name(&name)?;
+        let mut zip_file_data = vec![0; zip_file.size() as usize];
+        zip_file.read_exact(&mut zip_file_data)?;
+
+        Ok(zip_file_data)
     }
 
     fn get_course_header(
@@ -267,19 +315,4 @@ impl Course2 {
             _ => Err(Course2ConvertError::GameStyleParseError),
         }
     }
-}
-
-#[derive(Debug)]
-pub enum Course2ConvertError {
-    GameStyleParseError,
-    CourseThemeParseError,
-    AutoScrollParseError,
-    WaterModeParseError,
-    WaterSpeedParseError,
-    SoundTypeConvertError,
-}
-
-#[derive(Debug)]
-pub enum DecompressionError {
-    Zip(ZipError),
 }
