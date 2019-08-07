@@ -17,12 +17,15 @@ cache: cargo
 
 jobs:
   include:
-    - stage: Test WASM
-      script: yarn test
-    - stage: Test Rust
-      script: cargo test
-    - stage: Deploy to NPM
-      script: echo "deploying to NPM..."
+    - stage: Caching build dependencies
+      script: cache-dependencies.sh
+      name: 'Caching build dependencies'
+    - script: yarn test
+      name: 'Test WASM'
+    - script: cargo test
+      name: 'Test Rust'
+    - script: echo "deploying to NPM..."
+      name: 'Deploy to NPM'
       deploy:
         - provider: script
           skip_cleanup: true
@@ -30,8 +33,8 @@ jobs:
           on:
             branch: dev
             tags: true
-    - stage: Deploy to Crates.io
-      script: echo "deploying to crates.io..."
+    - script: echo "deploying to crates.io..."
+      name: 'Deploy to Crates.io'
       deploy:
         - provider: cargo
           skip_cleanup: true
