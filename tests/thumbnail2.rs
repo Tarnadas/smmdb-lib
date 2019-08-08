@@ -33,7 +33,7 @@ fn thumbnail_get_jpeg() {
     for (_, thumbnail, expected) in get_test_assets().into_iter() {
         let mut thumbnail = Thumbnail2::new(thumbnail);
 
-        assert_eq!(thumbnail.move_jpeg(), expected);
+        assert_eq!(thumbnail.get_jpeg(), &expected[..]);
     }
 }
 
