@@ -38,6 +38,11 @@ impl Thumbnail2 {
         }
     }
 
+    pub fn get_jpeg_no_opt(&mut self) -> &[u8] {
+        self.lazy_load_jpeg();
+        self.jpeg.as_ref().unwrap()
+    }
+
     pub fn optimize_jpeg(&mut self) -> Result<(), ImageError> {
         let jpeg = self.get_jpeg();
 
