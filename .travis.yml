@@ -17,10 +17,8 @@ cache: cargo
 
 jobs:
   include:
-    - stage: Caching build dependencies
-      script: cache-dependencies.sh
-      name: 'Caching build dependencies'
-    - script: yarn test
+    - stage: Test WASM
+      script: yarn test
       name: 'Test WASM'
     - script: cargo test
       name: 'Test Rust'
