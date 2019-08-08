@@ -17,12 +17,13 @@ cache: cargo
 
 jobs:
   include:
-    - stage: Test WASM
+    - stage: Test
       script: yarn test
       name: 'Test WASM'
     - script: cargo test
       name: 'Test Rust'
-    - script: echo "deploying to NPM..."
+    - stage: Deploy
+      script: echo "deploying to NPM..."
       name: 'Deploy to NPM'
       deploy:
         - provider: script
