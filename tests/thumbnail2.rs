@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 extern crate cemu_smm;
 
 use cemu_smm::thumbnail2::*;
@@ -23,7 +25,7 @@ fn decrypt_test_assets() -> io::Result<()> {
     Ok(())
 }
 
-#[test]
+// #[test]
 fn thumbnail_decrypt() {
     decrypt_test_assets().unwrap();
 }
