@@ -94,3 +94,4 @@ wasm-opt = false
 [profile.release]
 debug = false
 lto = true
+codegen-units = 1
