@@ -12,6 +12,9 @@ extern crate cfg_if;
 #[macro_use]
 extern crate serde_derive;
 
+#[macro_use]
+extern crate failure;
+
 extern crate aes_soft as aes;
 
 use wasm_bindgen::prelude::*;
