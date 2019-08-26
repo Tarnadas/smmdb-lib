@@ -34,13 +34,13 @@ compression = "0.1"
 failure = "0.1"
 image = "0.22"
 itertools = "0.8"
-js-sys = "=0.3.25"
+js-sys = "=0.3.27"
 mime = "0.3"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
 tree_magic = "0.2"
-typenum = "1.10"
+typenum = "1.11"
 
 [dependencies.bytes]
 features = ["serde"]
@@ -60,11 +60,11 @@ version = "1.2"
 
 [dependencies.wasm-bindgen]
 features = ["serde-serialize"]
-version = "=0.2.48"
+version = "=0.2.50"
 
 [dependencies.web-sys]
 features = ["console", "Document", "Element", "HtmlElement", "Node", "Window"]
-version = "=0.3.25"
+version = "=0.3.27"
 
 [dependencies.wee_alloc]
 optional = true
@@ -76,7 +76,7 @@ features = ["deflate"]
 version = "0.5"
 
 [dev-dependencies]
-wasm-bindgen-test = "=0.2.48"
+wasm-bindgen-test = "=0.2.50"
 
 [features]
 default = ["console_error_panic_hook", "with-serde"]
