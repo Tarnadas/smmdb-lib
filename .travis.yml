@@ -18,7 +18,7 @@ cache: cargo
 stages:
   - test
   - name: deploy
-    if: tag IS present AND branch = dev
+    if: (tag IS present) AND (branch = dev)
 
 jobs:
   include:
