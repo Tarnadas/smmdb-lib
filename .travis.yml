@@ -15,11 +15,6 @@ install:
 
 cache: cargo
 
-stages:
-  - test
-  - name: deploy
-    if: (tag IS present) AND (branch = dev)
-
 jobs:
   include:
     - stage: test
@@ -28,6 +23,7 @@ jobs:
     - script: cargo test
       name: 'Test Rust'
     - stage: deploy
+      if: (tag IS present) AND (branch = dev)
       script: echo "deploying to NPM..."
       name: 'Deploy to NPM'
       deploy:
