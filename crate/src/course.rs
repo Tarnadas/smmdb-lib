@@ -89,6 +89,11 @@ impl Course {
         &mut self.course
     }
 
+    /// Consumes and takes inner course struct.
+    pub fn take_course(self) -> SMMCourse {
+        self.course
+    }
+
     /// Sets the "last modified" timestamp as Unix timestamp.
     pub fn set_modified(&mut self, modified: u64) {
         self.course.set_modified(modified);

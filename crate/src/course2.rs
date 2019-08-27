@@ -27,13 +27,21 @@ pub struct Course2 {
     thumb: Option<Thumbnail2>,
 }
 
+/// Functions which aren't compatible with WebAssembly.
 impl Course2 {
+    /// Get a reference to the inner course struct.
     pub fn get_course(&self) -> &SMM2Course {
         &self.course
     }
 
+    /// Get a mutable reference to the inner course struct.
     pub fn get_course_mut(&mut self) -> &mut SMM2Course {
         &mut self.course
+    }
+
+    /// Consumes and takes inner course struct.
+    pub fn take_course(self) -> SMM2Course {
+        self.course
     }
 
     pub fn get_course_data(&self) -> &Vec<u8> {
