@@ -3,7 +3,7 @@
 use crate::proto::SMM2Course::{
     SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
     SMM2CourseArea_WaterMode, SMM2CourseArea_WaterSpeed, SMM2CourseHeader,
-    SMM2CourseHeader_GameStyle,
+    SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_GameStyle,
 };
 use crate::{
     constants2::*, decrypt, key_tables::*, Course2ConvertError, DecompressionError, Thumbnail2,
@@ -242,6 +242,20 @@ impl Course2 {
         ]) as u32;
         let time =
             u16::from_be_bytes([course_data[TIME_OFFSET], course_data[TIME_OFFSET + 1]]) as u32;
+        let clear_condition_type = SMM2CourseHeader_ClearConditionType::from_i32(
+            course_data[CLEAR_CONDITION_TYPE_OFFSET] as i32,
+        )
+        .ok_or(Course2ConvertError::ClearConditionTypeParse)?;
+        let clear_condition = u32::from_be_bytes([
+            course_data[CLEAR_CONDITION_OFFSET],
+            course_data[CLEAR_CONDITION_OFFSET + 1],
+            course_data[CLEAR_CONDITION_OFFSET + 2],
+            course_data[CLEAR_CONDITION_OFFSET + 3],
+        ]);
+        let clear_condition_amount = u16::from_be_bytes([
+            course_data[CLEAR_CONDITION_AMOUNT_OFFSET],
+            course_data[CLEAR_CONDITION_AMOUNT_OFFSET + 1],
+        ]) as u32;
 
         Ok(SingularPtrField::some(SMM2CourseHeader {
             modified,
@@ -252,6 +266,9 @@ impl Course2 {
             finish_y,
             finish_x,
             time,
+            clear_condition_type,
+            clear_condition,
+            clear_condition_amount,
             ..SMM2CourseHeader::default()
         }))
     }

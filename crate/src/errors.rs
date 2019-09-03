@@ -20,6 +20,8 @@ pub enum CourseConvertError {
 pub enum Course2ConvertError {
     #[fail(display = "Course2ConvertError::GameStyleParse")]
     GameStyleParse,
+    #[fail(display = "Course2ConvertError::ClearConditionTypeParse")]
+    ClearConditionTypeParse,
     #[fail(display = "Course2ConvertError::CourseThemeParse")]
     CourseThemeParse,
     #[fail(display = "Course2ConvertError::AutoScrollParse")]
