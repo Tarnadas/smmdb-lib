@@ -35,6 +35,7 @@ message SMM2CourseHeader {
     ClearConditionType clear_condition_type = 9; // u8 at offset 0xF
     uint32 clear_condition = 10; // crc32 at offset 0x10
     uint32 clear_condition_amount = 11; // u16 at offset 0x6
+    uint32 clear_check_time = 12; // u32 at offset 0x20
 }
 
 message SMM2CourseArea {

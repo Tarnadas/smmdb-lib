@@ -377,6 +377,7 @@ pub struct SMM2CourseHeader {
     pub clear_condition_type: SMM2CourseHeader_ClearConditionType,
     pub clear_condition: u32,
     pub clear_condition_amount: u32,
+    pub clear_check_time: u32,
     // special fields
     #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -581,6 +582,21 @@ impl SMM2CourseHeader {
     pub fn set_clear_condition_amount(&mut self, v: u32) {
         self.clear_condition_amount = v;
     }
+
+    // uint32 clear_check_time = 12;
+
+
+    pub fn get_clear_check_time(&self) -> u32 {
+        self.clear_check_time
+    }
+    pub fn clear_clear_check_time(&mut self) {
+        self.clear_check_time = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_clear_check_time(&mut self, v: u32) {
+        self.clear_check_time = v;
+    }
 }
 
 impl ::protobuf::Message for SMM2CourseHeader {
@@ -653,6 +669,13 @@ impl ::protobuf::Message for SMM2CourseHeader {
                     let tmp = is.read_uint32()?;
                     self.clear_condition_amount = tmp;
                 },
+                12 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.clear_check_time = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -698,6 +721,9 @@ impl ::protobuf::Message for SMM2CourseHeader {
         if self.clear_condition_amount != 0 {
             my_size += ::protobuf::rt::value_size(11, self.clear_condition_amount, ::protobuf::wire_format::WireTypeVarint);
         }
+        if self.clear_check_time != 0 {
+            my_size += ::protobuf::rt::value_size(12, self.clear_check_time, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -736,6 +762,9 @@ impl ::protobuf::Message for SMM2CourseHeader {
         }
         if self.clear_condition_amount != 0 {
             os.write_uint32(11, self.clear_condition_amount)?;
+        }
+        if self.clear_check_time != 0 {
+            os.write_uint32(12, self.clear_check_time)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -834,6 +863,11 @@ impl ::protobuf::Message for SMM2CourseHeader {
                     |m: &SMM2CourseHeader| { &m.clear_condition_amount },
                     |m: &mut SMM2CourseHeader| { &mut m.clear_condition_amount },
                 ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "clear_check_time",
+                    |m: &SMM2CourseHeader| { &m.clear_check_time },
+                    |m: &mut SMM2CourseHeader| { &mut m.clear_check_time },
+                ));
                 ::protobuf::reflect::MessageDescriptor::new::<SMM2CourseHeader>(
                     "SMM2CourseHeader",
                     fields,
@@ -867,6 +901,7 @@ impl ::protobuf::Clear for SMM2CourseHeader {
         self.clear_condition_type = SMM2CourseHeader_ClearConditionType::NONE;
         self.clear_condition = 0;
         self.clear_condition_amount = 0;
+        self.clear_check_time = 0;
         self.unknown_fields.clear();
     }
 }
@@ -1605,7 +1640,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x07version\x18\x01\x20\x01(\rB\0\x12,\n\x06header\x18\x02\x20\x01(\x0b2\
     \x1a.cemu_smm.SMM2CourseHeaderB\0\x12/\n\x0bcourse_area\x18\x03\x20\x01(\
     \x0b2\x18.cemu_smm.SMM2CourseAreaB\0\x123\n\x0fcourse_sub_area\x18\x04\
-    \x20\x01(\x0b2\x18.cemu_smm.SMM2CourseAreaB\0:\0\"\xdf\x03\n\x10SMM2Cour\
+    \x20\x01(\x0b2\x18.cemu_smm.SMM2CourseAreaB\0:\0\"\xfb\x03\n\x10SMM2Cour\
     seHeader\x12\x12\n\x08modified\x18\x01\x20\x01(\x04B\0\x12\x0f\n\x05titl\
     e\x18\x02\x20\x01(\tB\0\x12\x15\n\x0bdescription\x18\x03\x20\x01(\tB\0\
     \x12\x11\n\x07start_y\x18\x04\x20\x01(\rB\0\x12\x12\n\x08finish_y\x18\
@@ -1614,27 +1649,28 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     .cemu_smm.SMM2CourseHeader.GameStyleB\0\x12M\n\x14clear_condition_type\
     \x18\t\x20\x01(\x0e2-.cemu_smm.SMM2CourseHeader.ClearConditionTypeB\0\
     \x12\x19\n\x0fclear_condition\x18\n\x20\x01(\rB\0\x12\x20\n\x16clear_con\
-    dition_amount\x18\x0b\x20\x01(\rB\0\"5\n\tGameStyle\x12\x06\n\x02M1\x10\
-    \0\x12\x06\n\x02M3\x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\
-    \x03\x12\x06\n\x02W3\x10\x04\x1a\0\"C\n\x12ClearConditionType\x12\x08\n\
-    \x04NONE\x10\0\x12\t\n\x05PARTS\x10\x01\x12\n\n\x06STATUS\x10\x02\x12\n\
-    \n\x06ACTION\x10\x03\x1a\0:\0\"\xf9\x04\n\x0eSMM2CourseArea\x12<\n\x0cco\
-    urse_theme\x18\x01\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\
-    \x12:\n\x0bauto_scroll\x18\x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.Au\
-    toScrollB\0\x12\x13\n\twater_max\x18\x03\x20\x01(\rB\0\x128\n\nwater_mod\
-    e\x18\x04\x20\x01(\x0e2\".cemu_smm.SMM2CourseArea.WaterModeB\0\x12:\n\
-    \x0bwater_speed\x18\x05\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.WaterSpee\
-    dB\0\x12\x13\n\twater_min\x18\x06\x20\x01(\rB\0\"\x92\x01\n\x0bCourseThe\
-    me\x12\n\n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06C\
-    ASTLE\x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\
-    \x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\x06\
-    DESERT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\0\"D\
-    \n\nAutoScroll\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\
-    \x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\x10\x04\
-    \x1a\0\"6\n\tWaterMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\
-    \x01\x12\x0f\n\x0bOSCILLATING\x10\x02\x1a\0\"8\n\nWaterSpeed\x12\x08\n\
-    \x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\
-    \x08\n\x04FAST\x10\x03\x1a\0:\0B\0b\x06proto3\
+    dition_amount\x18\x0b\x20\x01(\rB\0\x12\x1a\n\x10clear_check_time\x18\
+    \x0c\x20\x01(\rB\0\"5\n\tGameStyle\x12\x06\n\x02M1\x10\0\x12\x06\n\x02M3\
+    \x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x12\x06\n\x02W3\
+    \x10\x04\x1a\0\"C\n\x12ClearConditionType\x12\x08\n\x04NONE\x10\0\x12\t\
+    \n\x05PARTS\x10\x01\x12\n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\x10\x03\
+    \x1a\0:\0\"\xf9\x04\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\
+    \x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\x12:\n\x0bauto_sc\
+    roll\x18\x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrollB\0\x12\
+    \x13\n\twater_max\x18\x03\x20\x01(\rB\0\x128\n\nwater_mode\x18\x04\x20\
+    \x01(\x0e2\".cemu_smm.SMM2CourseArea.WaterModeB\0\x12:\n\x0bwater_speed\
+    \x18\x05\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.WaterSpeedB\0\x12\x13\n\
+    \twater_min\x18\x06\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTheme\x12\n\n\x06\
+    GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\x10\x02\
+    \x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\x10\n\
+    \x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\x06DESERT\x10\
+    \x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\0\"D\n\nAutoSc\
+    roll\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\
+    \x10\x02\x12\x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\x10\x04\x1a\0\"6\n\
+    \tWaterMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\
+    \n\x0bOSCILLATING\x10\x02\x1a\0\"8\n\nWaterSpeed\x12\x08\n\x04NONE\x10\0\
+    \x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\
+    \x10\x03\x1a\0:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

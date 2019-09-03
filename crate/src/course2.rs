@@ -256,6 +256,12 @@ impl Course2 {
             course_data[CLEAR_CONDITION_AMOUNT_OFFSET],
             course_data[CLEAR_CONDITION_AMOUNT_OFFSET + 1],
         ]) as u32;
+        let clear_check_time = u32::from_be_bytes([
+            course_data[CLEAR_CHECK_TIME_OFFSET],
+            course_data[CLEAR_CHECK_TIME_OFFSET + 1],
+            course_data[CLEAR_CHECK_TIME_OFFSET + 2],
+            course_data[CLEAR_CHECK_TIME_OFFSET + 3],
+        ]);
 
         Ok(SingularPtrField::some(SMM2CourseHeader {
             modified,
@@ -269,6 +275,7 @@ impl Course2 {
             clear_condition_type,
             clear_condition,
             clear_condition_amount,
+            clear_check_time,
             ..SMM2CourseHeader::default()
         }))
     }
