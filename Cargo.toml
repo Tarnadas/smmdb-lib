@@ -55,8 +55,6 @@ features = ["with-bytes", "with-serde"]
 version = "2.8"
 
 [dependencies.regex]
-default-features = false
-features = ["std", "perf"]
 version = "1.3"
 
 [dependencies.wasm-bindgen]
