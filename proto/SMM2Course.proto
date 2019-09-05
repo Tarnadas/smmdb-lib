@@ -60,19 +60,24 @@ message SMM2CourseArea {
         CUSTOM = 4;
     }
     AutoScroll auto_scroll = 2; // u8 at offset 0x01
-    uint32 water_max = 3; // u8 at 0x04
+    enum Orientation {
+        HORIZONTAL = 0;
+        VERTICAL = 1;
+    }
+    Orientation orientation = 3; // u8 at 0x03
+    uint32 water_max = 4; // u8 at offset 0x04
     enum WaterMode {
         FIXED = 0;
         ONE_WAY = 1;
         OSCILLATING = 2;
     }
-    WaterMode water_mode = 4; // 0x05
+    WaterMode water_mode = 5; // u8 at offset 0x05
     enum WaterSpeed {
         NONE = 0;
         SLOW = 1;
         MEDIUM = 2;
         FAST = 3;
     }
-    WaterSpeed water_speed = 5; // 0x06
-    uint32 water_min = 6; // u8 at 0x07
+    WaterSpeed water_speed = 6; // u8 at offset 0x06
+    uint32 water_min = 7; // u8 at offset 0x07
 }

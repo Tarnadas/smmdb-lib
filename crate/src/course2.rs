@@ -2,8 +2,8 @@
 
 use crate::proto::SMM2Course::{
     SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
-    SMM2CourseArea_WaterMode, SMM2CourseArea_WaterSpeed, SMM2CourseHeader,
-    SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_GameStyle,
+    SMM2CourseArea_Orientation, SMM2CourseArea_WaterMode, SMM2CourseArea_WaterSpeed,
+    SMM2CourseHeader, SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_GameStyle,
 };
 use crate::{
     constants2::*, decrypt, key_tables::*, Course2ConvertError, DecompressionError, Thumbnail2,
@@ -292,6 +292,10 @@ impl Course2 {
             course_data[AUTO_SCROLL_OFFSET[const_index]] as i32,
         )
         .ok_or(Course2ConvertError::AutoScrollParse)?;
+        let orientation = SMM2CourseArea_Orientation::from_i32(
+            course_data[ORIENTATION_OFFSET[const_index]] as i32,
+        )
+        .ok_or(Course2ConvertError::AutoScrollParse)?;
         let water_max = course_data[WATER_MAX_OFFSET[const_index]] as u32;
         let water_mode =
             SMM2CourseArea_WaterMode::from_i32(course_data[WATER_MODE_OFFSET[const_index]] as i32)
@@ -305,6 +309,7 @@ impl Course2 {
         Ok(SingularPtrField::some(SMM2CourseArea {
             course_theme,
             auto_scroll,
+            orientation,
             water_max,
             water_mode,
             water_speed,

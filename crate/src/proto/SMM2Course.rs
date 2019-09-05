@@ -1051,6 +1051,7 @@ pub struct SMM2CourseArea {
     // message fields
     pub course_theme: SMM2CourseArea_CourseTheme,
     pub auto_scroll: SMM2CourseArea_AutoScroll,
+    pub orientation: SMM2CourseArea_Orientation,
     pub water_max: u32,
     pub water_mode: SMM2CourseArea_WaterMode,
     pub water_speed: SMM2CourseArea_WaterSpeed,
@@ -1103,7 +1104,22 @@ impl SMM2CourseArea {
         self.auto_scroll = v;
     }
 
-    // uint32 water_max = 3;
+    // .cemu_smm.SMM2CourseArea.Orientation orientation = 3;
+
+
+    pub fn get_orientation(&self) -> SMM2CourseArea_Orientation {
+        self.orientation
+    }
+    pub fn clear_orientation(&mut self) {
+        self.orientation = SMM2CourseArea_Orientation::HORIZONTAL;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_orientation(&mut self, v: SMM2CourseArea_Orientation) {
+        self.orientation = v;
+    }
+
+    // uint32 water_max = 4;
 
 
     pub fn get_water_max(&self) -> u32 {
@@ -1118,7 +1134,7 @@ impl SMM2CourseArea {
         self.water_max = v;
     }
 
-    // .cemu_smm.SMM2CourseArea.WaterMode water_mode = 4;
+    // .cemu_smm.SMM2CourseArea.WaterMode water_mode = 5;
 
 
     pub fn get_water_mode(&self) -> SMM2CourseArea_WaterMode {
@@ -1133,7 +1149,7 @@ impl SMM2CourseArea {
         self.water_mode = v;
     }
 
-    // .cemu_smm.SMM2CourseArea.WaterSpeed water_speed = 5;
+    // .cemu_smm.SMM2CourseArea.WaterSpeed water_speed = 6;
 
 
     pub fn get_water_speed(&self) -> SMM2CourseArea_WaterSpeed {
@@ -1148,7 +1164,7 @@ impl SMM2CourseArea {
         self.water_speed = v;
     }
 
-    // uint32 water_min = 6;
+    // uint32 water_min = 7;
 
 
     pub fn get_water_min(&self) -> u32 {
@@ -1180,19 +1196,22 @@ impl ::protobuf::Message for SMM2CourseArea {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.auto_scroll, 2, &mut self.unknown_fields)?
                 },
                 3 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.orientation, 3, &mut self.unknown_fields)?
+                },
+                4 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_uint32()?;
                     self.water_max = tmp;
                 },
-                4 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.water_mode, 4, &mut self.unknown_fields)?
-                },
                 5 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.water_speed, 5, &mut self.unknown_fields)?
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.water_mode, 5, &mut self.unknown_fields)?
                 },
                 6 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.water_speed, 6, &mut self.unknown_fields)?
+                },
+                7 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
@@ -1217,17 +1236,20 @@ impl ::protobuf::Message for SMM2CourseArea {
         if self.auto_scroll != SMM2CourseArea_AutoScroll::NONE {
             my_size += ::protobuf::rt::enum_size(2, self.auto_scroll);
         }
+        if self.orientation != SMM2CourseArea_Orientation::HORIZONTAL {
+            my_size += ::protobuf::rt::enum_size(3, self.orientation);
+        }
         if self.water_max != 0 {
-            my_size += ::protobuf::rt::value_size(3, self.water_max, ::protobuf::wire_format::WireTypeVarint);
+            my_size += ::protobuf::rt::value_size(4, self.water_max, ::protobuf::wire_format::WireTypeVarint);
         }
         if self.water_mode != SMM2CourseArea_WaterMode::FIXED {
-            my_size += ::protobuf::rt::enum_size(4, self.water_mode);
+            my_size += ::protobuf::rt::enum_size(5, self.water_mode);
         }
         if self.water_speed != SMM2CourseArea_WaterSpeed::NONE {
-            my_size += ::protobuf::rt::enum_size(5, self.water_speed);
+            my_size += ::protobuf::rt::enum_size(6, self.water_speed);
         }
         if self.water_min != 0 {
-            my_size += ::protobuf::rt::value_size(6, self.water_min, ::protobuf::wire_format::WireTypeVarint);
+            my_size += ::protobuf::rt::value_size(7, self.water_min, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -1241,17 +1263,20 @@ impl ::protobuf::Message for SMM2CourseArea {
         if self.auto_scroll != SMM2CourseArea_AutoScroll::NONE {
             os.write_enum(2, self.auto_scroll.value())?;
         }
+        if self.orientation != SMM2CourseArea_Orientation::HORIZONTAL {
+            os.write_enum(3, self.orientation.value())?;
+        }
         if self.water_max != 0 {
-            os.write_uint32(3, self.water_max)?;
+            os.write_uint32(4, self.water_max)?;
         }
         if self.water_mode != SMM2CourseArea_WaterMode::FIXED {
-            os.write_enum(4, self.water_mode.value())?;
+            os.write_enum(5, self.water_mode.value())?;
         }
         if self.water_speed != SMM2CourseArea_WaterSpeed::NONE {
-            os.write_enum(5, self.water_speed.value())?;
+            os.write_enum(6, self.water_speed.value())?;
         }
         if self.water_min != 0 {
-            os.write_uint32(6, self.water_min)?;
+            os.write_uint32(7, self.water_min)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1305,6 +1330,11 @@ impl ::protobuf::Message for SMM2CourseArea {
                     |m: &SMM2CourseArea| { &m.auto_scroll },
                     |m: &mut SMM2CourseArea| { &mut m.auto_scroll },
                 ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_Orientation>>(
+                    "orientation",
+                    |m: &SMM2CourseArea| { &m.orientation },
+                    |m: &mut SMM2CourseArea| { &mut m.orientation },
+                ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
                     "water_max",
                     |m: &SMM2CourseArea| { &m.water_max },
@@ -1349,6 +1379,7 @@ impl ::protobuf::Clear for SMM2CourseArea {
     fn clear(&mut self) {
         self.course_theme = SMM2CourseArea_CourseTheme::GROUND;
         self.auto_scroll = SMM2CourseArea_AutoScroll::NONE;
+        self.orientation = SMM2CourseArea_Orientation::HORIZONTAL;
         self.water_max = 0;
         self.water_mode = SMM2CourseArea_WaterMode::FIXED;
         self.water_speed = SMM2CourseArea_WaterSpeed::NONE;
@@ -1516,6 +1547,62 @@ impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_AutoScroll {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub enum SMM2CourseArea_Orientation {
+    HORIZONTAL = 0,
+    VERTICAL = 1,
+}
+
+impl ::protobuf::ProtobufEnum for SMM2CourseArea_Orientation {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_Orientation> {
+        match value {
+            0 => ::std::option::Option::Some(SMM2CourseArea_Orientation::HORIZONTAL),
+            1 => ::std::option::Option::Some(SMM2CourseArea_Orientation::VERTICAL),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [SMM2CourseArea_Orientation] = &[
+            SMM2CourseArea_Orientation::HORIZONTAL,
+            SMM2CourseArea_Orientation::VERTICAL,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::EnumDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::EnumDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseArea_Orientation", file_descriptor_proto())
+            })
+        }
+    }
+}
+
+impl ::std::marker::Copy for SMM2CourseArea_Orientation {
+}
+
+impl ::std::default::Default for SMM2CourseArea_Orientation {
+    fn default() -> Self {
+        SMM2CourseArea_Orientation::HORIZONTAL
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_Orientation {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum SMM2CourseArea_WaterMode {
     FIXED = 0,
     ONE_WAY = 1,
@@ -1654,23 +1741,25 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x12\x06\n\x02W3\
     \x10\x04\x1a\0\"C\n\x12ClearConditionType\x12\x08\n\x04NONE\x10\0\x12\t\
     \n\x05PARTS\x10\x01\x12\n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\x10\x03\
-    \x1a\0:\0\"\xf9\x04\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\
+    \x1a\0:\0\"\xe5\x05\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\
     \x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\x12:\n\x0bauto_sc\
-    roll\x18\x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrollB\0\x12\
-    \x13\n\twater_max\x18\x03\x20\x01(\rB\0\x128\n\nwater_mode\x18\x04\x20\
-    \x01(\x0e2\".cemu_smm.SMM2CourseArea.WaterModeB\0\x12:\n\x0bwater_speed\
-    \x18\x05\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.WaterSpeedB\0\x12\x13\n\
-    \twater_min\x18\x06\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTheme\x12\n\n\x06\
-    GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\x10\x02\
-    \x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\x10\n\
-    \x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\x06DESERT\x10\
-    \x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\0\"D\n\nAutoSc\
-    roll\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\
-    \x10\x02\x12\x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\x10\x04\x1a\0\"6\n\
-    \tWaterMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\
-    \n\x0bOSCILLATING\x10\x02\x1a\0\"8\n\nWaterSpeed\x12\x08\n\x04NONE\x10\0\
-    \x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\
-    \x10\x03\x1a\0:\0B\0b\x06proto3\
+    roll\x18\x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrollB\0\x12;\n\
+    \x0borientation\x18\x03\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.Orientati\
+    onB\0\x12\x13\n\twater_max\x18\x04\x20\x01(\rB\0\x128\n\nwater_mode\x18\
+    \x05\x20\x01(\x0e2\".cemu_smm.SMM2CourseArea.WaterModeB\0\x12:\n\x0bwate\
+    r_speed\x18\x06\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.WaterSpeedB\0\x12\
+    \x13\n\twater_min\x18\x07\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTheme\x12\n\
+    \n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\
+    \x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\
+    \x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\x06DESE\
+    RT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\0\"D\n\n\
+    AutoScroll\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06\
+    MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\x10\x04\x1a\0\
+    \"-\n\x0bOrientation\x12\x0e\n\nHORIZONTAL\x10\0\x12\x0c\n\x08VERTICAL\
+    \x10\x01\x1a\0\"6\n\tWaterMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_W\
+    AY\x10\x01\x12\x0f\n\x0bOSCILLATING\x10\x02\x1a\0\"8\n\nWaterSpeed\x12\
+    \x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\
+    \x12\x08\n\x04FAST\x10\x03\x1a\0:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {
