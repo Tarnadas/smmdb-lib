@@ -1056,6 +1056,10 @@ pub struct SMM2CourseArea {
     pub water_mode: SMM2CourseArea_WaterMode,
     pub water_speed: SMM2CourseArea_WaterSpeed,
     pub water_min: u32,
+    pub right_boundary: u32,
+    pub top_boundary: u32,
+    pub left_boundary: u32,
+    pub bottom_boundary: u32,
     // special fields
     #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -1178,6 +1182,66 @@ impl SMM2CourseArea {
     pub fn set_water_min(&mut self, v: u32) {
         self.water_min = v;
     }
+
+    // uint32 right_boundary = 8;
+
+
+    pub fn get_right_boundary(&self) -> u32 {
+        self.right_boundary
+    }
+    pub fn clear_right_boundary(&mut self) {
+        self.right_boundary = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_right_boundary(&mut self, v: u32) {
+        self.right_boundary = v;
+    }
+
+    // uint32 top_boundary = 9;
+
+
+    pub fn get_top_boundary(&self) -> u32 {
+        self.top_boundary
+    }
+    pub fn clear_top_boundary(&mut self) {
+        self.top_boundary = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_top_boundary(&mut self, v: u32) {
+        self.top_boundary = v;
+    }
+
+    // uint32 left_boundary = 10;
+
+
+    pub fn get_left_boundary(&self) -> u32 {
+        self.left_boundary
+    }
+    pub fn clear_left_boundary(&mut self) {
+        self.left_boundary = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_left_boundary(&mut self, v: u32) {
+        self.left_boundary = v;
+    }
+
+    // uint32 bottom_boundary = 11;
+
+
+    pub fn get_bottom_boundary(&self) -> u32 {
+        self.bottom_boundary
+    }
+    pub fn clear_bottom_boundary(&mut self) {
+        self.bottom_boundary = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_bottom_boundary(&mut self, v: u32) {
+        self.bottom_boundary = v;
+    }
 }
 
 impl ::protobuf::Message for SMM2CourseArea {
@@ -1218,6 +1282,34 @@ impl ::protobuf::Message for SMM2CourseArea {
                     let tmp = is.read_uint32()?;
                     self.water_min = tmp;
                 },
+                8 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.right_boundary = tmp;
+                },
+                9 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.top_boundary = tmp;
+                },
+                10 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.left_boundary = tmp;
+                },
+                11 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.bottom_boundary = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -1251,6 +1343,18 @@ impl ::protobuf::Message for SMM2CourseArea {
         if self.water_min != 0 {
             my_size += ::protobuf::rt::value_size(7, self.water_min, ::protobuf::wire_format::WireTypeVarint);
         }
+        if self.right_boundary != 0 {
+            my_size += ::protobuf::rt::value_size(8, self.right_boundary, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.top_boundary != 0 {
+            my_size += ::protobuf::rt::value_size(9, self.top_boundary, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.left_boundary != 0 {
+            my_size += ::protobuf::rt::value_size(10, self.left_boundary, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.bottom_boundary != 0 {
+            my_size += ::protobuf::rt::value_size(11, self.bottom_boundary, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -1277,6 +1381,18 @@ impl ::protobuf::Message for SMM2CourseArea {
         }
         if self.water_min != 0 {
             os.write_uint32(7, self.water_min)?;
+        }
+        if self.right_boundary != 0 {
+            os.write_uint32(8, self.right_boundary)?;
+        }
+        if self.top_boundary != 0 {
+            os.write_uint32(9, self.top_boundary)?;
+        }
+        if self.left_boundary != 0 {
+            os.write_uint32(10, self.left_boundary)?;
+        }
+        if self.bottom_boundary != 0 {
+            os.write_uint32(11, self.bottom_boundary)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1355,6 +1471,26 @@ impl ::protobuf::Message for SMM2CourseArea {
                     |m: &SMM2CourseArea| { &m.water_min },
                     |m: &mut SMM2CourseArea| { &mut m.water_min },
                 ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "right_boundary",
+                    |m: &SMM2CourseArea| { &m.right_boundary },
+                    |m: &mut SMM2CourseArea| { &mut m.right_boundary },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "top_boundary",
+                    |m: &SMM2CourseArea| { &m.top_boundary },
+                    |m: &mut SMM2CourseArea| { &mut m.top_boundary },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "left_boundary",
+                    |m: &SMM2CourseArea| { &m.left_boundary },
+                    |m: &mut SMM2CourseArea| { &mut m.left_boundary },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "bottom_boundary",
+                    |m: &SMM2CourseArea| { &m.bottom_boundary },
+                    |m: &mut SMM2CourseArea| { &mut m.bottom_boundary },
+                ));
                 ::protobuf::reflect::MessageDescriptor::new::<SMM2CourseArea>(
                     "SMM2CourseArea",
                     fields,
@@ -1384,6 +1520,10 @@ impl ::protobuf::Clear for SMM2CourseArea {
         self.water_mode = SMM2CourseArea_WaterMode::FIXED;
         self.water_speed = SMM2CourseArea_WaterSpeed::NONE;
         self.water_min = 0;
+        self.right_boundary = 0;
+        self.top_boundary = 0;
+        self.left_boundary = 0;
+        self.bottom_boundary = 0;
         self.unknown_fields.clear();
     }
 }
@@ -1741,25 +1881,28 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x12\x06\n\x02W3\
     \x10\x04\x1a\0\"C\n\x12ClearConditionType\x12\x08\n\x04NONE\x10\0\x12\t\
     \n\x05PARTS\x10\x01\x12\n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\x10\x03\
-    \x1a\0:\0\"\xe5\x05\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\
+    \x1a\0:\0\"\xcb\x06\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\
     \x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\x12:\n\x0bauto_sc\
     roll\x18\x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrollB\0\x12;\n\
     \x0borientation\x18\x03\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.Orientati\
     onB\0\x12\x13\n\twater_max\x18\x04\x20\x01(\rB\0\x128\n\nwater_mode\x18\
     \x05\x20\x01(\x0e2\".cemu_smm.SMM2CourseArea.WaterModeB\0\x12:\n\x0bwate\
     r_speed\x18\x06\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.WaterSpeedB\0\x12\
-    \x13\n\twater_min\x18\x07\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTheme\x12\n\
-    \n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\
-    \x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\
-    \x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\x06DESE\
-    RT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\0\"D\n\n\
-    AutoScroll\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06\
-    MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\x10\x04\x1a\0\
-    \"-\n\x0bOrientation\x12\x0e\n\nHORIZONTAL\x10\0\x12\x0c\n\x08VERTICAL\
-    \x10\x01\x1a\0\"6\n\tWaterMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_W\
-    AY\x10\x01\x12\x0f\n\x0bOSCILLATING\x10\x02\x1a\0\"8\n\nWaterSpeed\x12\
-    \x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\
-    \x12\x08\n\x04FAST\x10\x03\x1a\0:\0B\0b\x06proto3\
+    \x13\n\twater_min\x18\x07\x20\x01(\rB\0\x12\x18\n\x0eright_boundary\x18\
+    \x08\x20\x01(\rB\0\x12\x16\n\x0ctop_boundary\x18\t\x20\x01(\rB\0\x12\x17\
+    \n\rleft_boundary\x18\n\x20\x01(\rB\0\x12\x19\n\x0fbottom_boundary\x18\
+    \x0b\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTheme\x12\n\n\x06GROUND\x10\0\
+    \x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\x10\x02\x12\x0b\n\
+    \x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\x10\n\x0cGHOUST_HO\
+    USE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\x06DESERT\x10\x07\x12\x07\
+    \n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\0\"D\n\nAutoScroll\x12\x08\
+    \n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\
+    \x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\x10\x04\x1a\0\"-\n\x0bOrientati\
+    on\x12\x0e\n\nHORIZONTAL\x10\0\x12\x0c\n\x08VERTICAL\x10\x01\x1a\0\"6\n\
+    \tWaterMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\
+    \n\x0bOSCILLATING\x10\x02\x1a\0\"8\n\nWaterSpeed\x12\x08\n\x04NONE\x10\0\
+    \x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\
+    \x10\x03\x1a\0:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

@@ -305,6 +305,30 @@ impl Course2 {
         )
         .ok_or(Course2ConvertError::WaterSpeedParse)?;
         let water_min = course_data[WATER_MIN_OFFSET[const_index]] as u32;
+        let right_boundary = u32::from_be_bytes([
+            course_data[RIGHT_BOUNDARY_OFFSET[const_index]],
+            course_data[RIGHT_BOUNDARY_OFFSET[const_index] + 1],
+            course_data[RIGHT_BOUNDARY_OFFSET[const_index] + 2],
+            course_data[RIGHT_BOUNDARY_OFFSET[const_index] + 3],
+        ]);
+        let top_boundary = u32::from_be_bytes([
+            course_data[TOP_BOUNDARY_OFFSET[const_index]],
+            course_data[TOP_BOUNDARY_OFFSET[const_index] + 1],
+            course_data[TOP_BOUNDARY_OFFSET[const_index] + 2],
+            course_data[TOP_BOUNDARY_OFFSET[const_index] + 3],
+        ]);
+        let left_boundary = u32::from_be_bytes([
+            course_data[LEFT_BOUNDARY_OFFSET[const_index]],
+            course_data[LEFT_BOUNDARY_OFFSET[const_index] + 1],
+            course_data[LEFT_BOUNDARY_OFFSET[const_index] + 2],
+            course_data[LEFT_BOUNDARY_OFFSET[const_index] + 3],
+        ]);
+        let bottom_boundary = u32::from_be_bytes([
+            course_data[BOTTOM_BOUNDARY_OFFSET[const_index]],
+            course_data[BOTTOM_BOUNDARY_OFFSET[const_index] + 1],
+            course_data[BOTTOM_BOUNDARY_OFFSET[const_index] + 2],
+            course_data[BOTTOM_BOUNDARY_OFFSET[const_index] + 3],
+        ]);
 
         Ok(SingularPtrField::some(SMM2CourseArea {
             course_theme,
@@ -314,6 +338,10 @@ impl Course2 {
             water_mode,
             water_speed,
             water_min,
+            right_boundary,
+            top_boundary,
+            left_boundary,
+            bottom_boundary,
             ..SMM2CourseArea::default()
         }))
     }

@@ -80,4 +80,8 @@ message SMM2CourseArea {
     }
     WaterSpeed water_speed = 6; // u8 at offset 0x06
     uint32 water_min = 7; // u8 at offset 0x07
+    uint32 right_boundary = 8; // u32 at offset 0x08, always 0x300 for vertical
+    uint32 top_boundary = 9; // u32 at offset 0x0C, always 0x1B0 for vertical
+    uint32 left_boundary = 10; // u32 at offset 0x10, always 0
+    uint32 bottom_boundary = 11; // u32 at offset 0x14, always 0 except for certain vertical sub-areas
 }
