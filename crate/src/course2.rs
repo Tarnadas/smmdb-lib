@@ -51,6 +51,10 @@ impl Course2 {
     pub fn get_course_thumb(&self) -> Option<&Thumbnail2> {
         self.thumb.as_ref()
     }
+
+    pub fn get_course_thumb_mut(&mut self) -> Option<&mut Thumbnail2> {
+        self.thumb.as_mut()
+    }
 }
 
 #[wasm_bindgen]
