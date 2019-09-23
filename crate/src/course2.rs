@@ -20,7 +20,7 @@ use wasm_bindgen::prelude::*;
 use zip::{result::ZipError, ZipArchive};
 
 #[wasm_bindgen]
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Course2 {
     course: SMM2Course,
     data: Vec<u8>,
