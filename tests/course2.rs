@@ -42,3 +42,64 @@ fn course_decrypt() {
         }
     }
 }
+
+#[test]
+fn course2_from_packed() -> Result<(), failure::Error> {
+    decrypt_test_assets().unwrap();
+
+    use std::io::Write;
+    use zip::ZipWriter;
+
+    let w = std::io::Cursor::new(Vec::new());
+    let mut zip = ZipWriter::new(w);
+
+    let options =
+        zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+
+    let course_120 = include_bytes!("assets/saves/smm2/course_data_120.bcd");
+    let course_thumb_120 = include_bytes!("assets/saves/smm2/course_thumb_120.btl");
+
+    let course_121 = include_bytes!("assets/saves/smm2/course_data_121.bcd");
+    let course_thumb_121 = include_bytes!("assets/saves/smm2/course_thumb_121.btl");
+
+    zip.start_file("course_data_120.bcd", options.clone())?;
+    zip.write_all(course_120)?;
+    zip.start_file("course_thumb_120.btl", options.clone())?;
+    zip.write_all(course_thumb_120)?;
+    zip.start_file("course_data_121.bcd", options.clone())?;
+    zip.write_all(course_121)?;
+    zip.start_file("course_thumb_121.btl", options.clone())?;
+    zip.write_all(course_thumb_121)?;
+
+    let zip_file = zip.finish()?.into_inner();
+
+    let res = Course2::from_packed(&zip_file[..])?;
+
+    assert_eq!(
+        res.get(0).unwrap().get_course_data(),
+        &Course2::decrypt(course_120.to_vec())
+    );
+    assert_eq!(
+        &res.get(0)
+            .unwrap()
+            .get_course_thumb()
+            .unwrap()
+            .get_encrypted()[..],
+        &course_thumb_120[..]
+    );
+
+    assert_eq!(
+        res.get(1).unwrap().get_course_data(),
+        &Course2::decrypt(course_121.to_vec())
+    );
+    assert_eq!(
+        &res.get(1)
+            .unwrap()
+            .get_course_thumb()
+            .unwrap()
+            .get_encrypted()[..],
+        &course_thumb_121[..]
+    );
+
+    Ok(())
+}

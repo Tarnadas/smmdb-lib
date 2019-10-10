@@ -193,9 +193,15 @@ impl Course2 {
             if let Ok(file_name) = zip.by_index(i).map(|file| file.name().to_owned()) {
                 let re_data: Regex = Regex::new(r".*course_data_(\d{3})\.bcd$").unwrap();
                 if re_data.is_match(&file_name) {
-                    let re_thumb: Regex = Regex::new(r".*course_thumb_\d{3}\.btl$").unwrap();
-                    if let Some(thumb) = Course2::find_file_by_regex(zip, re_thumb) {
-                        files.push((file_name, thumb));
+                    let captures = re_data.captures(&file_name).unwrap();
+                    let index = captures.get(1);
+                    if let Some(index) = index {
+                        let re_thumb: Regex =
+                            Regex::new(&format!(r".*course_thumb_{}\.btl$", index.as_str()))
+                                .unwrap();
+                        if let Some(thumb) = Course2::find_file_by_regex(zip, re_thumb) {
+                            files.push((file_name, thumb));
+                        }
                     }
                 }
             };

@@ -24,6 +24,10 @@ impl Thumbnail2 {
         }
     }
 
+    pub fn get_encrypted(&self) -> &Vec<u8> {
+        &self.encrypted
+    }
+
     pub fn move_jpeg(&mut self) -> Vec<u8> {
         self.lazy_load_jpeg();
         self.jpeg.clone().unwrap()
