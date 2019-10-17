@@ -35,7 +35,13 @@ message SMM2CourseHeader {
     ClearConditionType clear_condition_type = 9; // u8 at offset 0xF
     uint32 clear_condition = 10; // crc32 at offset 0x10
     uint32 clear_condition_amount = 11; // u16 at offset 0x6
-    uint32 clear_check_time = 12; // u32 at offset 0x20
+    uint32 clear_check_tries = 12; // u32 at offset 0x1C
+    uint32 clear_check_time = 13; // u32 at offset 0x20
+    uint32 game_version = 14; // u32 bitmask at offset 0x14
+    uint32 management_flags = 15; // u32 bitmask at offset 0x18
+    uint32 creation_id = 16; // u32 at offset 0x24
+    uint64 upload_id = 17; // u64 at offset 0x28
+    uint32 completion_flags = 18; // u32 at offset 0x30
 }
 
 message SMM2CourseArea {
@@ -60,28 +66,44 @@ message SMM2CourseArea {
         CUSTOM = 4;
     }
     AutoScroll auto_scroll = 2; // u8 at offset 0x01
+    uint32 screen_boundary_flags = 3; // u8 at offset 0x2
     enum Orientation {
         HORIZONTAL = 0;
         VERTICAL = 1;
     }
-    Orientation orientation = 3; // u8 at 0x03
-    uint32 water_max = 4; // u8 at offset 0x04
-    enum WaterMode {
+    Orientation orientation = 4; // u8 at 0x03
+    uint32 liquid_max = 5; // u8 at offset 0x04
+    enum LiquidMode {
         FIXED = 0;
         ONE_WAY = 1;
         OSCILLATING = 2;
     }
-    WaterMode water_mode = 5; // u8 at offset 0x05
-    enum WaterSpeed {
+    LiquidMode liquid_mode = 6; // u8 at offset 0x05
+    enum LiquidSpeed {
         NONE = 0;
         SLOW = 1;
         MEDIUM = 2;
         FAST = 3;
     }
-    WaterSpeed water_speed = 6; // u8 at offset 0x06
-    uint32 water_min = 7; // u8 at offset 0x07
-    uint32 right_boundary = 8; // u32 at offset 0x08, always 0x300 for vertical
-    uint32 top_boundary = 9; // u32 at offset 0x0C, always 0x1B0 for vertical
-    uint32 left_boundary = 10; // u32 at offset 0x10, always 0
-    uint32 bottom_boundary = 11; // u32 at offset 0x14, always 0 except for certain vertical sub-areas
+    LiquidSpeed liquid_speed = 7; // u8 at offset 0x06
+    uint32 liquid_min = 8; // u8 at offset 0x07
+    uint32 right_boundary = 9; // u32 at offset 0x08, always 0x300 for vertical
+    uint32 top_boundary = 10; // u32 at offset 0x0C, always 0x1B0 for vertical
+    uint32 left_boundary = 11; // u32 at offset 0x10, always 0
+    uint32 bottom_boundary = 12; // u32 at offset 0x14, always 0 except for certain vertical sub-areas
+    enum DayTime {
+        DAY = 0;
+        NIGHT = 2;
+    }
+    DayTime day_time = 13; // u32 at offset 0x18
+    uint32 object_count = 14; // u32 at offset 0x1C
+    uint32 sound_effect_count = 15; // u32 at offset 0x20
+    uint32 snake_block_count = 16; // u32 at offset 0x24
+    uint32 clear_pipe_count = 17; // u32 at offset 0x28
+    uint32 piranha_creeper_count = 18; // u32 at offset 0x2C
+    uint32 exclamation_block_count = 19; // u32 at offset 0x30
+    uint32 track_block_count = 20; // u32 at offset 0x34
+    uint32 tile_count = 21; // u32 at offset 0x3C
+    uint32 track_count = 22; // u32 at offset 0x40
+    uint32 icicle_count = 23; // u32 at offset 0x44
 }

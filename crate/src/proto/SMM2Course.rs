@@ -377,7 +377,13 @@ pub struct SMM2CourseHeader {
     pub clear_condition_type: SMM2CourseHeader_ClearConditionType,
     pub clear_condition: u32,
     pub clear_condition_amount: u32,
+    pub clear_check_tries: u32,
     pub clear_check_time: u32,
+    pub game_version: u32,
+    pub management_flags: u32,
+    pub creation_id: u32,
+    pub upload_id: u64,
+    pub completion_flags: u32,
     // special fields
     #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -583,7 +589,22 @@ impl SMM2CourseHeader {
         self.clear_condition_amount = v;
     }
 
-    // uint32 clear_check_time = 12;
+    // uint32 clear_check_tries = 12;
+
+
+    pub fn get_clear_check_tries(&self) -> u32 {
+        self.clear_check_tries
+    }
+    pub fn clear_clear_check_tries(&mut self) {
+        self.clear_check_tries = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_clear_check_tries(&mut self, v: u32) {
+        self.clear_check_tries = v;
+    }
+
+    // uint32 clear_check_time = 13;
 
 
     pub fn get_clear_check_time(&self) -> u32 {
@@ -596,6 +617,81 @@ impl SMM2CourseHeader {
     // Param is passed by value, moved
     pub fn set_clear_check_time(&mut self, v: u32) {
         self.clear_check_time = v;
+    }
+
+    // uint32 game_version = 14;
+
+
+    pub fn get_game_version(&self) -> u32 {
+        self.game_version
+    }
+    pub fn clear_game_version(&mut self) {
+        self.game_version = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_game_version(&mut self, v: u32) {
+        self.game_version = v;
+    }
+
+    // uint32 management_flags = 15;
+
+
+    pub fn get_management_flags(&self) -> u32 {
+        self.management_flags
+    }
+    pub fn clear_management_flags(&mut self) {
+        self.management_flags = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_management_flags(&mut self, v: u32) {
+        self.management_flags = v;
+    }
+
+    // uint32 creation_id = 16;
+
+
+    pub fn get_creation_id(&self) -> u32 {
+        self.creation_id
+    }
+    pub fn clear_creation_id(&mut self) {
+        self.creation_id = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_creation_id(&mut self, v: u32) {
+        self.creation_id = v;
+    }
+
+    // uint64 upload_id = 17;
+
+
+    pub fn get_upload_id(&self) -> u64 {
+        self.upload_id
+    }
+    pub fn clear_upload_id(&mut self) {
+        self.upload_id = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_upload_id(&mut self, v: u64) {
+        self.upload_id = v;
+    }
+
+    // uint32 completion_flags = 18;
+
+
+    pub fn get_completion_flags(&self) -> u32 {
+        self.completion_flags
+    }
+    pub fn clear_completion_flags(&mut self) {
+        self.completion_flags = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_completion_flags(&mut self, v: u32) {
+        self.completion_flags = v;
     }
 }
 
@@ -674,7 +770,49 @@ impl ::protobuf::Message for SMM2CourseHeader {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_uint32()?;
+                    self.clear_check_tries = tmp;
+                },
+                13 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
                     self.clear_check_time = tmp;
+                },
+                14 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.game_version = tmp;
+                },
+                15 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.management_flags = tmp;
+                },
+                16 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.creation_id = tmp;
+                },
+                17 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint64()?;
+                    self.upload_id = tmp;
+                },
+                18 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.completion_flags = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -721,8 +859,26 @@ impl ::protobuf::Message for SMM2CourseHeader {
         if self.clear_condition_amount != 0 {
             my_size += ::protobuf::rt::value_size(11, self.clear_condition_amount, ::protobuf::wire_format::WireTypeVarint);
         }
+        if self.clear_check_tries != 0 {
+            my_size += ::protobuf::rt::value_size(12, self.clear_check_tries, ::protobuf::wire_format::WireTypeVarint);
+        }
         if self.clear_check_time != 0 {
-            my_size += ::protobuf::rt::value_size(12, self.clear_check_time, ::protobuf::wire_format::WireTypeVarint);
+            my_size += ::protobuf::rt::value_size(13, self.clear_check_time, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.game_version != 0 {
+            my_size += ::protobuf::rt::value_size(14, self.game_version, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.management_flags != 0 {
+            my_size += ::protobuf::rt::value_size(15, self.management_flags, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.creation_id != 0 {
+            my_size += ::protobuf::rt::value_size(16, self.creation_id, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.upload_id != 0 {
+            my_size += ::protobuf::rt::value_size(17, self.upload_id, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.completion_flags != 0 {
+            my_size += ::protobuf::rt::value_size(18, self.completion_flags, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -763,8 +919,26 @@ impl ::protobuf::Message for SMM2CourseHeader {
         if self.clear_condition_amount != 0 {
             os.write_uint32(11, self.clear_condition_amount)?;
         }
+        if self.clear_check_tries != 0 {
+            os.write_uint32(12, self.clear_check_tries)?;
+        }
         if self.clear_check_time != 0 {
-            os.write_uint32(12, self.clear_check_time)?;
+            os.write_uint32(13, self.clear_check_time)?;
+        }
+        if self.game_version != 0 {
+            os.write_uint32(14, self.game_version)?;
+        }
+        if self.management_flags != 0 {
+            os.write_uint32(15, self.management_flags)?;
+        }
+        if self.creation_id != 0 {
+            os.write_uint32(16, self.creation_id)?;
+        }
+        if self.upload_id != 0 {
+            os.write_uint64(17, self.upload_id)?;
+        }
+        if self.completion_flags != 0 {
+            os.write_uint32(18, self.completion_flags)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -864,9 +1038,39 @@ impl ::protobuf::Message for SMM2CourseHeader {
                     |m: &mut SMM2CourseHeader| { &mut m.clear_condition_amount },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "clear_check_tries",
+                    |m: &SMM2CourseHeader| { &m.clear_check_tries },
+                    |m: &mut SMM2CourseHeader| { &mut m.clear_check_tries },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
                     "clear_check_time",
                     |m: &SMM2CourseHeader| { &m.clear_check_time },
                     |m: &mut SMM2CourseHeader| { &mut m.clear_check_time },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "game_version",
+                    |m: &SMM2CourseHeader| { &m.game_version },
+                    |m: &mut SMM2CourseHeader| { &mut m.game_version },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "management_flags",
+                    |m: &SMM2CourseHeader| { &m.management_flags },
+                    |m: &mut SMM2CourseHeader| { &mut m.management_flags },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "creation_id",
+                    |m: &SMM2CourseHeader| { &m.creation_id },
+                    |m: &mut SMM2CourseHeader| { &mut m.creation_id },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint64>(
+                    "upload_id",
+                    |m: &SMM2CourseHeader| { &m.upload_id },
+                    |m: &mut SMM2CourseHeader| { &mut m.upload_id },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "completion_flags",
+                    |m: &SMM2CourseHeader| { &m.completion_flags },
+                    |m: &mut SMM2CourseHeader| { &mut m.completion_flags },
                 ));
                 ::protobuf::reflect::MessageDescriptor::new::<SMM2CourseHeader>(
                     "SMM2CourseHeader",
@@ -901,7 +1105,13 @@ impl ::protobuf::Clear for SMM2CourseHeader {
         self.clear_condition_type = SMM2CourseHeader_ClearConditionType::NONE;
         self.clear_condition = 0;
         self.clear_condition_amount = 0;
+        self.clear_check_tries = 0;
         self.clear_check_time = 0;
+        self.game_version = 0;
+        self.management_flags = 0;
+        self.creation_id = 0;
+        self.upload_id = 0;
+        self.completion_flags = 0;
         self.unknown_fields.clear();
     }
 }
@@ -1051,15 +1261,27 @@ pub struct SMM2CourseArea {
     // message fields
     pub course_theme: SMM2CourseArea_CourseTheme,
     pub auto_scroll: SMM2CourseArea_AutoScroll,
+    pub screen_boundary_flags: u32,
     pub orientation: SMM2CourseArea_Orientation,
-    pub water_max: u32,
-    pub water_mode: SMM2CourseArea_WaterMode,
-    pub water_speed: SMM2CourseArea_WaterSpeed,
-    pub water_min: u32,
+    pub liquid_max: u32,
+    pub liquid_mode: SMM2CourseArea_LiquidMode,
+    pub liquid_speed: SMM2CourseArea_LiquidSpeed,
+    pub liquid_min: u32,
     pub right_boundary: u32,
     pub top_boundary: u32,
     pub left_boundary: u32,
     pub bottom_boundary: u32,
+    pub day_time: SMM2CourseArea_DayTime,
+    pub object_count: u32,
+    pub sound_effect_count: u32,
+    pub snake_block_count: u32,
+    pub clear_pipe_count: u32,
+    pub piranha_creeper_count: u32,
+    pub exclamation_block_count: u32,
+    pub track_block_count: u32,
+    pub tile_count: u32,
+    pub track_count: u32,
+    pub icicle_count: u32,
     // special fields
     #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -1108,7 +1330,22 @@ impl SMM2CourseArea {
         self.auto_scroll = v;
     }
 
-    // .cemu_smm.SMM2CourseArea.Orientation orientation = 3;
+    // uint32 screen_boundary_flags = 3;
+
+
+    pub fn get_screen_boundary_flags(&self) -> u32 {
+        self.screen_boundary_flags
+    }
+    pub fn clear_screen_boundary_flags(&mut self) {
+        self.screen_boundary_flags = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_screen_boundary_flags(&mut self, v: u32) {
+        self.screen_boundary_flags = v;
+    }
+
+    // .cemu_smm.SMM2CourseArea.Orientation orientation = 4;
 
 
     pub fn get_orientation(&self) -> SMM2CourseArea_Orientation {
@@ -1123,67 +1360,67 @@ impl SMM2CourseArea {
         self.orientation = v;
     }
 
-    // uint32 water_max = 4;
+    // uint32 liquid_max = 5;
 
 
-    pub fn get_water_max(&self) -> u32 {
-        self.water_max
+    pub fn get_liquid_max(&self) -> u32 {
+        self.liquid_max
     }
-    pub fn clear_water_max(&mut self) {
-        self.water_max = 0;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_water_max(&mut self, v: u32) {
-        self.water_max = v;
-    }
-
-    // .cemu_smm.SMM2CourseArea.WaterMode water_mode = 5;
-
-
-    pub fn get_water_mode(&self) -> SMM2CourseArea_WaterMode {
-        self.water_mode
-    }
-    pub fn clear_water_mode(&mut self) {
-        self.water_mode = SMM2CourseArea_WaterMode::FIXED;
+    pub fn clear_liquid_max(&mut self) {
+        self.liquid_max = 0;
     }
 
     // Param is passed by value, moved
-    pub fn set_water_mode(&mut self, v: SMM2CourseArea_WaterMode) {
-        self.water_mode = v;
+    pub fn set_liquid_max(&mut self, v: u32) {
+        self.liquid_max = v;
     }
 
-    // .cemu_smm.SMM2CourseArea.WaterSpeed water_speed = 6;
+    // .cemu_smm.SMM2CourseArea.LiquidMode liquid_mode = 6;
 
 
-    pub fn get_water_speed(&self) -> SMM2CourseArea_WaterSpeed {
-        self.water_speed
+    pub fn get_liquid_mode(&self) -> SMM2CourseArea_LiquidMode {
+        self.liquid_mode
     }
-    pub fn clear_water_speed(&mut self) {
-        self.water_speed = SMM2CourseArea_WaterSpeed::NONE;
-    }
-
-    // Param is passed by value, moved
-    pub fn set_water_speed(&mut self, v: SMM2CourseArea_WaterSpeed) {
-        self.water_speed = v;
-    }
-
-    // uint32 water_min = 7;
-
-
-    pub fn get_water_min(&self) -> u32 {
-        self.water_min
-    }
-    pub fn clear_water_min(&mut self) {
-        self.water_min = 0;
+    pub fn clear_liquid_mode(&mut self) {
+        self.liquid_mode = SMM2CourseArea_LiquidMode::FIXED;
     }
 
     // Param is passed by value, moved
-    pub fn set_water_min(&mut self, v: u32) {
-        self.water_min = v;
+    pub fn set_liquid_mode(&mut self, v: SMM2CourseArea_LiquidMode) {
+        self.liquid_mode = v;
     }
 
-    // uint32 right_boundary = 8;
+    // .cemu_smm.SMM2CourseArea.LiquidSpeed liquid_speed = 7;
+
+
+    pub fn get_liquid_speed(&self) -> SMM2CourseArea_LiquidSpeed {
+        self.liquid_speed
+    }
+    pub fn clear_liquid_speed(&mut self) {
+        self.liquid_speed = SMM2CourseArea_LiquidSpeed::NONE;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_liquid_speed(&mut self, v: SMM2CourseArea_LiquidSpeed) {
+        self.liquid_speed = v;
+    }
+
+    // uint32 liquid_min = 8;
+
+
+    pub fn get_liquid_min(&self) -> u32 {
+        self.liquid_min
+    }
+    pub fn clear_liquid_min(&mut self) {
+        self.liquid_min = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_liquid_min(&mut self, v: u32) {
+        self.liquid_min = v;
+    }
+
+    // uint32 right_boundary = 9;
 
 
     pub fn get_right_boundary(&self) -> u32 {
@@ -1198,7 +1435,7 @@ impl SMM2CourseArea {
         self.right_boundary = v;
     }
 
-    // uint32 top_boundary = 9;
+    // uint32 top_boundary = 10;
 
 
     pub fn get_top_boundary(&self) -> u32 {
@@ -1213,7 +1450,7 @@ impl SMM2CourseArea {
         self.top_boundary = v;
     }
 
-    // uint32 left_boundary = 10;
+    // uint32 left_boundary = 11;
 
 
     pub fn get_left_boundary(&self) -> u32 {
@@ -1228,7 +1465,7 @@ impl SMM2CourseArea {
         self.left_boundary = v;
     }
 
-    // uint32 bottom_boundary = 11;
+    // uint32 bottom_boundary = 12;
 
 
     pub fn get_bottom_boundary(&self) -> u32 {
@@ -1241,6 +1478,171 @@ impl SMM2CourseArea {
     // Param is passed by value, moved
     pub fn set_bottom_boundary(&mut self, v: u32) {
         self.bottom_boundary = v;
+    }
+
+    // .cemu_smm.SMM2CourseArea.DayTime day_time = 13;
+
+
+    pub fn get_day_time(&self) -> SMM2CourseArea_DayTime {
+        self.day_time
+    }
+    pub fn clear_day_time(&mut self) {
+        self.day_time = SMM2CourseArea_DayTime::DAY;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_day_time(&mut self, v: SMM2CourseArea_DayTime) {
+        self.day_time = v;
+    }
+
+    // uint32 object_count = 14;
+
+
+    pub fn get_object_count(&self) -> u32 {
+        self.object_count
+    }
+    pub fn clear_object_count(&mut self) {
+        self.object_count = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_object_count(&mut self, v: u32) {
+        self.object_count = v;
+    }
+
+    // uint32 sound_effect_count = 15;
+
+
+    pub fn get_sound_effect_count(&self) -> u32 {
+        self.sound_effect_count
+    }
+    pub fn clear_sound_effect_count(&mut self) {
+        self.sound_effect_count = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_sound_effect_count(&mut self, v: u32) {
+        self.sound_effect_count = v;
+    }
+
+    // uint32 snake_block_count = 16;
+
+
+    pub fn get_snake_block_count(&self) -> u32 {
+        self.snake_block_count
+    }
+    pub fn clear_snake_block_count(&mut self) {
+        self.snake_block_count = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_snake_block_count(&mut self, v: u32) {
+        self.snake_block_count = v;
+    }
+
+    // uint32 clear_pipe_count = 17;
+
+
+    pub fn get_clear_pipe_count(&self) -> u32 {
+        self.clear_pipe_count
+    }
+    pub fn clear_clear_pipe_count(&mut self) {
+        self.clear_pipe_count = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_clear_pipe_count(&mut self, v: u32) {
+        self.clear_pipe_count = v;
+    }
+
+    // uint32 piranha_creeper_count = 18;
+
+
+    pub fn get_piranha_creeper_count(&self) -> u32 {
+        self.piranha_creeper_count
+    }
+    pub fn clear_piranha_creeper_count(&mut self) {
+        self.piranha_creeper_count = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_piranha_creeper_count(&mut self, v: u32) {
+        self.piranha_creeper_count = v;
+    }
+
+    // uint32 exclamation_block_count = 19;
+
+
+    pub fn get_exclamation_block_count(&self) -> u32 {
+        self.exclamation_block_count
+    }
+    pub fn clear_exclamation_block_count(&mut self) {
+        self.exclamation_block_count = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_exclamation_block_count(&mut self, v: u32) {
+        self.exclamation_block_count = v;
+    }
+
+    // uint32 track_block_count = 20;
+
+
+    pub fn get_track_block_count(&self) -> u32 {
+        self.track_block_count
+    }
+    pub fn clear_track_block_count(&mut self) {
+        self.track_block_count = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_track_block_count(&mut self, v: u32) {
+        self.track_block_count = v;
+    }
+
+    // uint32 tile_count = 21;
+
+
+    pub fn get_tile_count(&self) -> u32 {
+        self.tile_count
+    }
+    pub fn clear_tile_count(&mut self) {
+        self.tile_count = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_tile_count(&mut self, v: u32) {
+        self.tile_count = v;
+    }
+
+    // uint32 track_count = 22;
+
+
+    pub fn get_track_count(&self) -> u32 {
+        self.track_count
+    }
+    pub fn clear_track_count(&mut self) {
+        self.track_count = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_track_count(&mut self, v: u32) {
+        self.track_count = v;
+    }
+
+    // uint32 icicle_count = 23;
+
+
+    pub fn get_icicle_count(&self) -> u32 {
+        self.icicle_count
+    }
+    pub fn clear_icicle_count(&mut self) {
+        self.icicle_count = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_icicle_count(&mut self, v: u32) {
+        self.icicle_count = v;
     }
 }
 
@@ -1260,55 +1662,135 @@ impl ::protobuf::Message for SMM2CourseArea {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.auto_scroll, 2, &mut self.unknown_fields)?
                 },
                 3 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.orientation, 3, &mut self.unknown_fields)?
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.screen_boundary_flags = tmp;
                 },
                 4 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_uint32()?;
-                    self.water_max = tmp;
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.orientation, 4, &mut self.unknown_fields)?
                 },
                 5 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.water_mode, 5, &mut self.unknown_fields)?
-                },
-                6 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.water_speed, 6, &mut self.unknown_fields)?
-                },
-                7 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_uint32()?;
-                    self.water_min = tmp;
+                    self.liquid_max = tmp;
+                },
+                6 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.liquid_mode, 6, &mut self.unknown_fields)?
+                },
+                7 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.liquid_speed, 7, &mut self.unknown_fields)?
                 },
                 8 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_uint32()?;
-                    self.right_boundary = tmp;
+                    self.liquid_min = tmp;
                 },
                 9 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_uint32()?;
-                    self.top_boundary = tmp;
+                    self.right_boundary = tmp;
                 },
                 10 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_uint32()?;
-                    self.left_boundary = tmp;
+                    self.top_boundary = tmp;
                 },
                 11 => {
                     if wire_type != ::protobuf::wire_format::WireTypeVarint {
                         return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
                     }
                     let tmp = is.read_uint32()?;
+                    self.left_boundary = tmp;
+                },
+                12 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
                     self.bottom_boundary = tmp;
+                },
+                13 => {
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.day_time, 13, &mut self.unknown_fields)?
+                },
+                14 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.object_count = tmp;
+                },
+                15 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.sound_effect_count = tmp;
+                },
+                16 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.snake_block_count = tmp;
+                },
+                17 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.clear_pipe_count = tmp;
+                },
+                18 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.piranha_creeper_count = tmp;
+                },
+                19 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.exclamation_block_count = tmp;
+                },
+                20 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.track_block_count = tmp;
+                },
+                21 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.tile_count = tmp;
+                },
+                22 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.track_count = tmp;
+                },
+                23 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.icicle_count = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -1328,32 +1810,68 @@ impl ::protobuf::Message for SMM2CourseArea {
         if self.auto_scroll != SMM2CourseArea_AutoScroll::NONE {
             my_size += ::protobuf::rt::enum_size(2, self.auto_scroll);
         }
+        if self.screen_boundary_flags != 0 {
+            my_size += ::protobuf::rt::value_size(3, self.screen_boundary_flags, ::protobuf::wire_format::WireTypeVarint);
+        }
         if self.orientation != SMM2CourseArea_Orientation::HORIZONTAL {
-            my_size += ::protobuf::rt::enum_size(3, self.orientation);
+            my_size += ::protobuf::rt::enum_size(4, self.orientation);
         }
-        if self.water_max != 0 {
-            my_size += ::protobuf::rt::value_size(4, self.water_max, ::protobuf::wire_format::WireTypeVarint);
+        if self.liquid_max != 0 {
+            my_size += ::protobuf::rt::value_size(5, self.liquid_max, ::protobuf::wire_format::WireTypeVarint);
         }
-        if self.water_mode != SMM2CourseArea_WaterMode::FIXED {
-            my_size += ::protobuf::rt::enum_size(5, self.water_mode);
+        if self.liquid_mode != SMM2CourseArea_LiquidMode::FIXED {
+            my_size += ::protobuf::rt::enum_size(6, self.liquid_mode);
         }
-        if self.water_speed != SMM2CourseArea_WaterSpeed::NONE {
-            my_size += ::protobuf::rt::enum_size(6, self.water_speed);
+        if self.liquid_speed != SMM2CourseArea_LiquidSpeed::NONE {
+            my_size += ::protobuf::rt::enum_size(7, self.liquid_speed);
         }
-        if self.water_min != 0 {
-            my_size += ::protobuf::rt::value_size(7, self.water_min, ::protobuf::wire_format::WireTypeVarint);
+        if self.liquid_min != 0 {
+            my_size += ::protobuf::rt::value_size(8, self.liquid_min, ::protobuf::wire_format::WireTypeVarint);
         }
         if self.right_boundary != 0 {
-            my_size += ::protobuf::rt::value_size(8, self.right_boundary, ::protobuf::wire_format::WireTypeVarint);
+            my_size += ::protobuf::rt::value_size(9, self.right_boundary, ::protobuf::wire_format::WireTypeVarint);
         }
         if self.top_boundary != 0 {
-            my_size += ::protobuf::rt::value_size(9, self.top_boundary, ::protobuf::wire_format::WireTypeVarint);
+            my_size += ::protobuf::rt::value_size(10, self.top_boundary, ::protobuf::wire_format::WireTypeVarint);
         }
         if self.left_boundary != 0 {
-            my_size += ::protobuf::rt::value_size(10, self.left_boundary, ::protobuf::wire_format::WireTypeVarint);
+            my_size += ::protobuf::rt::value_size(11, self.left_boundary, ::protobuf::wire_format::WireTypeVarint);
         }
         if self.bottom_boundary != 0 {
-            my_size += ::protobuf::rt::value_size(11, self.bottom_boundary, ::protobuf::wire_format::WireTypeVarint);
+            my_size += ::protobuf::rt::value_size(12, self.bottom_boundary, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.day_time != SMM2CourseArea_DayTime::DAY {
+            my_size += ::protobuf::rt::enum_size(13, self.day_time);
+        }
+        if self.object_count != 0 {
+            my_size += ::protobuf::rt::value_size(14, self.object_count, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.sound_effect_count != 0 {
+            my_size += ::protobuf::rt::value_size(15, self.sound_effect_count, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.snake_block_count != 0 {
+            my_size += ::protobuf::rt::value_size(16, self.snake_block_count, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.clear_pipe_count != 0 {
+            my_size += ::protobuf::rt::value_size(17, self.clear_pipe_count, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.piranha_creeper_count != 0 {
+            my_size += ::protobuf::rt::value_size(18, self.piranha_creeper_count, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.exclamation_block_count != 0 {
+            my_size += ::protobuf::rt::value_size(19, self.exclamation_block_count, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.track_block_count != 0 {
+            my_size += ::protobuf::rt::value_size(20, self.track_block_count, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.tile_count != 0 {
+            my_size += ::protobuf::rt::value_size(21, self.tile_count, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.track_count != 0 {
+            my_size += ::protobuf::rt::value_size(22, self.track_count, ::protobuf::wire_format::WireTypeVarint);
+        }
+        if self.icicle_count != 0 {
+            my_size += ::protobuf::rt::value_size(23, self.icicle_count, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -1367,32 +1885,68 @@ impl ::protobuf::Message for SMM2CourseArea {
         if self.auto_scroll != SMM2CourseArea_AutoScroll::NONE {
             os.write_enum(2, self.auto_scroll.value())?;
         }
+        if self.screen_boundary_flags != 0 {
+            os.write_uint32(3, self.screen_boundary_flags)?;
+        }
         if self.orientation != SMM2CourseArea_Orientation::HORIZONTAL {
-            os.write_enum(3, self.orientation.value())?;
+            os.write_enum(4, self.orientation.value())?;
         }
-        if self.water_max != 0 {
-            os.write_uint32(4, self.water_max)?;
+        if self.liquid_max != 0 {
+            os.write_uint32(5, self.liquid_max)?;
         }
-        if self.water_mode != SMM2CourseArea_WaterMode::FIXED {
-            os.write_enum(5, self.water_mode.value())?;
+        if self.liquid_mode != SMM2CourseArea_LiquidMode::FIXED {
+            os.write_enum(6, self.liquid_mode.value())?;
         }
-        if self.water_speed != SMM2CourseArea_WaterSpeed::NONE {
-            os.write_enum(6, self.water_speed.value())?;
+        if self.liquid_speed != SMM2CourseArea_LiquidSpeed::NONE {
+            os.write_enum(7, self.liquid_speed.value())?;
         }
-        if self.water_min != 0 {
-            os.write_uint32(7, self.water_min)?;
+        if self.liquid_min != 0 {
+            os.write_uint32(8, self.liquid_min)?;
         }
         if self.right_boundary != 0 {
-            os.write_uint32(8, self.right_boundary)?;
+            os.write_uint32(9, self.right_boundary)?;
         }
         if self.top_boundary != 0 {
-            os.write_uint32(9, self.top_boundary)?;
+            os.write_uint32(10, self.top_boundary)?;
         }
         if self.left_boundary != 0 {
-            os.write_uint32(10, self.left_boundary)?;
+            os.write_uint32(11, self.left_boundary)?;
         }
         if self.bottom_boundary != 0 {
-            os.write_uint32(11, self.bottom_boundary)?;
+            os.write_uint32(12, self.bottom_boundary)?;
+        }
+        if self.day_time != SMM2CourseArea_DayTime::DAY {
+            os.write_enum(13, self.day_time.value())?;
+        }
+        if self.object_count != 0 {
+            os.write_uint32(14, self.object_count)?;
+        }
+        if self.sound_effect_count != 0 {
+            os.write_uint32(15, self.sound_effect_count)?;
+        }
+        if self.snake_block_count != 0 {
+            os.write_uint32(16, self.snake_block_count)?;
+        }
+        if self.clear_pipe_count != 0 {
+            os.write_uint32(17, self.clear_pipe_count)?;
+        }
+        if self.piranha_creeper_count != 0 {
+            os.write_uint32(18, self.piranha_creeper_count)?;
+        }
+        if self.exclamation_block_count != 0 {
+            os.write_uint32(19, self.exclamation_block_count)?;
+        }
+        if self.track_block_count != 0 {
+            os.write_uint32(20, self.track_block_count)?;
+        }
+        if self.tile_count != 0 {
+            os.write_uint32(21, self.tile_count)?;
+        }
+        if self.track_count != 0 {
+            os.write_uint32(22, self.track_count)?;
+        }
+        if self.icicle_count != 0 {
+            os.write_uint32(23, self.icicle_count)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1446,30 +2000,35 @@ impl ::protobuf::Message for SMM2CourseArea {
                     |m: &SMM2CourseArea| { &m.auto_scroll },
                     |m: &mut SMM2CourseArea| { &mut m.auto_scroll },
                 ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "screen_boundary_flags",
+                    |m: &SMM2CourseArea| { &m.screen_boundary_flags },
+                    |m: &mut SMM2CourseArea| { &mut m.screen_boundary_flags },
+                ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_Orientation>>(
                     "orientation",
                     |m: &SMM2CourseArea| { &m.orientation },
                     |m: &mut SMM2CourseArea| { &mut m.orientation },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
-                    "water_max",
-                    |m: &SMM2CourseArea| { &m.water_max },
-                    |m: &mut SMM2CourseArea| { &mut m.water_max },
+                    "liquid_max",
+                    |m: &SMM2CourseArea| { &m.liquid_max },
+                    |m: &mut SMM2CourseArea| { &mut m.liquid_max },
                 ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_WaterMode>>(
-                    "water_mode",
-                    |m: &SMM2CourseArea| { &m.water_mode },
-                    |m: &mut SMM2CourseArea| { &mut m.water_mode },
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_LiquidMode>>(
+                    "liquid_mode",
+                    |m: &SMM2CourseArea| { &m.liquid_mode },
+                    |m: &mut SMM2CourseArea| { &mut m.liquid_mode },
                 ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_WaterSpeed>>(
-                    "water_speed",
-                    |m: &SMM2CourseArea| { &m.water_speed },
-                    |m: &mut SMM2CourseArea| { &mut m.water_speed },
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_LiquidSpeed>>(
+                    "liquid_speed",
+                    |m: &SMM2CourseArea| { &m.liquid_speed },
+                    |m: &mut SMM2CourseArea| { &mut m.liquid_speed },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
-                    "water_min",
-                    |m: &SMM2CourseArea| { &m.water_min },
-                    |m: &mut SMM2CourseArea| { &mut m.water_min },
+                    "liquid_min",
+                    |m: &SMM2CourseArea| { &m.liquid_min },
+                    |m: &mut SMM2CourseArea| { &mut m.liquid_min },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
                     "right_boundary",
@@ -1490,6 +2049,61 @@ impl ::protobuf::Message for SMM2CourseArea {
                     "bottom_boundary",
                     |m: &SMM2CourseArea| { &m.bottom_boundary },
                     |m: &mut SMM2CourseArea| { &mut m.bottom_boundary },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_DayTime>>(
+                    "day_time",
+                    |m: &SMM2CourseArea| { &m.day_time },
+                    |m: &mut SMM2CourseArea| { &mut m.day_time },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "object_count",
+                    |m: &SMM2CourseArea| { &m.object_count },
+                    |m: &mut SMM2CourseArea| { &mut m.object_count },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "sound_effect_count",
+                    |m: &SMM2CourseArea| { &m.sound_effect_count },
+                    |m: &mut SMM2CourseArea| { &mut m.sound_effect_count },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "snake_block_count",
+                    |m: &SMM2CourseArea| { &m.snake_block_count },
+                    |m: &mut SMM2CourseArea| { &mut m.snake_block_count },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "clear_pipe_count",
+                    |m: &SMM2CourseArea| { &m.clear_pipe_count },
+                    |m: &mut SMM2CourseArea| { &mut m.clear_pipe_count },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "piranha_creeper_count",
+                    |m: &SMM2CourseArea| { &m.piranha_creeper_count },
+                    |m: &mut SMM2CourseArea| { &mut m.piranha_creeper_count },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "exclamation_block_count",
+                    |m: &SMM2CourseArea| { &m.exclamation_block_count },
+                    |m: &mut SMM2CourseArea| { &mut m.exclamation_block_count },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "track_block_count",
+                    |m: &SMM2CourseArea| { &m.track_block_count },
+                    |m: &mut SMM2CourseArea| { &mut m.track_block_count },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "tile_count",
+                    |m: &SMM2CourseArea| { &m.tile_count },
+                    |m: &mut SMM2CourseArea| { &mut m.tile_count },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "track_count",
+                    |m: &SMM2CourseArea| { &m.track_count },
+                    |m: &mut SMM2CourseArea| { &mut m.track_count },
+                ));
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "icicle_count",
+                    |m: &SMM2CourseArea| { &m.icicle_count },
+                    |m: &mut SMM2CourseArea| { &mut m.icicle_count },
                 ));
                 ::protobuf::reflect::MessageDescriptor::new::<SMM2CourseArea>(
                     "SMM2CourseArea",
@@ -1515,15 +2129,27 @@ impl ::protobuf::Clear for SMM2CourseArea {
     fn clear(&mut self) {
         self.course_theme = SMM2CourseArea_CourseTheme::GROUND;
         self.auto_scroll = SMM2CourseArea_AutoScroll::NONE;
+        self.screen_boundary_flags = 0;
         self.orientation = SMM2CourseArea_Orientation::HORIZONTAL;
-        self.water_max = 0;
-        self.water_mode = SMM2CourseArea_WaterMode::FIXED;
-        self.water_speed = SMM2CourseArea_WaterSpeed::NONE;
-        self.water_min = 0;
+        self.liquid_max = 0;
+        self.liquid_mode = SMM2CourseArea_LiquidMode::FIXED;
+        self.liquid_speed = SMM2CourseArea_LiquidSpeed::NONE;
+        self.liquid_min = 0;
         self.right_boundary = 0;
         self.top_boundary = 0;
         self.left_boundary = 0;
         self.bottom_boundary = 0;
+        self.day_time = SMM2CourseArea_DayTime::DAY;
+        self.object_count = 0;
+        self.sound_effect_count = 0;
+        self.snake_block_count = 0;
+        self.clear_pipe_count = 0;
+        self.piranha_creeper_count = 0;
+        self.exclamation_block_count = 0;
+        self.track_block_count = 0;
+        self.tile_count = 0;
+        self.track_count = 0;
+        self.icicle_count = 0;
         self.unknown_fields.clear();
     }
 }
@@ -1743,31 +2369,31 @@ impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_Orientation {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub enum SMM2CourseArea_WaterMode {
+pub enum SMM2CourseArea_LiquidMode {
     FIXED = 0,
     ONE_WAY = 1,
     OSCILLATING = 2,
 }
 
-impl ::protobuf::ProtobufEnum for SMM2CourseArea_WaterMode {
+impl ::protobuf::ProtobufEnum for SMM2CourseArea_LiquidMode {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_WaterMode> {
+    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_LiquidMode> {
         match value {
-            0 => ::std::option::Option::Some(SMM2CourseArea_WaterMode::FIXED),
-            1 => ::std::option::Option::Some(SMM2CourseArea_WaterMode::ONE_WAY),
-            2 => ::std::option::Option::Some(SMM2CourseArea_WaterMode::OSCILLATING),
+            0 => ::std::option::Option::Some(SMM2CourseArea_LiquidMode::FIXED),
+            1 => ::std::option::Option::Some(SMM2CourseArea_LiquidMode::ONE_WAY),
+            2 => ::std::option::Option::Some(SMM2CourseArea_LiquidMode::OSCILLATING),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [SMM2CourseArea_WaterMode] = &[
-            SMM2CourseArea_WaterMode::FIXED,
-            SMM2CourseArea_WaterMode::ONE_WAY,
-            SMM2CourseArea_WaterMode::OSCILLATING,
+        static values: &'static [SMM2CourseArea_LiquidMode] = &[
+            SMM2CourseArea_LiquidMode::FIXED,
+            SMM2CourseArea_LiquidMode::ONE_WAY,
+            SMM2CourseArea_LiquidMode::OSCILLATING,
         ];
         values
     }
@@ -1779,22 +2405,22 @@ impl ::protobuf::ProtobufEnum for SMM2CourseArea_WaterMode {
         };
         unsafe {
             descriptor.get(|| {
-                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseArea_WaterMode", file_descriptor_proto())
+                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseArea_LiquidMode", file_descriptor_proto())
             })
         }
     }
 }
 
-impl ::std::marker::Copy for SMM2CourseArea_WaterMode {
+impl ::std::marker::Copy for SMM2CourseArea_LiquidMode {
 }
 
-impl ::std::default::Default for SMM2CourseArea_WaterMode {
+impl ::std::default::Default for SMM2CourseArea_LiquidMode {
     fn default() -> Self {
-        SMM2CourseArea_WaterMode::FIXED
+        SMM2CourseArea_LiquidMode::FIXED
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_WaterMode {
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_LiquidMode {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
     }
@@ -1802,34 +2428,34 @@ impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_WaterMode {
 
 #[derive(Clone,PartialEq,Eq,Debug,Hash)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub enum SMM2CourseArea_WaterSpeed {
+pub enum SMM2CourseArea_LiquidSpeed {
     NONE = 0,
     SLOW = 1,
     MEDIUM = 2,
     FAST = 3,
 }
 
-impl ::protobuf::ProtobufEnum for SMM2CourseArea_WaterSpeed {
+impl ::protobuf::ProtobufEnum for SMM2CourseArea_LiquidSpeed {
     fn value(&self) -> i32 {
         *self as i32
     }
 
-    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_WaterSpeed> {
+    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_LiquidSpeed> {
         match value {
-            0 => ::std::option::Option::Some(SMM2CourseArea_WaterSpeed::NONE),
-            1 => ::std::option::Option::Some(SMM2CourseArea_WaterSpeed::SLOW),
-            2 => ::std::option::Option::Some(SMM2CourseArea_WaterSpeed::MEDIUM),
-            3 => ::std::option::Option::Some(SMM2CourseArea_WaterSpeed::FAST),
+            0 => ::std::option::Option::Some(SMM2CourseArea_LiquidSpeed::NONE),
+            1 => ::std::option::Option::Some(SMM2CourseArea_LiquidSpeed::SLOW),
+            2 => ::std::option::Option::Some(SMM2CourseArea_LiquidSpeed::MEDIUM),
+            3 => ::std::option::Option::Some(SMM2CourseArea_LiquidSpeed::FAST),
             _ => ::std::option::Option::None
         }
     }
 
     fn values() -> &'static [Self] {
-        static values: &'static [SMM2CourseArea_WaterSpeed] = &[
-            SMM2CourseArea_WaterSpeed::NONE,
-            SMM2CourseArea_WaterSpeed::SLOW,
-            SMM2CourseArea_WaterSpeed::MEDIUM,
-            SMM2CourseArea_WaterSpeed::FAST,
+        static values: &'static [SMM2CourseArea_LiquidSpeed] = &[
+            SMM2CourseArea_LiquidSpeed::NONE,
+            SMM2CourseArea_LiquidSpeed::SLOW,
+            SMM2CourseArea_LiquidSpeed::MEDIUM,
+            SMM2CourseArea_LiquidSpeed::FAST,
         ];
         values
     }
@@ -1841,22 +2467,78 @@ impl ::protobuf::ProtobufEnum for SMM2CourseArea_WaterSpeed {
         };
         unsafe {
             descriptor.get(|| {
-                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseArea_WaterSpeed", file_descriptor_proto())
+                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseArea_LiquidSpeed", file_descriptor_proto())
             })
         }
     }
 }
 
-impl ::std::marker::Copy for SMM2CourseArea_WaterSpeed {
+impl ::std::marker::Copy for SMM2CourseArea_LiquidSpeed {
 }
 
-impl ::std::default::Default for SMM2CourseArea_WaterSpeed {
+impl ::std::default::Default for SMM2CourseArea_LiquidSpeed {
     fn default() -> Self {
-        SMM2CourseArea_WaterSpeed::NONE
+        SMM2CourseArea_LiquidSpeed::NONE
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_WaterSpeed {
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_LiquidSpeed {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub enum SMM2CourseArea_DayTime {
+    DAY = 0,
+    NIGHT = 2,
+}
+
+impl ::protobuf::ProtobufEnum for SMM2CourseArea_DayTime {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_DayTime> {
+        match value {
+            0 => ::std::option::Option::Some(SMM2CourseArea_DayTime::DAY),
+            2 => ::std::option::Option::Some(SMM2CourseArea_DayTime::NIGHT),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [SMM2CourseArea_DayTime] = &[
+            SMM2CourseArea_DayTime::DAY,
+            SMM2CourseArea_DayTime::NIGHT,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::EnumDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::EnumDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseArea_DayTime", file_descriptor_proto())
+            })
+        }
+    }
+}
+
+impl ::std::marker::Copy for SMM2CourseArea_DayTime {
+}
+
+impl ::std::default::Default for SMM2CourseArea_DayTime {
+    fn default() -> Self {
+        SMM2CourseArea_DayTime::DAY
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_DayTime {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
     }
@@ -1867,7 +2549,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x07version\x18\x01\x20\x01(\rB\0\x12,\n\x06header\x18\x02\x20\x01(\x0b2\
     \x1a.cemu_smm.SMM2CourseHeaderB\0\x12/\n\x0bcourse_area\x18\x03\x20\x01(\
     \x0b2\x18.cemu_smm.SMM2CourseAreaB\0\x123\n\x0fcourse_sub_area\x18\x04\
-    \x20\x01(\x0b2\x18.cemu_smm.SMM2CourseAreaB\0:\0\"\xfb\x03\n\x10SMM2Cour\
+    \x20\x01(\x0b2\x18.cemu_smm.SMM2CourseAreaB\0:\0\"\x94\x05\n\x10SMM2Cour\
     seHeader\x12\x12\n\x08modified\x18\x01\x20\x01(\x04B\0\x12\x0f\n\x05titl\
     e\x18\x02\x20\x01(\tB\0\x12\x15\n\x0bdescription\x18\x03\x20\x01(\tB\0\
     \x12\x11\n\x07start_y\x18\x04\x20\x01(\rB\0\x12\x12\n\x08finish_y\x18\
@@ -1876,33 +2558,47 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     .cemu_smm.SMM2CourseHeader.GameStyleB\0\x12M\n\x14clear_condition_type\
     \x18\t\x20\x01(\x0e2-.cemu_smm.SMM2CourseHeader.ClearConditionTypeB\0\
     \x12\x19\n\x0fclear_condition\x18\n\x20\x01(\rB\0\x12\x20\n\x16clear_con\
-    dition_amount\x18\x0b\x20\x01(\rB\0\x12\x1a\n\x10clear_check_time\x18\
-    \x0c\x20\x01(\rB\0\"5\n\tGameStyle\x12\x06\n\x02M1\x10\0\x12\x06\n\x02M3\
-    \x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x12\x06\n\x02W3\
-    \x10\x04\x1a\0\"C\n\x12ClearConditionType\x12\x08\n\x04NONE\x10\0\x12\t\
-    \n\x05PARTS\x10\x01\x12\n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\x10\x03\
-    \x1a\0:\0\"\xcb\x06\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\
-    \x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\x12:\n\x0bauto_sc\
-    roll\x18\x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrollB\0\x12;\n\
-    \x0borientation\x18\x03\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.Orientati\
-    onB\0\x12\x13\n\twater_max\x18\x04\x20\x01(\rB\0\x128\n\nwater_mode\x18\
-    \x05\x20\x01(\x0e2\".cemu_smm.SMM2CourseArea.WaterModeB\0\x12:\n\x0bwate\
-    r_speed\x18\x06\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.WaterSpeedB\0\x12\
-    \x13\n\twater_min\x18\x07\x20\x01(\rB\0\x12\x18\n\x0eright_boundary\x18\
-    \x08\x20\x01(\rB\0\x12\x16\n\x0ctop_boundary\x18\t\x20\x01(\rB\0\x12\x17\
-    \n\rleft_boundary\x18\n\x20\x01(\rB\0\x12\x19\n\x0fbottom_boundary\x18\
-    \x0b\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTheme\x12\n\n\x06GROUND\x10\0\
-    \x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\x10\x02\x12\x0b\n\
-    \x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\x10\n\x0cGHOUST_HO\
-    USE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\x06DESERT\x10\x07\x12\x07\
-    \n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\0\"D\n\nAutoScroll\x12\x08\
-    \n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\
-    \x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\x10\x04\x1a\0\"-\n\x0bOrientati\
-    on\x12\x0e\n\nHORIZONTAL\x10\0\x12\x0c\n\x08VERTICAL\x10\x01\x1a\0\"6\n\
-    \tWaterMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\
-    \n\x0bOSCILLATING\x10\x02\x1a\0\"8\n\nWaterSpeed\x12\x08\n\x04NONE\x10\0\
-    \x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\
-    \x10\x03\x1a\0:\0B\0b\x06proto3\
+    dition_amount\x18\x0b\x20\x01(\rB\0\x12\x1b\n\x11clear_check_tries\x18\
+    \x0c\x20\x01(\rB\0\x12\x1a\n\x10clear_check_time\x18\r\x20\x01(\rB\0\x12\
+    \x16\n\x0cgame_version\x18\x0e\x20\x01(\rB\0\x12\x1a\n\x10management_fla\
+    gs\x18\x0f\x20\x01(\rB\0\x12\x15\n\x0bcreation_id\x18\x10\x20\x01(\rB\0\
+    \x12\x13\n\tupload_id\x18\x11\x20\x01(\x04B\0\x12\x1a\n\x10completion_fl\
+    ags\x18\x12\x20\x01(\rB\0\"5\n\tGameStyle\x12\x06\n\x02M1\x10\0\x12\x06\
+    \n\x02M3\x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x12\x06\
+    \n\x02W3\x10\x04\x1a\0\"C\n\x12ClearConditionType\x12\x08\n\x04NONE\x10\
+    \0\x12\t\n\x05PARTS\x10\x01\x12\n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\
+    \x10\x03\x1a\0:\0\"\xe0\t\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\
+    \x01\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\x12:\n\x0baut\
+    o_scroll\x18\x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrollB\0\
+    \x12\x1f\n\x15screen_boundary_flags\x18\x03\x20\x01(\rB\0\x12;\n\x0borie\
+    ntation\x18\x04\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.OrientationB\0\
+    \x12\x14\n\nliquid_max\x18\x05\x20\x01(\rB\0\x12:\n\x0bliquid_mode\x18\
+    \x06\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.LiquidModeB\0\x12<\n\x0cliqu\
+    id_speed\x18\x07\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.LiquidSpeedB\0\
+    \x12\x14\n\nliquid_min\x18\x08\x20\x01(\rB\0\x12\x18\n\x0eright_boundary\
+    \x18\t\x20\x01(\rB\0\x12\x16\n\x0ctop_boundary\x18\n\x20\x01(\rB\0\x12\
+    \x17\n\rleft_boundary\x18\x0b\x20\x01(\rB\0\x12\x19\n\x0fbottom_boundary\
+    \x18\x0c\x20\x01(\rB\0\x124\n\x08day_time\x18\r\x20\x01(\x0e2\x20.cemu_s\
+    mm.SMM2CourseArea.DayTimeB\0\x12\x16\n\x0cobject_count\x18\x0e\x20\x01(\
+    \rB\0\x12\x1c\n\x12sound_effect_count\x18\x0f\x20\x01(\rB\0\x12\x1b\n\
+    \x11snake_block_count\x18\x10\x20\x01(\rB\0\x12\x1a\n\x10clear_pipe_coun\
+    t\x18\x11\x20\x01(\rB\0\x12\x1f\n\x15piranha_creeper_count\x18\x12\x20\
+    \x01(\rB\0\x12!\n\x17exclamation_block_count\x18\x13\x20\x01(\rB\0\x12\
+    \x1b\n\x11track_block_count\x18\x14\x20\x01(\rB\0\x12\x14\n\ntile_count\
+    \x18\x15\x20\x01(\rB\0\x12\x15\n\x0btrack_count\x18\x16\x20\x01(\rB\0\
+    \x12\x16\n\x0cicicle_count\x18\x17\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTh\
+    eme\x12\n\n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06\
+    CASTLE\x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\
+    \x04\x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\
+    \x06DESERT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\
+    \0\"D\n\nAutoScroll\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\
+    \x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\
+    \x10\x04\x1a\0\"-\n\x0bOrientation\x12\x0e\n\nHORIZONTAL\x10\0\x12\x0c\n\
+    \x08VERTICAL\x10\x01\x1a\0\"7\n\nLiquidMode\x12\t\n\x05FIXED\x10\0\x12\
+    \x0b\n\x07ONE_WAY\x10\x01\x12\x0f\n\x0bOSCILLATING\x10\x02\x1a\0\"9\n\
+    \x0bLiquidSpeed\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\
+    \n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x1a\0\"\x1f\n\x07DayTime\
+    \x12\x07\n\x03DAY\x10\0\x12\t\n\x05NIGHT\x10\x02\x1a\0:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

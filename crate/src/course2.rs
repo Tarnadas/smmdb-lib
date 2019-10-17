@@ -2,7 +2,7 @@
 
 use crate::proto::SMM2Course::{
     SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
-    SMM2CourseArea_Orientation, SMM2CourseArea_WaterMode, SMM2CourseArea_WaterSpeed,
+    SMM2CourseArea_LiquidMode, SMM2CourseArea_LiquidSpeed, SMM2CourseArea_Orientation,
     SMM2CourseHeader, SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_GameStyle,
 };
 use crate::{
@@ -306,15 +306,16 @@ impl Course2 {
             course_data[ORIENTATION_OFFSET[const_index]] as i32,
         )
         .ok_or(Course2ConvertError::AutoScrollParse)?;
-        let water_max = course_data[WATER_MAX_OFFSET[const_index]] as u32;
-        let water_mode =
-            SMM2CourseArea_WaterMode::from_i32(course_data[WATER_MODE_OFFSET[const_index]] as i32)
-                .ok_or(Course2ConvertError::WaterModeParse)?;
-        let water_speed = SMM2CourseArea_WaterSpeed::from_i32(
-            course_data[WATER_SPEED_OFFSET[const_index]] as i32,
+        let liquid_max = course_data[LIQUID_MAX_OFFSET[const_index]] as u32;
+        let liquid_mode = SMM2CourseArea_LiquidMode::from_i32(
+            course_data[LIQUID_MODE_OFFSET[const_index]] as i32,
+        )
+        .ok_or(Course2ConvertError::WaterModeParse)?;
+        let liquid_speed = SMM2CourseArea_LiquidSpeed::from_i32(
+            course_data[LIQUID_SPEED_OFFSET[const_index]] as i32,
         )
         .ok_or(Course2ConvertError::WaterSpeedParse)?;
-        let water_min = course_data[WATER_MIN_OFFSET[const_index]] as u32;
+        let liquid_min = course_data[LIQUID_MIN_OFFSET[const_index]] as u32;
         let right_boundary = u32::from_be_bytes([
             course_data[RIGHT_BOUNDARY_OFFSET[const_index]],
             course_data[RIGHT_BOUNDARY_OFFSET[const_index] + 1],
@@ -344,10 +345,10 @@ impl Course2 {
             course_theme,
             auto_scroll,
             orientation,
-            water_max,
-            water_mode,
-            water_speed,
-            water_min,
+            liquid_max,
+            liquid_mode,
+            liquid_speed,
+            liquid_min,
             right_boundary,
             top_boundary,
             left_boundary,
