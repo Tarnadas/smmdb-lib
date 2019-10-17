@@ -41,7 +41,11 @@ message SMM2CourseHeader {
     uint32 management_flags = 15; // u32 bitmask at offset 0x18
     uint32 creation_id = 16; // u32 at offset 0x24
     uint64 upload_id = 17; // u64 at offset 0x28
-    uint32 completion_flags = 18; // u32 at offset 0x30
+    enum CompletionFlag {
+        NOT_CLEARED = 0;
+        CLEARED = 1;
+    }
+    CompletionFlag completion_flag = 18; // u32 at offset 0x30
 }
 
 message SMM2CourseArea {

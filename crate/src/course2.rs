@@ -3,7 +3,8 @@
 use crate::proto::SMM2Course::{
     SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
     SMM2CourseArea_LiquidMode, SMM2CourseArea_LiquidSpeed, SMM2CourseArea_Orientation,
-    SMM2CourseHeader, SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_GameStyle,
+    SMM2CourseHeader, SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_CompletionFlag,
+    SMM2CourseHeader_GameStyle,
 };
 use crate::{
     constants2::*, decrypt, key_tables::*, Course2ConvertError, DecompressionError, Thumbnail2,
@@ -266,12 +267,49 @@ impl Course2 {
             course_data[CLEAR_CONDITION_AMOUNT_OFFSET],
             course_data[CLEAR_CONDITION_AMOUNT_OFFSET + 1],
         ]) as u32;
+        let clear_check_tries = u32::from_be_bytes([
+            course_data[CLEAR_CHECK_TRIES_OFFSET],
+            course_data[CLEAR_CHECK_TRIES_OFFSET + 1],
+            course_data[CLEAR_CHECK_TRIES_OFFSET + 2],
+            course_data[CLEAR_CHECK_TRIES_OFFSET + 3],
+        ]);
         let clear_check_time = u32::from_be_bytes([
             course_data[CLEAR_CHECK_TIME_OFFSET],
             course_data[CLEAR_CHECK_TIME_OFFSET + 1],
             course_data[CLEAR_CHECK_TIME_OFFSET + 2],
             course_data[CLEAR_CHECK_TIME_OFFSET + 3],
         ]);
+        let game_version = u32::from_be_bytes([
+            course_data[GAME_VERSION_OFFSET],
+            course_data[GAME_VERSION_OFFSET + 1],
+            course_data[GAME_VERSION_OFFSET + 2],
+            course_data[GAME_VERSION_OFFSET + 3],
+        ]);
+        let management_flags = u32::from_be_bytes([
+            course_data[MANAGEMENT_FLAGS_OFFSET],
+            course_data[MANAGEMENT_FLAGS_OFFSET + 1],
+            course_data[MANAGEMENT_FLAGS_OFFSET + 2],
+            course_data[MANAGEMENT_FLAGS_OFFSET + 3],
+        ]);
+        let creation_id = u32::from_be_bytes([
+            course_data[CREATION_ID_OFFSET],
+            course_data[CREATION_ID_OFFSET + 1],
+            course_data[CREATION_ID_OFFSET + 2],
+            course_data[CREATION_ID_OFFSET + 3],
+        ]);
+        let upload_id = u64::from_be_bytes([
+            course_data[UPLOAD_ID_OFFSET],
+            course_data[UPLOAD_ID_OFFSET + 1],
+            course_data[UPLOAD_ID_OFFSET + 2],
+            course_data[UPLOAD_ID_OFFSET + 3],
+            course_data[UPLOAD_ID_OFFSET + 4],
+            course_data[UPLOAD_ID_OFFSET + 5],
+            course_data[UPLOAD_ID_OFFSET + 6],
+            course_data[UPLOAD_ID_OFFSET + 7],
+        ]);
+        let completion_flag =
+            SMM2CourseHeader_CompletionFlag::from_i32(course_data[COMPLETION_FLAG_OFFSET] as i32)
+                .ok_or(Course2ConvertError::CompletionFlagParse)?;
 
         Ok(SingularPtrField::some(SMM2CourseHeader {
             modified,
@@ -285,7 +323,13 @@ impl Course2 {
             clear_condition_type,
             clear_condition,
             clear_condition_amount,
+            clear_check_tries,
             clear_check_time,
+            game_version,
+            management_flags,
+            creation_id,
+            upload_id,
+            completion_flag,
             ..SMM2CourseHeader::default()
         }))
     }
