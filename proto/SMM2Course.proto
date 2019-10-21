@@ -70,7 +70,11 @@ message SMM2CourseArea {
         CUSTOM = 4;
     }
     AutoScroll auto_scroll = 2; // u8 at offset 0x01
-    uint32 screen_boundary_flags = 3; // u8 at offset 0x2
+    enum ScreenBoundary {
+        ABOVE_LINE = 0;
+        UNDER_LINE = 1;
+    }
+    ScreenBoundary screen_boundary = 3; // u8 at offset 0x2
     enum Orientation {
         HORIZONTAL = 0;
         VERTICAL = 1;

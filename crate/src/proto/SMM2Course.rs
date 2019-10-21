@@ -1313,7 +1313,7 @@ pub struct SMM2CourseArea {
     // message fields
     pub course_theme: SMM2CourseArea_CourseTheme,
     pub auto_scroll: SMM2CourseArea_AutoScroll,
-    pub screen_boundary_flags: u32,
+    pub screen_boundary: SMM2CourseArea_ScreenBoundary,
     pub orientation: SMM2CourseArea_Orientation,
     pub liquid_max: u32,
     pub liquid_mode: SMM2CourseArea_LiquidMode,
@@ -1382,19 +1382,19 @@ impl SMM2CourseArea {
         self.auto_scroll = v;
     }
 
-    // uint32 screen_boundary_flags = 3;
+    // .cemu_smm.SMM2CourseArea.ScreenBoundary screen_boundary = 3;
 
 
-    pub fn get_screen_boundary_flags(&self) -> u32 {
-        self.screen_boundary_flags
+    pub fn get_screen_boundary(&self) -> SMM2CourseArea_ScreenBoundary {
+        self.screen_boundary
     }
-    pub fn clear_screen_boundary_flags(&mut self) {
-        self.screen_boundary_flags = 0;
+    pub fn clear_screen_boundary(&mut self) {
+        self.screen_boundary = SMM2CourseArea_ScreenBoundary::ABOVE_LINE;
     }
 
     // Param is passed by value, moved
-    pub fn set_screen_boundary_flags(&mut self, v: u32) {
-        self.screen_boundary_flags = v;
+    pub fn set_screen_boundary(&mut self, v: SMM2CourseArea_ScreenBoundary) {
+        self.screen_boundary = v;
     }
 
     // .cemu_smm.SMM2CourseArea.Orientation orientation = 4;
@@ -1714,11 +1714,7 @@ impl ::protobuf::Message for SMM2CourseArea {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.auto_scroll, 2, &mut self.unknown_fields)?
                 },
                 3 => {
-                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
-                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
-                    }
-                    let tmp = is.read_uint32()?;
-                    self.screen_boundary_flags = tmp;
+                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.screen_boundary, 3, &mut self.unknown_fields)?
                 },
                 4 => {
                     ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.orientation, 4, &mut self.unknown_fields)?
@@ -1862,8 +1858,8 @@ impl ::protobuf::Message for SMM2CourseArea {
         if self.auto_scroll != SMM2CourseArea_AutoScroll::NONE {
             my_size += ::protobuf::rt::enum_size(2, self.auto_scroll);
         }
-        if self.screen_boundary_flags != 0 {
-            my_size += ::protobuf::rt::value_size(3, self.screen_boundary_flags, ::protobuf::wire_format::WireTypeVarint);
+        if self.screen_boundary != SMM2CourseArea_ScreenBoundary::ABOVE_LINE {
+            my_size += ::protobuf::rt::enum_size(3, self.screen_boundary);
         }
         if self.orientation != SMM2CourseArea_Orientation::HORIZONTAL {
             my_size += ::protobuf::rt::enum_size(4, self.orientation);
@@ -1937,8 +1933,8 @@ impl ::protobuf::Message for SMM2CourseArea {
         if self.auto_scroll != SMM2CourseArea_AutoScroll::NONE {
             os.write_enum(2, self.auto_scroll.value())?;
         }
-        if self.screen_boundary_flags != 0 {
-            os.write_uint32(3, self.screen_boundary_flags)?;
+        if self.screen_boundary != SMM2CourseArea_ScreenBoundary::ABOVE_LINE {
+            os.write_enum(3, self.screen_boundary.value())?;
         }
         if self.orientation != SMM2CourseArea_Orientation::HORIZONTAL {
             os.write_enum(4, self.orientation.value())?;
@@ -2052,10 +2048,10 @@ impl ::protobuf::Message for SMM2CourseArea {
                     |m: &SMM2CourseArea| { &m.auto_scroll },
                     |m: &mut SMM2CourseArea| { &mut m.auto_scroll },
                 ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
-                    "screen_boundary_flags",
-                    |m: &SMM2CourseArea| { &m.screen_boundary_flags },
-                    |m: &mut SMM2CourseArea| { &mut m.screen_boundary_flags },
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_ScreenBoundary>>(
+                    "screen_boundary",
+                    |m: &SMM2CourseArea| { &m.screen_boundary },
+                    |m: &mut SMM2CourseArea| { &mut m.screen_boundary },
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseArea_Orientation>>(
                     "orientation",
@@ -2181,7 +2177,7 @@ impl ::protobuf::Clear for SMM2CourseArea {
     fn clear(&mut self) {
         self.course_theme = SMM2CourseArea_CourseTheme::GROUND;
         self.auto_scroll = SMM2CourseArea_AutoScroll::NONE;
-        self.screen_boundary_flags = 0;
+        self.screen_boundary = SMM2CourseArea_ScreenBoundary::ABOVE_LINE;
         self.orientation = SMM2CourseArea_Orientation::HORIZONTAL;
         self.liquid_max = 0;
         self.liquid_mode = SMM2CourseArea_LiquidMode::FIXED;
@@ -2358,6 +2354,62 @@ impl ::std::default::Default for SMM2CourseArea_AutoScroll {
 }
 
 impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_AutoScroll {
+    fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
+        ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
+    }
+}
+
+#[derive(Clone,PartialEq,Eq,Debug,Hash)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub enum SMM2CourseArea_ScreenBoundary {
+    ABOVE_LINE = 0,
+    UNDER_LINE = 1,
+}
+
+impl ::protobuf::ProtobufEnum for SMM2CourseArea_ScreenBoundary {
+    fn value(&self) -> i32 {
+        *self as i32
+    }
+
+    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_ScreenBoundary> {
+        match value {
+            0 => ::std::option::Option::Some(SMM2CourseArea_ScreenBoundary::ABOVE_LINE),
+            1 => ::std::option::Option::Some(SMM2CourseArea_ScreenBoundary::UNDER_LINE),
+            _ => ::std::option::Option::None
+        }
+    }
+
+    fn values() -> &'static [Self] {
+        static values: &'static [SMM2CourseArea_ScreenBoundary] = &[
+            SMM2CourseArea_ScreenBoundary::ABOVE_LINE,
+            SMM2CourseArea_ScreenBoundary::UNDER_LINE,
+        ];
+        values
+    }
+
+    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
+        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::EnumDescriptor> = ::protobuf::lazy::Lazy {
+            lock: ::protobuf::lazy::ONCE_INIT,
+            ptr: 0 as *const ::protobuf::reflect::EnumDescriptor,
+        };
+        unsafe {
+            descriptor.get(|| {
+                ::protobuf::reflect::EnumDescriptor::new("SMM2CourseArea_ScreenBoundary", file_descriptor_proto())
+            })
+        }
+    }
+}
+
+impl ::std::marker::Copy for SMM2CourseArea_ScreenBoundary {
+}
+
+impl ::std::default::Default for SMM2CourseArea_ScreenBoundary {
+    fn default() -> Self {
+        SMM2CourseArea_ScreenBoundary::ABOVE_LINE
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_ScreenBoundary {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Enum(self.descriptor())
     }
@@ -2621,38 +2673,40 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ClearConditionType\x12\x08\n\x04NONE\x10\0\x12\t\n\x05PARTS\x10\x01\x12\
     \n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\x10\x03\x1a\0\"0\n\x0eCompletio\
     nFlag\x12\x0f\n\x0bNOT_CLEARED\x10\0\x12\x0b\n\x07CLEARED\x10\x01\x1a\0:\
-    \0\"\xe0\t\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\x20\x01(\
+    \0\"\xb7\n\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\x20\x01(\
     \x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\x12:\n\x0bauto_scroll\x18\
-    \x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrollB\0\x12\x1f\n\x15s\
-    creen_boundary_flags\x18\x03\x20\x01(\rB\0\x12;\n\x0borientation\x18\x04\
-    \x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.OrientationB\0\x12\x14\n\nliquid\
-    _max\x18\x05\x20\x01(\rB\0\x12:\n\x0bliquid_mode\x18\x06\x20\x01(\x0e2#.\
-    cemu_smm.SMM2CourseArea.LiquidModeB\0\x12<\n\x0cliquid_speed\x18\x07\x20\
-    \x01(\x0e2$.cemu_smm.SMM2CourseArea.LiquidSpeedB\0\x12\x14\n\nliquid_min\
-    \x18\x08\x20\x01(\rB\0\x12\x18\n\x0eright_boundary\x18\t\x20\x01(\rB\0\
-    \x12\x16\n\x0ctop_boundary\x18\n\x20\x01(\rB\0\x12\x17\n\rleft_boundary\
-    \x18\x0b\x20\x01(\rB\0\x12\x19\n\x0fbottom_boundary\x18\x0c\x20\x01(\rB\
-    \0\x124\n\x08day_time\x18\r\x20\x01(\x0e2\x20.cemu_smm.SMM2CourseArea.Da\
-    yTimeB\0\x12\x16\n\x0cobject_count\x18\x0e\x20\x01(\rB\0\x12\x1c\n\x12so\
-    und_effect_count\x18\x0f\x20\x01(\rB\0\x12\x1b\n\x11snake_block_count\
-    \x18\x10\x20\x01(\rB\0\x12\x1a\n\x10clear_pipe_count\x18\x11\x20\x01(\rB\
-    \0\x12\x1f\n\x15piranha_creeper_count\x18\x12\x20\x01(\rB\0\x12!\n\x17ex\
-    clamation_block_count\x18\x13\x20\x01(\rB\0\x12\x1b\n\x11track_block_cou\
-    nt\x18\x14\x20\x01(\rB\0\x12\x14\n\ntile_count\x18\x15\x20\x01(\rB\0\x12\
-    \x15\n\x0btrack_count\x18\x16\x20\x01(\rB\0\x12\x16\n\x0cicicle_count\
-    \x18\x17\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTheme\x12\n\n\x06GROUND\x10\
-    \0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\x10\x02\x12\x0b\n\
-    \x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\x10\n\x0cGHOUST_HO\
-    USE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\x06DESERT\x10\x07\x12\x07\
-    \n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\0\"D\n\nAutoScroll\x12\x08\
-    \n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\
-    \x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\x10\x04\x1a\0\"-\n\x0bOrientati\
-    on\x12\x0e\n\nHORIZONTAL\x10\0\x12\x0c\n\x08VERTICAL\x10\x01\x1a\0\"7\n\
-    \nLiquidMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\
-    \n\x0bOSCILLATING\x10\x02\x1a\0\"9\n\x0bLiquidSpeed\x12\x08\n\x04NONE\
-    \x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04\
-    FAST\x10\x03\x1a\0\"\x1f\n\x07DayTime\x12\x07\n\x03DAY\x10\0\x12\t\n\x05\
-    NIGHT\x10\x02\x1a\0:\0B\0b\x06proto3\
+    \x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrollB\0\x12B\n\x0fscre\
+    en_boundary\x18\x03\x20\x01(\x0e2'.cemu_smm.SMM2CourseArea.ScreenBoundar\
+    yB\0\x12;\n\x0borientation\x18\x04\x20\x01(\x0e2$.cemu_smm.SMM2CourseAre\
+    a.OrientationB\0\x12\x14\n\nliquid_max\x18\x05\x20\x01(\rB\0\x12:\n\x0bl\
+    iquid_mode\x18\x06\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.LiquidModeB\0\
+    \x12<\n\x0cliquid_speed\x18\x07\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.L\
+    iquidSpeedB\0\x12\x14\n\nliquid_min\x18\x08\x20\x01(\rB\0\x12\x18\n\x0er\
+    ight_boundary\x18\t\x20\x01(\rB\0\x12\x16\n\x0ctop_boundary\x18\n\x20\
+    \x01(\rB\0\x12\x17\n\rleft_boundary\x18\x0b\x20\x01(\rB\0\x12\x19\n\x0fb\
+    ottom_boundary\x18\x0c\x20\x01(\rB\0\x124\n\x08day_time\x18\r\x20\x01(\
+    \x0e2\x20.cemu_smm.SMM2CourseArea.DayTimeB\0\x12\x16\n\x0cobject_count\
+    \x18\x0e\x20\x01(\rB\0\x12\x1c\n\x12sound_effect_count\x18\x0f\x20\x01(\
+    \rB\0\x12\x1b\n\x11snake_block_count\x18\x10\x20\x01(\rB\0\x12\x1a\n\x10\
+    clear_pipe_count\x18\x11\x20\x01(\rB\0\x12\x1f\n\x15piranha_creeper_coun\
+    t\x18\x12\x20\x01(\rB\0\x12!\n\x17exclamation_block_count\x18\x13\x20\
+    \x01(\rB\0\x12\x1b\n\x11track_block_count\x18\x14\x20\x01(\rB\0\x12\x14\
+    \n\ntile_count\x18\x15\x20\x01(\rB\0\x12\x15\n\x0btrack_count\x18\x16\
+    \x20\x01(\rB\0\x12\x16\n\x0cicicle_count\x18\x17\x20\x01(\rB\0\"\x92\x01\
+    \n\x0bCourseTheme\x12\n\n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\
+    \x01\x12\n\n\x06CASTLE\x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nU\
+    NDERWATER\x10\x04\x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\
+    \x10\x06\x12\n\n\x06DESERT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06F\
+    OREST\x10\t\x1a\0\"D\n\nAutoScroll\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04\
+    SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x12\n\n\
+    \x06CUSTOM\x10\x04\x1a\0\"2\n\x0eScreenBoundary\x12\x0e\n\nABOVE_LINE\
+    \x10\0\x12\x0e\n\nUNDER_LINE\x10\x01\x1a\0\"-\n\x0bOrientation\x12\x0e\n\
+    \nHORIZONTAL\x10\0\x12\x0c\n\x08VERTICAL\x10\x01\x1a\0\"7\n\nLiquidMode\
+    \x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\n\x0bOSCILL\
+    ATING\x10\x02\x1a\0\"9\n\x0bLiquidSpeed\x12\x08\n\x04NONE\x10\0\x12\x08\
+    \n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\
+    \x1a\0\"\x1f\n\x07DayTime\x12\x07\n\x03DAY\x10\0\x12\t\n\x05NIGHT\x10\
+    \x02\x1a\0:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

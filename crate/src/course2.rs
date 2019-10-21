@@ -2,8 +2,9 @@
 
 use crate::proto::SMM2Course::{
     SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
-    SMM2CourseArea_LiquidMode, SMM2CourseArea_LiquidSpeed, SMM2CourseArea_Orientation,
-    SMM2CourseHeader, SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_CompletionFlag,
+    SMM2CourseArea_DayTime, SMM2CourseArea_LiquidMode, SMM2CourseArea_LiquidSpeed,
+    SMM2CourseArea_Orientation, SMM2CourseArea_ScreenBoundary, SMM2CourseHeader,
+    SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_CompletionFlag,
     SMM2CourseHeader_GameStyle,
 };
 use crate::{
@@ -247,57 +248,57 @@ impl Course2 {
         )?;
         let start_y = course_data[START_Y_OFFSET] as u32;
         let finish_y = course_data[FINISH_Y_OFFSET] as u32;
-        let finish_x = u16::from_be_bytes([
+        let finish_x = u16::from_le_bytes([
             course_data[FINISH_X_OFFSET],
             course_data[FINISH_X_OFFSET + 1],
         ]) as u32;
         let time =
-            u16::from_be_bytes([course_data[TIME_OFFSET], course_data[TIME_OFFSET + 1]]) as u32;
+            u16::from_le_bytes([course_data[TIME_OFFSET], course_data[TIME_OFFSET + 1]]) as u32;
         let clear_condition_type = SMM2CourseHeader_ClearConditionType::from_i32(
             course_data[CLEAR_CONDITION_TYPE_OFFSET] as i32,
         )
         .ok_or(Course2ConvertError::ClearConditionTypeParse)?;
-        let clear_condition = u32::from_be_bytes([
+        let clear_condition = u32::from_le_bytes([
             course_data[CLEAR_CONDITION_OFFSET],
             course_data[CLEAR_CONDITION_OFFSET + 1],
             course_data[CLEAR_CONDITION_OFFSET + 2],
             course_data[CLEAR_CONDITION_OFFSET + 3],
         ]);
-        let clear_condition_amount = u16::from_be_bytes([
+        let clear_condition_amount = u16::from_le_bytes([
             course_data[CLEAR_CONDITION_AMOUNT_OFFSET],
             course_data[CLEAR_CONDITION_AMOUNT_OFFSET + 1],
         ]) as u32;
-        let clear_check_tries = u32::from_be_bytes([
+        let clear_check_tries = u32::from_le_bytes([
             course_data[CLEAR_CHECK_TRIES_OFFSET],
             course_data[CLEAR_CHECK_TRIES_OFFSET + 1],
             course_data[CLEAR_CHECK_TRIES_OFFSET + 2],
             course_data[CLEAR_CHECK_TRIES_OFFSET + 3],
         ]);
-        let clear_check_time = u32::from_be_bytes([
+        let clear_check_time = u32::from_le_bytes([
             course_data[CLEAR_CHECK_TIME_OFFSET],
             course_data[CLEAR_CHECK_TIME_OFFSET + 1],
             course_data[CLEAR_CHECK_TIME_OFFSET + 2],
             course_data[CLEAR_CHECK_TIME_OFFSET + 3],
         ]);
-        let game_version = u32::from_be_bytes([
+        let game_version = u32::from_le_bytes([
             course_data[GAME_VERSION_OFFSET],
             course_data[GAME_VERSION_OFFSET + 1],
             course_data[GAME_VERSION_OFFSET + 2],
             course_data[GAME_VERSION_OFFSET + 3],
         ]);
-        let management_flags = u32::from_be_bytes([
+        let management_flags = u32::from_le_bytes([
             course_data[MANAGEMENT_FLAGS_OFFSET],
             course_data[MANAGEMENT_FLAGS_OFFSET + 1],
             course_data[MANAGEMENT_FLAGS_OFFSET + 2],
             course_data[MANAGEMENT_FLAGS_OFFSET + 3],
         ]);
-        let creation_id = u32::from_be_bytes([
+        let creation_id = u32::from_le_bytes([
             course_data[CREATION_ID_OFFSET],
             course_data[CREATION_ID_OFFSET + 1],
             course_data[CREATION_ID_OFFSET + 2],
             course_data[CREATION_ID_OFFSET + 3],
         ]);
-        let upload_id = u64::from_be_bytes([
+        let upload_id = u64::from_le_bytes([
             course_data[UPLOAD_ID_OFFSET],
             course_data[UPLOAD_ID_OFFSET + 1],
             course_data[UPLOAD_ID_OFFSET + 2],
@@ -346,10 +347,14 @@ impl Course2 {
             course_data[AUTO_SCROLL_OFFSET[const_index]] as i32,
         )
         .ok_or(Course2ConvertError::AutoScrollParse)?;
+        let screen_boundary = SMM2CourseArea_ScreenBoundary::from_i32(
+            course_data[SCREEN_BOUNDARY_OFFSET[const_index]] as i32,
+        )
+        .ok_or(Course2ConvertError::AutoScrollParse)?;
         let orientation = SMM2CourseArea_Orientation::from_i32(
             course_data[ORIENTATION_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2ConvertError::AutoScrollParse)?;
+        .ok_or(Course2ConvertError::OrientationParse)?;
         let liquid_max = course_data[LIQUID_MAX_OFFSET[const_index]] as u32;
         let liquid_mode = SMM2CourseArea_LiquidMode::from_i32(
             course_data[LIQUID_MODE_OFFSET[const_index]] as i32,
@@ -360,34 +365,98 @@ impl Course2 {
         )
         .ok_or(Course2ConvertError::WaterSpeedParse)?;
         let liquid_min = course_data[LIQUID_MIN_OFFSET[const_index]] as u32;
-        let right_boundary = u32::from_be_bytes([
+        let right_boundary = u32::from_le_bytes([
             course_data[RIGHT_BOUNDARY_OFFSET[const_index]],
             course_data[RIGHT_BOUNDARY_OFFSET[const_index] + 1],
             course_data[RIGHT_BOUNDARY_OFFSET[const_index] + 2],
             course_data[RIGHT_BOUNDARY_OFFSET[const_index] + 3],
         ]);
-        let top_boundary = u32::from_be_bytes([
+        let top_boundary = u32::from_le_bytes([
             course_data[TOP_BOUNDARY_OFFSET[const_index]],
             course_data[TOP_BOUNDARY_OFFSET[const_index] + 1],
             course_data[TOP_BOUNDARY_OFFSET[const_index] + 2],
             course_data[TOP_BOUNDARY_OFFSET[const_index] + 3],
         ]);
-        let left_boundary = u32::from_be_bytes([
+        let left_boundary = u32::from_le_bytes([
             course_data[LEFT_BOUNDARY_OFFSET[const_index]],
             course_data[LEFT_BOUNDARY_OFFSET[const_index] + 1],
             course_data[LEFT_BOUNDARY_OFFSET[const_index] + 2],
             course_data[LEFT_BOUNDARY_OFFSET[const_index] + 3],
         ]);
-        let bottom_boundary = u32::from_be_bytes([
+        let bottom_boundary = u32::from_le_bytes([
             course_data[BOTTOM_BOUNDARY_OFFSET[const_index]],
             course_data[BOTTOM_BOUNDARY_OFFSET[const_index] + 1],
             course_data[BOTTOM_BOUNDARY_OFFSET[const_index] + 2],
             course_data[BOTTOM_BOUNDARY_OFFSET[const_index] + 3],
         ]);
+        let day_time =
+            SMM2CourseArea_DayTime::from_i32(course_data[DAY_TIME_OFFSET[const_index]] as i32)
+                .ok_or(Course2ConvertError::DayTimeParse)?;
+        let object_count = u32::from_le_bytes([
+            course_data[OBJECT_COUNT_OFFSET[const_index]],
+            course_data[OBJECT_COUNT_OFFSET[const_index] + 1],
+            course_data[OBJECT_COUNT_OFFSET[const_index] + 2],
+            course_data[OBJECT_COUNT_OFFSET[const_index] + 3],
+        ]);
+        let sound_effect_count = u32::from_le_bytes([
+            course_data[SOUND_EFFECT_COUNT_OFFSET[const_index]],
+            course_data[SOUND_EFFECT_COUNT_OFFSET[const_index] + 1],
+            course_data[SOUND_EFFECT_COUNT_OFFSET[const_index] + 2],
+            course_data[SOUND_EFFECT_COUNT_OFFSET[const_index] + 3],
+        ]);
+        let snake_block_count = u32::from_le_bytes([
+            course_data[SNAKE_BLOCK_COUNT_OFFSET[const_index]],
+            course_data[SNAKE_BLOCK_COUNT_OFFSET[const_index] + 1],
+            course_data[SNAKE_BLOCK_COUNT_OFFSET[const_index] + 2],
+            course_data[SNAKE_BLOCK_COUNT_OFFSET[const_index] + 3],
+        ]);
+        let clear_pipe_count = u32::from_le_bytes([
+            course_data[CLEAR_PIPE_COUNT_OFFSET[const_index]],
+            course_data[CLEAR_PIPE_COUNT_OFFSET[const_index] + 1],
+            course_data[CLEAR_PIPE_COUNT_OFFSET[const_index] + 2],
+            course_data[CLEAR_PIPE_COUNT_OFFSET[const_index] + 3],
+        ]);
+        let piranha_creeper_count = u32::from_le_bytes([
+            course_data[PIRANHA_CREEPER_COUNT_OFFSET[const_index]],
+            course_data[PIRANHA_CREEPER_COUNT_OFFSET[const_index] + 1],
+            course_data[PIRANHA_CREEPER_COUNT_OFFSET[const_index] + 2],
+            course_data[PIRANHA_CREEPER_COUNT_OFFSET[const_index] + 3],
+        ]);
+        let exclamation_block_count = u32::from_le_bytes([
+            course_data[EXCLAMATION_BLOCK_COUNT_OFFSET[const_index]],
+            course_data[EXCLAMATION_BLOCK_COUNT_OFFSET[const_index] + 1],
+            course_data[EXCLAMATION_BLOCK_COUNT_OFFSET[const_index] + 2],
+            course_data[EXCLAMATION_BLOCK_COUNT_OFFSET[const_index] + 3],
+        ]);
+        let track_block_count = u32::from_le_bytes([
+            course_data[TRACK_BLOCK_COUNT_OFFSET[const_index]],
+            course_data[TRACK_BLOCK_COUNT_OFFSET[const_index] + 1],
+            course_data[TRACK_BLOCK_COUNT_OFFSET[const_index] + 2],
+            course_data[TRACK_BLOCK_COUNT_OFFSET[const_index] + 3],
+        ]);
+        let tile_count = u32::from_le_bytes([
+            course_data[TILE_COUNT_OFFSET[const_index]],
+            course_data[TILE_COUNT_OFFSET[const_index] + 1],
+            course_data[TILE_COUNT_OFFSET[const_index] + 2],
+            course_data[TILE_COUNT_OFFSET[const_index] + 3],
+        ]);
+        let track_count = u32::from_le_bytes([
+            course_data[TRACK_COUNT_OFFSET[const_index]],
+            course_data[TRACK_COUNT_OFFSET[const_index] + 1],
+            course_data[TRACK_COUNT_OFFSET[const_index] + 2],
+            course_data[TRACK_COUNT_OFFSET[const_index] + 3],
+        ]);
+        let icicle_count = u32::from_le_bytes([
+            course_data[ICICLE_COUNT_OFFSET[const_index]],
+            course_data[ICICLE_COUNT_OFFSET[const_index] + 1],
+            course_data[ICICLE_COUNT_OFFSET[const_index] + 2],
+            course_data[ICICLE_COUNT_OFFSET[const_index] + 3],
+        ]);
 
         Ok(SingularPtrField::some(SMM2CourseArea {
             course_theme,
             auto_scroll,
+            screen_boundary,
             orientation,
             liquid_max,
             liquid_mode,
@@ -397,6 +466,17 @@ impl Course2 {
             top_boundary,
             left_boundary,
             bottom_boundary,
+            day_time,
+            object_count,
+            sound_effect_count,
+            snake_block_count,
+            clear_pipe_count,
+            piranha_creeper_count,
+            exclamation_block_count,
+            track_block_count,
+            tile_count,
+            track_count,
+            icicle_count,
             ..SMM2CourseArea::default()
         }))
     }

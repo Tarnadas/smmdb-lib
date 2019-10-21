@@ -28,10 +28,16 @@ pub enum Course2ConvertError {
     CompletionFlagParse,
     #[fail(display = "Course2ConvertError::AutoScrollParse")]
     AutoScrollParse,
+    #[fail(display = "Course2ConvertError::ScreenBoundaryParse")]
+    ScreenBoundaryParse,
+    #[fail(display = "Course2ConvertError::OrientationParse")]
+    OrientationParse,
     #[fail(display = "Course2ConvertError::WaterModeParse")]
     WaterModeParse,
     #[fail(display = "Course2ConvertError::WaterSpeedParse")]
     WaterSpeedParse,
+    #[fail(display = "Course2ConvertError::DayTimeParse")]
+    DayTimeParse,
     #[fail(display = "Course2ConvertError::SoundTypeConvert")]
     SoundTypeConvert,
 }
