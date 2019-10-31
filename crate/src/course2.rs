@@ -350,7 +350,7 @@ impl Course2 {
         let screen_boundary = SMM2CourseArea_ScreenBoundary::from_i32(
             course_data[SCREEN_BOUNDARY_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2ConvertError::AutoScrollParse)?;
+        .ok_or(Course2ConvertError::ScreenBoundaryParse)?;
         let orientation = SMM2CourseArea_Orientation::from_i32(
             course_data[ORIENTATION_OFFSET[const_index]] as i32,
         )
@@ -513,7 +513,7 @@ impl Course2 {
             "M3" => Ok(SMM2CourseHeader_GameStyle::M3),
             "MW" => Ok(SMM2CourseHeader_GameStyle::MW),
             "WU" => Ok(SMM2CourseHeader_GameStyle::WU),
-            "W3" => Ok(SMM2CourseHeader_GameStyle::W3),
+            "3W" => Ok(SMM2CourseHeader_GameStyle::W3),
             _ => Err(Course2ConvertError::GameStyleParse),
         }
     }
