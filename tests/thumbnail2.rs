@@ -9,17 +9,23 @@ use std::path::PathBuf;
 use std::process::Command;
 
 fn decrypt_test_assets() -> io::Result<()> {
-    for entry in read_dir("tests/assets/saves/smm2")? {
-        let entry = entry?;
-        let file_name = entry.file_name();
-        let file_name = file_name.to_str().unwrap();
-        if file_name.starts_with("course_") && file_name.ends_with(".btl") {
-            let path = entry.path();
-            let out_path: Vec<&str> = path.to_str().unwrap().split('.').collect();
-            let out_path = out_path[0].to_owned() + ".decrypted";
-            let mut command = Command::new("./decryptor_linux");
-            command.arg(entry.path()).arg(out_path);
-            command.output().unwrap();
+    let save_folders = vec![
+        "tests/assets/saves/smm2/save1",
+        "tests/assets/saves/smm2/save2",
+    ];
+    for folder in save_folders {
+        for entry in read_dir(folder)? {
+            let entry = entry?;
+            let file_name = entry.file_name();
+            let file_name = file_name.to_str().unwrap();
+            if file_name.starts_with("course_") && file_name.ends_with(".btl") {
+                let path = entry.path();
+                let out_path: Vec<&str> = path.to_str().unwrap().split('.').collect();
+                let out_path = out_path[0].to_owned() + ".decrypted";
+                let mut command = Command::new("./decryptor_linux");
+                command.arg(entry.path()).arg(out_path);
+                command.output().unwrap();
+            }
         }
     }
     Ok(())
