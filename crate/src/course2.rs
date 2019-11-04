@@ -8,7 +8,8 @@ use crate::proto::SMM2Course::{
     SMM2CourseHeader_GameStyle,
 };
 use crate::{
-    constants2::*, decrypt, key_tables::*, Course2ConvertError, DecompressionError, Thumbnail2,
+    constants2::*, decrypt, encrypt, fix_crc32, key_tables::*, Course2ConvertError,
+    DecompressionError, Thumbnail2,
 };
 
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
@@ -124,6 +125,16 @@ impl Course2 {
         [
             &course[..0x10],
             &decrypt(course[0x10..].to_vec(), &COURSE_KEY_TABLE)[..],
+            &course[course.len() - 0x30..],
+        ]
+        .concat()
+    }
+
+    #[wasm_bindgen]
+    pub fn encrypt(course: Vec<u8>) -> Vec<u8> {
+        [
+            &fix_crc32(&course[..0x10], &course[0x10..course.len() - 0x30].to_vec())[..],
+            &encrypt(course[0x10..].to_vec(), &COURSE_KEY_TABLE)[..],
             &course[course.len() - 0x30..],
         ]
         .concat()

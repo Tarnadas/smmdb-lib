@@ -1,6 +1,7 @@
 use aes::block_cipher_trait::generic_array::GenericArray;
 use aes::Aes128;
 use block_modes::{block_padding::*, BlockMode, Cbc};
+use crc::crc32;
 use std::convert::TryInto;
 use typenum::*;
 
@@ -24,6 +25,36 @@ pub fn decrypt(mut bytes: Vec<u8>, key_table: &[u32]) -> Vec<u8> {
     cipher.decrypt(&mut bytes[..end_index]).unwrap();
 
     bytes[..end_index].to_vec()
+}
+
+pub fn encrypt(mut bytes: Vec<u8>, key_table: &[u32]) -> Vec<u8> {
+    let end_index = bytes.len() - 0x30;
+    let end = &bytes[end_index..];
+    let iv = GenericArray::from_slice(&end[0..16]);
+
+    let mut rand_state = [0; 4];
+    rand_init(
+        &mut rand_state,
+        u32::from_le_bytes(end[0x10..0x14].try_into().unwrap()),
+        u32::from_le_bytes(end[0x14..0x18].try_into().unwrap()),
+        u32::from_le_bytes(end[0x18..0x1C].try_into().unwrap()),
+        u32::from_le_bytes(end[0x1C..0x20].try_into().unwrap()),
+    );
+    let key = gen_key(&mut rand_state, key_table);
+
+    type Aes128Cbc = Cbc<Aes128, ZeroPadding>;
+    let cipher = Aes128Cbc::new_fix(&key, &iv);
+    cipher.encrypt(&mut bytes, end_index).unwrap();
+
+    bytes[..end_index].to_vec()
+}
+
+pub fn fix_crc32(save_header: &[u8], course_data: &Vec<u8>) -> Vec<u8> {
+    use std::mem::transmute;
+
+    let checksum = crc32::checksum_ieee(course_data);
+    let bytes: [u8; 4] = unsafe { transmute(checksum.to_le()) };
+    [&save_header[..0x8], &bytes[..], &save_header[0xC..]].concat()
 }
 
 fn rand_init(rand_state: &mut [u32; 4], in0: u32, in1: u32, in2: u32, in3: u32) {

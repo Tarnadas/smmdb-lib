@@ -23,7 +23,7 @@ pub(crate) mod constants;
 pub(crate) mod constants2;
 pub mod course;
 pub mod course2;
-mod decrypt;
+mod encryption;
 pub mod errors;
 pub(crate) mod key_tables;
 pub mod proto;
@@ -31,7 +31,7 @@ pub mod thumbnail2;
 
 pub use course::*;
 pub use course2::*;
-pub(crate) use decrypt::decrypt;
+pub(crate) use encryption::{decrypt, encrypt, fix_crc32};
 pub use errors::*;
 pub use thumbnail2::*;
 
