@@ -101,7 +101,9 @@ message SMM2CourseArea {
     uint32 bottom_boundary = 12; // u32 at offset 0x14, always 0 except for certain vertical sub-areas
     enum DayTime {
         DAY = 0;
+        UNKNOWN0 = 1;
         NIGHT = 2;
+        UNKNOWN1 = 3;
     }
     DayTime day_time = 13; // u32 at offset 0x18
     uint32 object_count = 14; // u32 at offset 0x1C

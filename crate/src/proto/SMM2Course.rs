@@ -2596,7 +2596,9 @@ impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_LiquidSpeed {
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum SMM2CourseArea_DayTime {
     DAY = 0,
+    UNKNOWN0 = 1,
     NIGHT = 2,
+    UNKNOWN1 = 3,
 }
 
 impl ::protobuf::ProtobufEnum for SMM2CourseArea_DayTime {
@@ -2607,7 +2609,9 @@ impl ::protobuf::ProtobufEnum for SMM2CourseArea_DayTime {
     fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseArea_DayTime> {
         match value {
             0 => ::std::option::Option::Some(SMM2CourseArea_DayTime::DAY),
+            1 => ::std::option::Option::Some(SMM2CourseArea_DayTime::UNKNOWN0),
             2 => ::std::option::Option::Some(SMM2CourseArea_DayTime::NIGHT),
+            3 => ::std::option::Option::Some(SMM2CourseArea_DayTime::UNKNOWN1),
             _ => ::std::option::Option::None
         }
     }
@@ -2615,7 +2619,9 @@ impl ::protobuf::ProtobufEnum for SMM2CourseArea_DayTime {
     fn values() -> &'static [Self] {
         static values: &'static [SMM2CourseArea_DayTime] = &[
             SMM2CourseArea_DayTime::DAY,
+            SMM2CourseArea_DayTime::UNKNOWN0,
             SMM2CourseArea_DayTime::NIGHT,
+            SMM2CourseArea_DayTime::UNKNOWN1,
         ];
         values
     }
@@ -2673,7 +2679,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     ClearConditionType\x12\x08\n\x04NONE\x10\0\x12\t\n\x05PARTS\x10\x01\x12\
     \n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\x10\x03\x1a\0\"0\n\x0eCompletio\
     nFlag\x12\x0f\n\x0bNOT_CLEARED\x10\0\x12\x0b\n\x07CLEARED\x10\x01\x1a\0:\
-    \0\"\xb7\n\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\x20\x01(\
+    \0\"\xd3\n\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\x20\x01(\
     \x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\x12:\n\x0bauto_scroll\x18\
     \x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrollB\0\x12B\n\x0fscre\
     en_boundary\x18\x03\x20\x01(\x0e2'.cemu_smm.SMM2CourseArea.ScreenBoundar\
@@ -2705,8 +2711,9 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\n\x0bOSCILL\
     ATING\x10\x02\x1a\0\"9\n\x0bLiquidSpeed\x12\x08\n\x04NONE\x10\0\x12\x08\
     \n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\
-    \x1a\0\"\x1f\n\x07DayTime\x12\x07\n\x03DAY\x10\0\x12\t\n\x05NIGHT\x10\
-    \x02\x1a\0:\0B\0b\x06proto3\
+    \x1a\0\";\n\x07DayTime\x12\x07\n\x03DAY\x10\0\x12\x0c\n\x08UNKNOWN0\x10\
+    \x01\x12\t\n\x05NIGHT\x10\x02\x12\x0c\n\x08UNKNOWN1\x10\x03\x1a\0:\0B\0b\
+    \x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {
