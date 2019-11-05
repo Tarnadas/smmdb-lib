@@ -1,5 +1,6 @@
 //! Super Mario Maker 2 file manipulation.
 
+#![allow(clippy::cast_lossless)]
 use crate::proto::SMM2Course::{
     SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
     SMM2CourseArea_DayTime, SMM2CourseArea_LiquidMode, SMM2CourseArea_LiquidSpeed,
@@ -149,8 +150,7 @@ impl Course2 {
 
         match (mime.type_(), mime.subtype().as_ref()) {
             (mime::APPLICATION, "zip") => {
-                Course2::decompress_zip(&mut res, buffer)
-                    .map_err(|err| DecompressionError::Zip(err))?;
+                Course2::decompress_zip(&mut res, buffer).map_err(DecompressionError::Zip)?;
             }
             (_, _) => {
                 // unimplemented!();
@@ -179,7 +179,7 @@ impl Course2 {
                 ..SMM2Course::default()
             },
             data,
-            thumb: thumb.map(|t| Thumbnail2::new(t)),
+            thumb: thumb.map(Thumbnail2::new),
         })
     }
 
@@ -507,7 +507,7 @@ impl Course2 {
 
     fn get_utf16_string_from_slice(bytes: &[u8]) -> String {
         let res: Vec<u16> = bytes
-            .into_iter()
+            .iter()
             .cloned()
             .tuples()
             .map(|(hi, lo)| u16::from_le_bytes([hi, lo]))

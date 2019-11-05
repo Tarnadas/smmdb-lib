@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+#![allow(dead_code, clippy::unreadable_literal)]
 
 pub const COURSE_KEY_TABLE: [u32; 64] = [
     0x7AB1C9D2, 0xCA750936, 0x3003E59C, 0xF261014B, 0x2E25160A, 0xED614811, 0xF1AC6240, 0xD59272CD,

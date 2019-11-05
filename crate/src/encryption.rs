@@ -49,7 +49,7 @@ pub fn encrypt(mut bytes: Vec<u8>, key_table: &[u32]) -> Vec<u8> {
     bytes[..end_index].to_vec()
 }
 
-pub fn fix_crc32(save_header: &[u8], course_data: &Vec<u8>) -> Vec<u8> {
+pub fn fix_crc32(save_header: &[u8], course_data: &[u8]) -> Vec<u8> {
     use std::mem::transmute;
 
     let checksum = crc32::checksum_ieee(course_data);
@@ -60,17 +60,17 @@ pub fn fix_crc32(save_header: &[u8], course_data: &Vec<u8>) -> Vec<u8> {
 fn rand_init(rand_state: &mut [u32; 4], in0: u32, in1: u32, in2: u32, in3: u32) {
     let cond = (in0 | in1 | in2 | in3) != 0;
     rand_state[0] = if cond { in0 } else { 1 };
-    rand_state[1] = if cond { in1 } else { 0x6C078967 };
-    rand_state[2] = if cond { in2 } else { 0x714ACB41 };
-    rand_state[3] = if cond { in3 } else { 0x48077044 };
+    rand_state[1] = if cond { in1 } else { 0x6C07_8967 };
+    rand_state[2] = if cond { in2 } else { 0x714A_CB41 };
+    rand_state[3] = if cond { in3 } else { 0x4807_7044 };
 }
 
 fn gen_key(rand_state: &mut [u32; 4], key_table: &[u32]) -> GenericArray<u8, U16> {
     let mut key = [0u32; 4];
-    for i in 0..4 {
+    for k in key.iter_mut() {
         for _j in 0..4 {
-            key[i] <<= 8;
-            key[i] |= (key_table[(rand_gen(rand_state) >> 26) as usize]
+            *k <<= 8;
+            *k |= (key_table[(rand_gen(rand_state) >> 26) as usize]
                 >> ((rand_gen(rand_state) >> 27) & 24))
                 & 0xFF;
         }
@@ -79,8 +79,8 @@ fn gen_key(rand_state: &mut [u32; 4], key_table: &[u32]) -> GenericArray<u8, U16
     key.iter().for_each(|i| {
         u8_key.push((*i & 0xFF) as u8);
         u8_key.push(((*i & 0xFF00) >> 8) as u8);
-        u8_key.push(((*i & 0xFF0000) >> 16) as u8);
-        u8_key.push(((*i & 0xFF000000) >> 24) as u8);
+        u8_key.push(((*i & 0x00FF_0000) >> 16) as u8);
+        u8_key.push(((*i & 0xFF00_0000) >> 24) as u8);
     });
     GenericArray::clone_from_slice(u8_key.as_slice())
 }

@@ -60,7 +60,7 @@ impl Thumbnail2 {
                 let mut encoder = JPEGEncoder::new_with_quality(&mut opt, 80);
                 encoder
                     .encode(&buffer.into_raw()[..], width, height, color)
-                    .map_err(|e| ImageError::from(e))?;
+                    .map_err(ImageError::from)?;
                 self.jpeg_opt = if opt.len() < jpeg.len() {
                     Some(opt)
                 } else {

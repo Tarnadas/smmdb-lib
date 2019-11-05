@@ -1,5 +1,6 @@
 //! Super Mario Maker file manipulation.
 
+#![allow(clippy::cast_lossless)]
 use crate::proto::SMMCourse::{
     SMMCourse, SMMCourse_AutoScroll, SMMCourse_CourseTheme, SMMCourse_GameStyle,
 };
