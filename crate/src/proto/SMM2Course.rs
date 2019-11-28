@@ -1256,6 +1256,7 @@ impl ::protobuf::reflect::ProtobufValue for SMM2CourseHeader_ClearConditionType 
 pub enum SMM2CourseHeader_CompletionFlag {
     NOT_CLEARED = 0,
     CLEARED = 1,
+    UNKNOWN = 2,
 }
 
 impl ::protobuf::ProtobufEnum for SMM2CourseHeader_CompletionFlag {
@@ -1267,6 +1268,7 @@ impl ::protobuf::ProtobufEnum for SMM2CourseHeader_CompletionFlag {
         match value {
             0 => ::std::option::Option::Some(SMM2CourseHeader_CompletionFlag::NOT_CLEARED),
             1 => ::std::option::Option::Some(SMM2CourseHeader_CompletionFlag::CLEARED),
+            2 => ::std::option::Option::Some(SMM2CourseHeader_CompletionFlag::UNKNOWN),
             _ => ::std::option::Option::None
         }
     }
@@ -1275,6 +1277,7 @@ impl ::protobuf::ProtobufEnum for SMM2CourseHeader_CompletionFlag {
         static values: &'static [SMM2CourseHeader_CompletionFlag] = &[
             SMM2CourseHeader_CompletionFlag::NOT_CLEARED,
             SMM2CourseHeader_CompletionFlag::CLEARED,
+            SMM2CourseHeader_CompletionFlag::UNKNOWN,
         ];
         values
     }
@@ -2659,7 +2662,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x07version\x18\x01\x20\x01(\rB\0\x12,\n\x06header\x18\x02\x20\x01(\x0b2\
     \x1a.cemu_smm.SMM2CourseHeaderB\0\x12/\n\x0bcourse_area\x18\x03\x20\x01(\
     \x0b2\x18.cemu_smm.SMM2CourseAreaB\0\x123\n\x0fcourse_sub_area\x18\x04\
-    \x20\x01(\x0b2\x18.cemu_smm.SMM2CourseAreaB\0:\0\"\xf0\x05\n\x10SMM2Cour\
+    \x20\x01(\x0b2\x18.cemu_smm.SMM2CourseAreaB\0:\0\"\xfd\x05\n\x10SMM2Cour\
     seHeader\x12\x12\n\x08modified\x18\x01\x20\x01(\x04B\0\x12\x0f\n\x05titl\
     e\x18\x02\x20\x01(\tB\0\x12\x15\n\x0bdescription\x18\x03\x20\x01(\tB\0\
     \x12\x11\n\x07start_y\x18\x04\x20\x01(\rB\0\x12\x12\n\x08finish_y\x18\
@@ -2677,43 +2680,43 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \tGameStyle\x12\x06\n\x02M1\x10\0\x12\x06\n\x02M3\x10\x01\x12\x06\n\x02M\
     W\x10\x02\x12\x06\n\x02WU\x10\x03\x12\x06\n\x02W3\x10\x04\x1a\0\"C\n\x12\
     ClearConditionType\x12\x08\n\x04NONE\x10\0\x12\t\n\x05PARTS\x10\x01\x12\
-    \n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\x10\x03\x1a\0\"0\n\x0eCompletio\
-    nFlag\x12\x0f\n\x0bNOT_CLEARED\x10\0\x12\x0b\n\x07CLEARED\x10\x01\x1a\0:\
-    \0\"\xd3\n\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\x20\x01(\
-    \x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\x12:\n\x0bauto_scroll\x18\
-    \x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrollB\0\x12B\n\x0fscre\
-    en_boundary\x18\x03\x20\x01(\x0e2'.cemu_smm.SMM2CourseArea.ScreenBoundar\
-    yB\0\x12;\n\x0borientation\x18\x04\x20\x01(\x0e2$.cemu_smm.SMM2CourseAre\
-    a.OrientationB\0\x12\x14\n\nliquid_max\x18\x05\x20\x01(\rB\0\x12:\n\x0bl\
-    iquid_mode\x18\x06\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.LiquidModeB\0\
-    \x12<\n\x0cliquid_speed\x18\x07\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.L\
-    iquidSpeedB\0\x12\x14\n\nliquid_min\x18\x08\x20\x01(\rB\0\x12\x18\n\x0er\
-    ight_boundary\x18\t\x20\x01(\rB\0\x12\x16\n\x0ctop_boundary\x18\n\x20\
-    \x01(\rB\0\x12\x17\n\rleft_boundary\x18\x0b\x20\x01(\rB\0\x12\x19\n\x0fb\
-    ottom_boundary\x18\x0c\x20\x01(\rB\0\x124\n\x08day_time\x18\r\x20\x01(\
-    \x0e2\x20.cemu_smm.SMM2CourseArea.DayTimeB\0\x12\x16\n\x0cobject_count\
-    \x18\x0e\x20\x01(\rB\0\x12\x1c\n\x12sound_effect_count\x18\x0f\x20\x01(\
-    \rB\0\x12\x1b\n\x11snake_block_count\x18\x10\x20\x01(\rB\0\x12\x1a\n\x10\
-    clear_pipe_count\x18\x11\x20\x01(\rB\0\x12\x1f\n\x15piranha_creeper_coun\
-    t\x18\x12\x20\x01(\rB\0\x12!\n\x17exclamation_block_count\x18\x13\x20\
-    \x01(\rB\0\x12\x1b\n\x11track_block_count\x18\x14\x20\x01(\rB\0\x12\x14\
-    \n\ntile_count\x18\x15\x20\x01(\rB\0\x12\x15\n\x0btrack_count\x18\x16\
-    \x20\x01(\rB\0\x12\x16\n\x0cicicle_count\x18\x17\x20\x01(\rB\0\"\x92\x01\
-    \n\x0bCourseTheme\x12\n\n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\
-    \x01\x12\n\n\x06CASTLE\x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nU\
-    NDERWATER\x10\x04\x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\
-    \x10\x06\x12\n\n\x06DESERT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06F\
-    OREST\x10\t\x1a\0\"D\n\nAutoScroll\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04\
-    SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x12\n\n\
-    \x06CUSTOM\x10\x04\x1a\0\"2\n\x0eScreenBoundary\x12\x0e\n\nABOVE_LINE\
-    \x10\0\x12\x0e\n\nUNDER_LINE\x10\x01\x1a\0\"-\n\x0bOrientation\x12\x0e\n\
-    \nHORIZONTAL\x10\0\x12\x0c\n\x08VERTICAL\x10\x01\x1a\0\"7\n\nLiquidMode\
-    \x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\n\x0bOSCILL\
-    ATING\x10\x02\x1a\0\"9\n\x0bLiquidSpeed\x12\x08\n\x04NONE\x10\0\x12\x08\
-    \n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\
-    \x1a\0\";\n\x07DayTime\x12\x07\n\x03DAY\x10\0\x12\x0c\n\x08UNKNOWN0\x10\
-    \x01\x12\t\n\x05NIGHT\x10\x02\x12\x0c\n\x08UNKNOWN1\x10\x03\x1a\0:\0B\0b\
-    \x06proto3\
+    \n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\x10\x03\x1a\0\"=\n\x0eCompletio\
+    nFlag\x12\x0f\n\x0bNOT_CLEARED\x10\0\x12\x0b\n\x07CLEARED\x10\x01\x12\
+    \x0b\n\x07UNKNOWN\x10\x02\x1a\0:\0\"\xd3\n\n\x0eSMM2CourseArea\x12<\n\
+    \x0ccourse_theme\x18\x01\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.CourseTh\
+    emeB\0\x12:\n\x0bauto_scroll\x18\x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseA\
+    rea.AutoScrollB\0\x12B\n\x0fscreen_boundary\x18\x03\x20\x01(\x0e2'.cemu_\
+    smm.SMM2CourseArea.ScreenBoundaryB\0\x12;\n\x0borientation\x18\x04\x20\
+    \x01(\x0e2$.cemu_smm.SMM2CourseArea.OrientationB\0\x12\x14\n\nliquid_max\
+    \x18\x05\x20\x01(\rB\0\x12:\n\x0bliquid_mode\x18\x06\x20\x01(\x0e2#.cemu\
+    _smm.SMM2CourseArea.LiquidModeB\0\x12<\n\x0cliquid_speed\x18\x07\x20\x01\
+    (\x0e2$.cemu_smm.SMM2CourseArea.LiquidSpeedB\0\x12\x14\n\nliquid_min\x18\
+    \x08\x20\x01(\rB\0\x12\x18\n\x0eright_boundary\x18\t\x20\x01(\rB\0\x12\
+    \x16\n\x0ctop_boundary\x18\n\x20\x01(\rB\0\x12\x17\n\rleft_boundary\x18\
+    \x0b\x20\x01(\rB\0\x12\x19\n\x0fbottom_boundary\x18\x0c\x20\x01(\rB\0\
+    \x124\n\x08day_time\x18\r\x20\x01(\x0e2\x20.cemu_smm.SMM2CourseArea.DayT\
+    imeB\0\x12\x16\n\x0cobject_count\x18\x0e\x20\x01(\rB\0\x12\x1c\n\x12soun\
+    d_effect_count\x18\x0f\x20\x01(\rB\0\x12\x1b\n\x11snake_block_count\x18\
+    \x10\x20\x01(\rB\0\x12\x1a\n\x10clear_pipe_count\x18\x11\x20\x01(\rB\0\
+    \x12\x1f\n\x15piranha_creeper_count\x18\x12\x20\x01(\rB\0\x12!\n\x17excl\
+    amation_block_count\x18\x13\x20\x01(\rB\0\x12\x1b\n\x11track_block_count\
+    \x18\x14\x20\x01(\rB\0\x12\x14\n\ntile_count\x18\x15\x20\x01(\rB\0\x12\
+    \x15\n\x0btrack_count\x18\x16\x20\x01(\rB\0\x12\x16\n\x0cicicle_count\
+    \x18\x17\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTheme\x12\n\n\x06GROUND\x10\
+    \0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\x10\x02\x12\x0b\n\
+    \x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\x10\n\x0cGHOUST_HO\
+    USE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\x06DESERT\x10\x07\x12\x07\
+    \n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\0\"D\n\nAutoScroll\x12\x08\
+    \n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\
+    \x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\x10\x04\x1a\0\"2\n\x0eScreenBou\
+    ndary\x12\x0e\n\nABOVE_LINE\x10\0\x12\x0e\n\nUNDER_LINE\x10\x01\x1a\0\"-\
+    \n\x0bOrientation\x12\x0e\n\nHORIZONTAL\x10\0\x12\x0c\n\x08VERTICAL\x10\
+    \x01\x1a\0\"7\n\nLiquidMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\
+    \x10\x01\x12\x0f\n\x0bOSCILLATING\x10\x02\x1a\0\"9\n\x0bLiquidSpeed\x12\
+    \x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\
+    \x12\x08\n\x04FAST\x10\x03\x1a\0\";\n\x07DayTime\x12\x07\n\x03DAY\x10\0\
+    \x12\x0c\n\x08UNKNOWN0\x10\x01\x12\t\n\x05NIGHT\x10\x02\x12\x0c\n\x08UNK\
+    NOWN1\x10\x03\x1a\0:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {

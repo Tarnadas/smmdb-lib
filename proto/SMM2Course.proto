@@ -44,6 +44,7 @@ message SMM2CourseHeader {
     enum CompletionFlag {
         NOT_CLEARED = 0;
         CLEARED = 1;
+        UNKNOWN = 2;
     }
     CompletionFlag completion_flag = 18; // u32 at offset 0x30
 }

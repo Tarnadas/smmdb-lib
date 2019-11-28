@@ -139,3 +139,19 @@ fn course2_from_packed() -> Result<(), failure::Error> {
 
     Ok(())
 }
+
+#[test]
+fn course2_from_packed_2() {
+    let save_files = vec![
+        "tests/assets/saves/smm2/save1.zip",
+        "tests/assets/saves/smm2/save2.zip",
+        "tests/assets/saves/smm2/save3.zip",
+        "tests/assets/saves/smm2/save4.zip",
+    ];
+    for save in save_files {
+        let save = read(save).unwrap();
+        let courses = Course2::from_packed(&save).unwrap();
+
+        assert_eq!(courses.len(), 60);
+    }
+}
