@@ -1,13 +1,13 @@
 [package]
 authors = ["Mario Reder <mreder1289@gmail.com>"]
 categories = ["wasm", "emulators"]
-description = "A utility library for Super Mario Maker and possibly Super Mario Maker 2 in the future to read and manipulate game files."
+description = "A utility library for Super Mario Maker and Super Mario Maker 2 to read and manipulate game files."
 edition = "2018"
 license = "MIT"
 name = "cemu-smm"
 readme = "./README.md"
 repository = "https://github.com/Tarnadas/cemu-smm"
-version = "4.0.20"
+version = "4.0.21"
 include = [
     "/crate/src/**/*.rs",
     "/proto/**/*.proto",
