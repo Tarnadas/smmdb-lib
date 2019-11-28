@@ -31,7 +31,7 @@ fn decrypt_test_assets() -> io::Result<()> {
     Ok(())
 }
 
-// #[test]
+#[test]
 fn thumbnail_decrypt() {
     decrypt_test_assets().unwrap();
 }
@@ -63,15 +63,21 @@ fn thumbnail_optimize_jpeg() {
 
 fn get_test_assets() -> Vec<(PathBuf, Vec<u8>, Vec<u8>)> {
     let mut thumbnails = vec![];
-    for entry in read_dir("tests/assets/saves/smm2").unwrap() {
-        let entry = entry.unwrap();
-        let file_name = entry.file_name();
-        let file_name = file_name.to_str().unwrap();
-        if file_name.starts_with("course_thumb_") && file_name.ends_with(".btl") {
-            let path = entry.path();
-            let out_path: Vec<&str> = path.to_str().unwrap().split('.').collect();
-            let out_path = out_path[0].to_owned() + ".decrypted";
-            thumbnails.push((path.clone(), read(path).unwrap(), read(out_path).unwrap()));
+    let save_folders = vec![
+        "tests/assets/saves/smm2/save1",
+        "tests/assets/saves/smm2/save2",
+    ];
+    for folder in save_folders {
+        for entry in read_dir(folder).unwrap() {
+            let entry = entry.unwrap();
+            let file_name = entry.file_name();
+            let file_name = file_name.to_str().unwrap();
+            if file_name.starts_with("course_thumb_") && file_name.ends_with(".btl") {
+                let path = entry.path();
+                let out_path: Vec<&str> = path.to_str().unwrap().split('.').collect();
+                let out_path = out_path[0].to_owned() + ".decrypted";
+                thumbnails.push((path.clone(), read(path).unwrap(), read(out_path).unwrap()));
+            }
         }
     }
     thumbnails
