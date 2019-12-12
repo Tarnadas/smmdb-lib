@@ -147,6 +147,7 @@ fn course2_from_packed_2() {
         "tests/assets/saves/smm2/save2.zip",
         "tests/assets/saves/smm2/save3.zip",
         "tests/assets/saves/smm2/save4.zip",
+        "tests/assets/saves/smm2/save5.zip",
     ];
     for save in save_files {
         let save = read(save).unwrap();
