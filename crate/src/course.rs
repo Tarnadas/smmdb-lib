@@ -237,7 +237,7 @@ impl Course {
         for offset in (TILES_OFFSET..TILES_OFFSET + tile_amount * TILE_SIZE).step_by(TILE_SIZE) {
             let mut tile = Tile::new();
             let tile_data = &slice[offset..offset + TILE_SIZE];
-            tile.set_tile_data(Bytes::from(tile_data));
+            tile.set_tile_data(Bytes::copy_from_slice(tile_data));
             tiles.push(tile);
         }
         RepeatedField::from_vec(tiles)
@@ -268,7 +268,7 @@ impl Course {
 
     fn get_thumbnail(slice: &[u8]) -> Bytes {
         let length = u32::from_be_bytes([slice[4], slice[5], slice[6], slice[7]]) as usize;
-        Bytes::from(&slice[8..8 + length])
+        Bytes::copy_from_slice(&slice[8..8 + length])
     }
 
     fn decompress_zip(res: &mut Vec<Course>, buffer: &[u8]) -> Result<(), ZipError> {
