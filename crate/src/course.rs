@@ -10,12 +10,11 @@ use crate::{constants::*, CourseConvertError, DecompressionError};
 
 use bytes::Bytes;
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
+use infer::{Infer, Type};
 use itertools::Itertools;
-use mime::Mime;
 use protobuf::{parse_from_bytes, Message, ProtobufEnum, RepeatedField};
 use regex::Regex;
 use std::io::{Cursor, Read};
-use tree_magic::from_u8;
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 use zip::{result::ZipError, ZipArchive};
@@ -122,14 +121,14 @@ impl Course {
     pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course>, DecompressionError> {
         let mut res = vec![];
 
-        let mime: Mime = from_u8(buffer).parse().unwrap();
+        let mime_guess: Type = Infer::new().get(buffer).unwrap();
 
-        match (mime.type_(), mime.subtype().as_ref()) {
-            (mime::APPLICATION, "zip") => {
+        match mime_guess.mime.as_ref() {
+            "application/zip" => {
                 Course::decompress_zip(&mut res, buffer)
                     .map_err(|err| DecompressionError::Zip(err))?;
             }
-            (_, _) => {
+            _ => {
                 // unimplemented!();
             }
         };

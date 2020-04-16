@@ -7,7 +7,7 @@ license = "MIT"
 name = "cemu-smm"
 readme = "./README.md"
 repository = "https://github.com/Tarnadas/cemu-smm"
-version = "4.0.24"
+version = "4.0.25"
 include = [
     "/crate/src/**/*.rs",
     "/proto/**/*.proto",
@@ -22,7 +22,7 @@ name = "cemu-smm"
 path = "crate/src/main.rs"
 
 [build-dependencies]
-protobuf-codegen-pure = "2.10"
+protobuf-codegen-pure = "2.14"
 
 [dependencies]
 aes-soft= "0.3"
@@ -33,14 +33,13 @@ chrono = "0.4"
 compression = "0.1"
 crc = "1.8"
 failure = "0.1"
-image = "0.22"
-itertools = "0.8"
-mime = "0.3"
+image = "0.23"
+infer = "0.1"
+itertools = "0.9"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
-tree_magic = "0.2"
-typenum = "1.11"
+typenum = "1.12"
 
 [dependencies.bytes]
 features = ["serde"]
@@ -56,7 +55,7 @@ version = "0.3"
 
 [dependencies.protobuf]
 features = ["with-bytes", "with-serde"]
-version = "2.10"
+version = "2.14"
 
 [dependencies.regex]
 version = "1.3"
