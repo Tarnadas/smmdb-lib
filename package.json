@@ -11,8 +11,8 @@
     "pack": "wasm-pack build && wasm-pack pack",
     "clean": "rimraf ./dist && rimraf ./pkg",
     "test": "yarn test:node",
-    "test:node": "wasm-pack test --node",
-    "test:web": "wasm-pack test --headless --chrome --firefox",
+    "test:node": "wasm-pack test --node -- --features wasm",
+    "test:web": "wasm-pack test --headless --chrome --firefox -- --features wasm",
     "git:executable": "git update-index --add --chmod=+x install.sh"
   },
   "devDependencies": {

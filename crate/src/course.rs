@@ -16,39 +16,42 @@ use protobuf::{parse_from_bytes, Message, ProtobufEnum, RepeatedField};
 use regex::Regex;
 use std::io::{Cursor, Read};
 use tree_magic::from_u8;
+#[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 use zip::{result::ZipError, ZipArchive};
 
 /// Super Mario Maker course file.
 ///
 /// This struct is a wrapper to hold a [SMMCourse](crate::proto::SMMCourse) struct which can be serialized via Protocol Buffer.
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 #[derive(Debug, PartialEq)]
 pub struct Course {
     course: SMMCourse,
 }
 
 /// WebAssembly compatible functions.
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Course {
-    #[wasm_bindgen]
+    #[cfg_attr(feature = "wasm", wasm_bindgen)]
     pub fn from_proto(buffer: &[u8]) -> Course {
         let course: SMMCourse = parse_from_bytes(buffer).unwrap();
         Course { course }
     }
 
-    #[wasm_bindgen]
+    #[cfg_attr(feature = "wasm", wasm_bindgen)]
     pub fn from_boxed_proto(buffer: Box<[u8]>) -> Course {
         let course: SMMCourse = parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
         Course { course }
     }
 
+    #[cfg(feature = "wasm")]
     #[wasm_bindgen]
     pub fn from_js(course: JsValue) -> Course {
         let course: SMMCourse = course.into_serde().expect("Course serialization failed");
         Course { course }
     }
 
+    #[cfg(feature = "wasm")]
     #[wasm_bindgen]
     pub fn from_packed_js(buffer: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
         let courses: Vec<JsValue> = Course::from_packed(buffer)
@@ -63,7 +66,7 @@ impl Course {
         Ok(courses.into_boxed_slice())
     }
 
-    #[wasm_bindgen]
+    #[cfg_attr(feature = "wasm", wasm_bindgen)]
     pub fn into_proto(&self) -> Box<[u8]> {
         let mut out: Vec<u8> = vec![];
         self.course
@@ -72,6 +75,7 @@ impl Course {
         out.into_boxed_slice()
     }
 
+    #[cfg(feature = "wasm")]
     #[wasm_bindgen]
     pub fn into_js(&self) -> JsValue {
         JsValue::from_serde(&self.course).unwrap()

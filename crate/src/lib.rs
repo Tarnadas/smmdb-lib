@@ -6,17 +6,18 @@
 //! This is particularly useful for emulation and the 3DS, which is unable to download specific course files from the Nintendo servers.
 //! Courses are serialized via Protocol Buffer.
 
+extern crate aes_soft as aes;
+
 #[macro_use]
 extern crate cfg_if;
 
 #[macro_use]
-extern crate serde_derive;
-
-#[macro_use]
 extern crate failure;
 
-extern crate aes_soft as aes;
+#[macro_use]
+extern crate serde_derive;
 
+#[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
 pub mod constants;
@@ -36,7 +37,7 @@ pub use errors::*;
 pub use thumbnail2::*;
 
 cfg_if! {
-    if #[cfg(feature = "console_error_panic_hook")] {
+    if #[cfg(feature = "console_error_panic_hook", feature = "wasm")] {
         extern crate console_error_panic_hook;
         use console_error_panic_hook::set_once as set_panic_hook;
     } else {
@@ -53,6 +54,7 @@ cfg_if! {
     }
 }
 
+#[cfg(feature = "wasm")]
 #[wasm_bindgen]
 pub fn run() -> Result<(), JsValue> {
     set_panic_hook();

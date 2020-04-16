@@ -20,10 +20,11 @@ use protobuf::{parse_from_bytes, Message, ProtobufEnum, SingularPtrField};
 use regex::Regex;
 use std::io::{Cursor, Read};
 use tree_magic::from_u8;
+#[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 use zip::{result::ZipError, ZipArchive};
 
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Course2 {
     course: SMM2Course,
@@ -61,9 +62,9 @@ impl Course2 {
     }
 }
 
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Course2 {
-    #[wasm_bindgen]
+    #[cfg_attr(feature = "wasm", wasm_bindgen)]
     pub fn from_proto(buffer: &[u8], thumb: Option<Box<[u8]>>) -> Course2 {
         let course: SMM2Course = parse_from_bytes(buffer).unwrap();
         Course2 {
@@ -73,7 +74,7 @@ impl Course2 {
         }
     }
 
-    #[wasm_bindgen]
+    #[cfg_attr(feature = "wasm", wasm_bindgen)]
     pub fn from_boxed_proto(buffer: Box<[u8]>, thumb: Option<Box<[u8]>>) -> Course2 {
         let course: SMM2Course = parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
         Course2 {
@@ -83,6 +84,7 @@ impl Course2 {
         }
     }
 
+    #[cfg(feature = "wasm")]
     #[wasm_bindgen]
     pub fn from_js(course: JsValue, thumb: Option<Box<[u8]>>) -> Course2 {
         let course: SMM2Course = course.into_serde().expect("Course serialization failed");
@@ -93,6 +95,7 @@ impl Course2 {
         }
     }
 
+    #[cfg(feature = "wasm")]
     #[wasm_bindgen]
     pub fn from_packed_js(buffer: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
         let courses: Vec<JsValue> = Course2::from_packed(buffer)
@@ -107,7 +110,7 @@ impl Course2 {
         Ok(courses.into_boxed_slice())
     }
 
-    #[wasm_bindgen]
+    #[cfg_attr(feature = "wasm", wasm_bindgen)]
     pub fn into_proto(&self) -> Box<[u8]> {
         let mut out: Vec<u8> = vec![];
         self.course
@@ -116,12 +119,13 @@ impl Course2 {
         out.into_boxed_slice()
     }
 
+    #[cfg(feature = "wasm")]
     #[wasm_bindgen]
     pub fn into_js(&self) -> JsValue {
         JsValue::from_serde(&self.course).unwrap()
     }
 
-    #[wasm_bindgen]
+    #[cfg_attr(feature = "wasm", wasm_bindgen)]
     pub fn decrypt(course: Vec<u8>) -> Vec<u8> {
         [
             &course[..0x10],
@@ -131,7 +135,7 @@ impl Course2 {
         .concat()
     }
 
-    #[wasm_bindgen]
+    #[cfg_attr(feature = "wasm", wasm_bindgen)]
     pub fn encrypt(course: Vec<u8>) -> Vec<u8> {
         [
             &fix_crc32(&course[..0x10], &course[0x10..course.len() - 0x30].to_vec())[..],

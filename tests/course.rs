@@ -2,6 +2,7 @@ extern crate cemu_smm;
 
 use bytes::Bytes;
 use cemu_smm::course::*;
+#[cfg(feature = "wasm")]
 use wasm_bindgen_test::*;
 
 #[derive(Clone)]
@@ -182,6 +183,7 @@ fn course_from_proto_once(asset: &[u8], zip: &[u8]) {
     assert_eq!(course, course_packed);
 }
 
+#[cfg(feature = "wasm")]
 #[wasm_bindgen_test]
 fn course_from_proto_wasm() {
     for course in COURSE_ASSETS.iter() {
@@ -189,6 +191,7 @@ fn course_from_proto_wasm() {
     }
 }
 
+#[cfg(feature = "wasm")]
 fn course_from_proto_wasm_once(asset: &[u8]) {
     let course = Course::from_proto(asset);
 
@@ -216,6 +219,7 @@ fn course_from_boxed_proto_once(asset: Box<[u8]>, zip: &[u8]) {
     assert_eq!(course, course_packed);
 }
 
+#[cfg(feature = "wasm")]
 #[wasm_bindgen_test]
 fn course_from_boxed_proto_wasm() {
     for course in COURSE_ASSETS.iter() {
@@ -223,6 +227,7 @@ fn course_from_boxed_proto_wasm() {
     }
 }
 
+#[cfg(feature = "wasm")]
 fn course_from_boxed_proto_wasm_once(asset: Box<[u8]>) {
     let course = Course::from_boxed_proto(asset);
 
@@ -230,7 +235,7 @@ fn course_from_boxed_proto_wasm_once(asset: Box<[u8]>) {
 }
 
 #[test]
-#[wasm_bindgen_test]
+#[cfg_attr(feature = "wasm", wasm_bindgen_test)]
 fn course_into_proto() {
     for course in COURSE_ASSETS.iter() {
         course_into_proto_once(course.proto);
