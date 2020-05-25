@@ -17,10 +17,6 @@ include = [
     "/LICENSE"
 ]
 
-[[bin]]
-name = "cemu-smm"
-path = "crate/src/main.rs"
-
 [build-dependencies]
 protobuf-codegen-pure = "2.14"
 
