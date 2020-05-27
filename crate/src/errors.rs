@@ -24,8 +24,6 @@ pub enum Course2ConvertError {
     ClearConditionTypeParse,
     #[fail(display = "Course2ConvertError::CourseThemeParse")]
     CourseThemeParse,
-    #[fail(display = "Course2ConvertError::CompletionFlagParse")]
-    CompletionFlagParse,
     #[fail(display = "Course2ConvertError::AutoScrollParse")]
     AutoScrollParse,
     #[fail(display = "Course2ConvertError::ScreenBoundaryParse")]

@@ -377,7 +377,7 @@ pub struct SMM2CourseHeader {
     pub management_flags: u32,
     pub creation_id: u32,
     pub upload_id: u64,
-    pub completion_flag: SMM2CourseHeader_CompletionFlag,
+    pub completion_version: u32,
     // special fields
     #[cfg_attr(feature = "with-serde", serde(skip))]
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -673,19 +673,19 @@ impl SMM2CourseHeader {
         self.upload_id = v;
     }
 
-    // .cemu_smm.SMM2CourseHeader.CompletionFlag completion_flag = 18;
+    // uint32 completion_version = 18;
 
 
-    pub fn get_completion_flag(&self) -> SMM2CourseHeader_CompletionFlag {
-        self.completion_flag
+    pub fn get_completion_version(&self) -> u32 {
+        self.completion_version
     }
-    pub fn clear_completion_flag(&mut self) {
-        self.completion_flag = SMM2CourseHeader_CompletionFlag::NOT_CLEARED;
+    pub fn clear_completion_version(&mut self) {
+        self.completion_version = 0;
     }
 
     // Param is passed by value, moved
-    pub fn set_completion_flag(&mut self, v: SMM2CourseHeader_CompletionFlag) {
-        self.completion_flag = v;
+    pub fn set_completion_version(&mut self, v: u32) {
+        self.completion_version = v;
     }
 }
 
@@ -802,7 +802,11 @@ impl ::protobuf::Message for SMM2CourseHeader {
                     self.upload_id = tmp;
                 },
                 18 => {
-                    ::protobuf::rt::read_proto3_enum_with_unknown_fields_into(wire_type, is, &mut self.completion_flag, 18, &mut self.unknown_fields)?
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint32()?;
+                    self.completion_version = tmp;
                 },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
@@ -867,8 +871,8 @@ impl ::protobuf::Message for SMM2CourseHeader {
         if self.upload_id != 0 {
             my_size += ::protobuf::rt::value_size(17, self.upload_id, ::protobuf::wire_format::WireTypeVarint);
         }
-        if self.completion_flag != SMM2CourseHeader_CompletionFlag::NOT_CLEARED {
-            my_size += ::protobuf::rt::enum_size(18, self.completion_flag);
+        if self.completion_version != 0 {
+            my_size += ::protobuf::rt::value_size(18, self.completion_version, ::protobuf::wire_format::WireTypeVarint);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
@@ -927,8 +931,8 @@ impl ::protobuf::Message for SMM2CourseHeader {
         if self.upload_id != 0 {
             os.write_uint64(17, self.upload_id)?;
         }
-        if self.completion_flag != SMM2CourseHeader_CompletionFlag::NOT_CLEARED {
-            os.write_enum(18, self.completion_flag.value())?;
+        if self.completion_version != 0 {
+            os.write_uint32(18, self.completion_version)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -1054,10 +1058,10 @@ impl ::protobuf::Message for SMM2CourseHeader {
                     |m: &SMM2CourseHeader| { &m.upload_id },
                     |m: &mut SMM2CourseHeader| { &mut m.upload_id },
                 ));
-                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeEnum<SMM2CourseHeader_CompletionFlag>>(
-                    "completion_flag",
-                    |m: &SMM2CourseHeader| { &m.completion_flag },
-                    |m: &mut SMM2CourseHeader| { &mut m.completion_flag },
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint32>(
+                    "completion_version",
+                    |m: &SMM2CourseHeader| { &m.completion_version },
+                    |m: &mut SMM2CourseHeader| { &mut m.completion_version },
                 ));
                 ::protobuf::reflect::MessageDescriptor::new_pb_name::<SMM2CourseHeader>(
                     "SMM2CourseHeader",
@@ -1095,7 +1099,7 @@ impl ::protobuf::Clear for SMM2CourseHeader {
         self.management_flags = 0;
         self.creation_id = 0;
         self.upload_id = 0;
-        self.completion_flag = SMM2CourseHeader_CompletionFlag::NOT_CLEARED;
+        self.completion_version = 0;
         self.unknown_fields.clear();
     }
 }
@@ -1228,65 +1232,6 @@ impl ::std::default::Default for SMM2CourseHeader_ClearConditionType {
 }
 
 impl ::protobuf::reflect::ProtobufValue for SMM2CourseHeader_ClearConditionType {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Enum(self.descriptor())
-    }
-}
-
-#[derive(Clone,PartialEq,Eq,Debug,Hash)]
-#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub enum SMM2CourseHeader_CompletionFlag {
-    NOT_CLEARED = 0,
-    CLEARED = 1,
-    UNKNOWN = 2,
-    UNKNOWN0 = 3,
-}
-
-impl ::protobuf::ProtobufEnum for SMM2CourseHeader_CompletionFlag {
-    fn value(&self) -> i32 {
-        *self as i32
-    }
-
-    fn from_i32(value: i32) -> ::std::option::Option<SMM2CourseHeader_CompletionFlag> {
-        match value {
-            0 => ::std::option::Option::Some(SMM2CourseHeader_CompletionFlag::NOT_CLEARED),
-            1 => ::std::option::Option::Some(SMM2CourseHeader_CompletionFlag::CLEARED),
-            2 => ::std::option::Option::Some(SMM2CourseHeader_CompletionFlag::UNKNOWN),
-            3 => ::std::option::Option::Some(SMM2CourseHeader_CompletionFlag::UNKNOWN0),
-            _ => ::std::option::Option::None
-        }
-    }
-
-    fn values() -> &'static [Self] {
-        static values: &'static [SMM2CourseHeader_CompletionFlag] = &[
-            SMM2CourseHeader_CompletionFlag::NOT_CLEARED,
-            SMM2CourseHeader_CompletionFlag::CLEARED,
-            SMM2CourseHeader_CompletionFlag::UNKNOWN,
-            SMM2CourseHeader_CompletionFlag::UNKNOWN0,
-        ];
-        values
-    }
-
-    fn enum_descriptor_static() -> &'static ::protobuf::reflect::EnumDescriptor {
-        static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::EnumDescriptor> = ::protobuf::lazy::Lazy::INIT;
-        unsafe {
-            descriptor.get(|| {
-                ::protobuf::reflect::EnumDescriptor::new_pb_name::<SMM2CourseHeader_CompletionFlag>("SMM2CourseHeader.CompletionFlag", file_descriptor_proto())
-            })
-        }
-    }
-}
-
-impl ::std::marker::Copy for SMM2CourseHeader_CompletionFlag {
-}
-
-impl ::std::default::Default for SMM2CourseHeader_CompletionFlag {
-    fn default() -> Self {
-        SMM2CourseHeader_CompletionFlag::NOT_CLEARED
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for SMM2CourseHeader_CompletionFlag {
     fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
         ::protobuf::reflect::ReflectValueRef::Enum(self.descriptor())
     }
@@ -2617,7 +2562,7 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x07version\x18\x01\x20\x01(\rB\0\x12,\n\x06header\x18\x02\x20\x01(\x0b2\
     \x1a.cemu_smm.SMM2CourseHeaderB\0\x12/\n\x0bcourse_area\x18\x03\x20\x01(\
     \x0b2\x18.cemu_smm.SMM2CourseAreaB\0\x123\n\x0fcourse_sub_area\x18\x04\
-    \x20\x01(\x0b2\x18.cemu_smm.SMM2CourseAreaB\0:\0\"\x8b\x06\n\x10SMM2Cour\
+    \x20\x01(\x0b2\x18.cemu_smm.SMM2CourseAreaB\0:\0\"\x96\x05\n\x10SMM2Cour\
     seHeader\x12\x12\n\x08modified\x18\x01\x20\x01(\x04B\0\x12\x0f\n\x05titl\
     e\x18\x02\x20\x01(\tB\0\x12\x15\n\x0bdescription\x18\x03\x20\x01(\tB\0\
     \x12\x11\n\x07start_y\x18\x04\x20\x01(\rB\0\x12\x12\n\x08finish_y\x18\
@@ -2630,49 +2575,46 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x0c\x20\x01(\rB\0\x12\x1a\n\x10clear_check_time\x18\r\x20\x01(\rB\0\x12\
     \x16\n\x0cgame_version\x18\x0e\x20\x01(\rB\0\x12\x1a\n\x10management_fla\
     gs\x18\x0f\x20\x01(\rB\0\x12\x15\n\x0bcreation_id\x18\x10\x20\x01(\rB\0\
-    \x12\x13\n\tupload_id\x18\x11\x20\x01(\x04B\0\x12D\n\x0fcompletion_flag\
-    \x18\x12\x20\x01(\x0e2).cemu_smm.SMM2CourseHeader.CompletionFlagB\0\"5\n\
-    \tGameStyle\x12\x06\n\x02M1\x10\0\x12\x06\n\x02M3\x10\x01\x12\x06\n\x02M\
-    W\x10\x02\x12\x06\n\x02WU\x10\x03\x12\x06\n\x02W3\x10\x04\x1a\0\"C\n\x12\
-    ClearConditionType\x12\x08\n\x04NONE\x10\0\x12\t\n\x05PARTS\x10\x01\x12\
-    \n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\x10\x03\x1a\0\"K\n\x0eCompletio\
-    nFlag\x12\x0f\n\x0bNOT_CLEARED\x10\0\x12\x0b\n\x07CLEARED\x10\x01\x12\
-    \x0b\n\x07UNKNOWN\x10\x02\x12\x0c\n\x08UNKNOWN0\x10\x03\x1a\0:\0\"\xd3\n\
-    \n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\x18\x01\x20\x01(\x0e2$.cemu_\
-    smm.SMM2CourseArea.CourseThemeB\0\x12:\n\x0bauto_scroll\x18\x02\x20\x01(\
-    \x0e2#.cemu_smm.SMM2CourseArea.AutoScrollB\0\x12B\n\x0fscreen_boundary\
-    \x18\x03\x20\x01(\x0e2'.cemu_smm.SMM2CourseArea.ScreenBoundaryB\0\x12;\n\
-    \x0borientation\x18\x04\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.Orientati\
-    onB\0\x12\x14\n\nliquid_max\x18\x05\x20\x01(\rB\0\x12:\n\x0bliquid_mode\
-    \x18\x06\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.LiquidModeB\0\x12<\n\x0c\
-    liquid_speed\x18\x07\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.LiquidSpeedB\
-    \0\x12\x14\n\nliquid_min\x18\x08\x20\x01(\rB\0\x12\x18\n\x0eright_bounda\
-    ry\x18\t\x20\x01(\rB\0\x12\x16\n\x0ctop_boundary\x18\n\x20\x01(\rB\0\x12\
-    \x17\n\rleft_boundary\x18\x0b\x20\x01(\rB\0\x12\x19\n\x0fbottom_boundary\
-    \x18\x0c\x20\x01(\rB\0\x124\n\x08day_time\x18\r\x20\x01(\x0e2\x20.cemu_s\
-    mm.SMM2CourseArea.DayTimeB\0\x12\x16\n\x0cobject_count\x18\x0e\x20\x01(\
-    \rB\0\x12\x1c\n\x12sound_effect_count\x18\x0f\x20\x01(\rB\0\x12\x1b\n\
-    \x11snake_block_count\x18\x10\x20\x01(\rB\0\x12\x1a\n\x10clear_pipe_coun\
-    t\x18\x11\x20\x01(\rB\0\x12\x1f\n\x15piranha_creeper_count\x18\x12\x20\
-    \x01(\rB\0\x12!\n\x17exclamation_block_count\x18\x13\x20\x01(\rB\0\x12\
-    \x1b\n\x11track_block_count\x18\x14\x20\x01(\rB\0\x12\x14\n\ntile_count\
-    \x18\x15\x20\x01(\rB\0\x12\x15\n\x0btrack_count\x18\x16\x20\x01(\rB\0\
-    \x12\x16\n\x0cicicle_count\x18\x17\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTh\
-    eme\x12\n\n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06\
-    CASTLE\x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\
-    \x04\x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\
-    \x06DESERT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\
-    \0\"D\n\nAutoScroll\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\
-    \x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\
-    \x10\x04\x1a\0\"2\n\x0eScreenBoundary\x12\x0e\n\nABOVE_LINE\x10\0\x12\
-    \x0e\n\nUNDER_LINE\x10\x01\x1a\0\"-\n\x0bOrientation\x12\x0e\n\nHORIZONT\
-    AL\x10\0\x12\x0c\n\x08VERTICAL\x10\x01\x1a\0\"7\n\nLiquidMode\x12\t\n\
-    \x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\n\x0bOSCILLATING\
-    \x10\x02\x1a\0\"9\n\x0bLiquidSpeed\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04\
-    SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x1a\0\"\
-    ;\n\x07DayTime\x12\x07\n\x03DAY\x10\0\x12\x0c\n\x08UNKNOWN0\x10\x01\x12\
-    \t\n\x05NIGHT\x10\x02\x12\x0c\n\x08UNKNOWN1\x10\x03\x1a\0:\0B\0b\x06prot\
-    o3\
+    \x12\x13\n\tupload_id\x18\x11\x20\x01(\x04B\0\x12\x1c\n\x12completion_ve\
+    rsion\x18\x12\x20\x01(\rB\0\"5\n\tGameStyle\x12\x06\n\x02M1\x10\0\x12\
+    \x06\n\x02M3\x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x12\
+    \x06\n\x02W3\x10\x04\x1a\0\"C\n\x12ClearConditionType\x12\x08\n\x04NONE\
+    \x10\0\x12\t\n\x05PARTS\x10\x01\x12\n\n\x06STATUS\x10\x02\x12\n\n\x06ACT\
+    ION\x10\x03\x1a\0:\0\"\xd3\n\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\
+    \x18\x01\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\x12:\n\
+    \x0bauto_scroll\x18\x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrol\
+    lB\0\x12B\n\x0fscreen_boundary\x18\x03\x20\x01(\x0e2'.cemu_smm.SMM2Cours\
+    eArea.ScreenBoundaryB\0\x12;\n\x0borientation\x18\x04\x20\x01(\x0e2$.cem\
+    u_smm.SMM2CourseArea.OrientationB\0\x12\x14\n\nliquid_max\x18\x05\x20\
+    \x01(\rB\0\x12:\n\x0bliquid_mode\x18\x06\x20\x01(\x0e2#.cemu_smm.SMM2Cou\
+    rseArea.LiquidModeB\0\x12<\n\x0cliquid_speed\x18\x07\x20\x01(\x0e2$.cemu\
+    _smm.SMM2CourseArea.LiquidSpeedB\0\x12\x14\n\nliquid_min\x18\x08\x20\x01\
+    (\rB\0\x12\x18\n\x0eright_boundary\x18\t\x20\x01(\rB\0\x12\x16\n\x0ctop_\
+    boundary\x18\n\x20\x01(\rB\0\x12\x17\n\rleft_boundary\x18\x0b\x20\x01(\r\
+    B\0\x12\x19\n\x0fbottom_boundary\x18\x0c\x20\x01(\rB\0\x124\n\x08day_tim\
+    e\x18\r\x20\x01(\x0e2\x20.cemu_smm.SMM2CourseArea.DayTimeB\0\x12\x16\n\
+    \x0cobject_count\x18\x0e\x20\x01(\rB\0\x12\x1c\n\x12sound_effect_count\
+    \x18\x0f\x20\x01(\rB\0\x12\x1b\n\x11snake_block_count\x18\x10\x20\x01(\r\
+    B\0\x12\x1a\n\x10clear_pipe_count\x18\x11\x20\x01(\rB\0\x12\x1f\n\x15pir\
+    anha_creeper_count\x18\x12\x20\x01(\rB\0\x12!\n\x17exclamation_block_cou\
+    nt\x18\x13\x20\x01(\rB\0\x12\x1b\n\x11track_block_count\x18\x14\x20\x01(\
+    \rB\0\x12\x14\n\ntile_count\x18\x15\x20\x01(\rB\0\x12\x15\n\x0btrack_cou\
+    nt\x18\x16\x20\x01(\rB\0\x12\x16\n\x0cicicle_count\x18\x17\x20\x01(\rB\0\
+    \"\x92\x01\n\x0bCourseTheme\x12\n\n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGR\
+    OUND\x10\x01\x12\n\n\x06CASTLE\x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\
+    \x0e\n\nUNDERWATER\x10\x04\x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\
+    \x04SNOW\x10\x06\x12\n\n\x06DESERT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\
+    \n\n\x06FOREST\x10\t\x1a\0\"D\n\nAutoScroll\x12\x08\n\x04NONE\x10\0\x12\
+    \x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\
+    \x03\x12\n\n\x06CUSTOM\x10\x04\x1a\0\"2\n\x0eScreenBoundary\x12\x0e\n\nA\
+    BOVE_LINE\x10\0\x12\x0e\n\nUNDER_LINE\x10\x01\x1a\0\"-\n\x0bOrientation\
+    \x12\x0e\n\nHORIZONTAL\x10\0\x12\x0c\n\x08VERTICAL\x10\x01\x1a\0\"7\n\nL\
+    iquidMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\n\
+    \x0bOSCILLATING\x10\x02\x1a\0\"9\n\x0bLiquidSpeed\x12\x08\n\x04NONE\x10\
+    \0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\
+    \x10\x03\x1a\0\";\n\x07DayTime\x12\x07\n\x03DAY\x10\0\x12\x0c\n\x08UNKNO\
+    WN0\x10\x01\x12\t\n\x05NIGHT\x10\x02\x12\x0c\n\x08UNKNOWN1\x10\x03\x1a\0\
+    :\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy::INIT;

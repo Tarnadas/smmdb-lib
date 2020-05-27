@@ -5,8 +5,7 @@ use crate::proto::SMM2Course::{
     SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
     SMM2CourseArea_DayTime, SMM2CourseArea_LiquidMode, SMM2CourseArea_LiquidSpeed,
     SMM2CourseArea_Orientation, SMM2CourseArea_ScreenBoundary, SMM2CourseHeader,
-    SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_CompletionFlag,
-    SMM2CourseHeader_GameStyle,
+    SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_GameStyle,
 };
 use crate::{
     constants2::*, decrypt, encrypt, fix_crc32, key_tables::*, Course2ConvertError,
@@ -166,8 +165,13 @@ impl Course2 {
     pub fn from_switch_files(
         course_data: &[u8],
         thumb: Option<Vec<u8>>,
+        is_encrypted: bool,
     ) -> Result<Course2, Course2ConvertError> {
-        let data = Course2::decrypt(course_data.to_vec());
+        let data = if is_encrypted {
+            Course2::decrypt(course_data.to_vec())
+        } else {
+            course_data.to_vec()
+        };
 
         let header = Course2::get_course_header(&data)?;
         let course_area = Course2::get_course_area(&data, 0)?;
@@ -195,7 +199,9 @@ impl Course2 {
         for (course, thumb) in courses {
             let course_data = Course2::read_file_from_archive(&mut zip, course)?;
             let course_thumb = Course2::read_file_from_archive(&mut zip, thumb)?;
-            if let Ok(course) = Course2::from_switch_files(&course_data[..], Some(course_thumb)) {
+            if let Ok(course) =
+                Course2::from_switch_files(&course_data[..], Some(course_thumb), true)
+            {
                 res.push(course);
             };
         }
@@ -322,9 +328,12 @@ impl Course2 {
             course_data[UPLOAD_ID_OFFSET + 6],
             course_data[UPLOAD_ID_OFFSET + 7],
         ]);
-        let completion_flag =
-            SMM2CourseHeader_CompletionFlag::from_i32(course_data[COMPLETION_FLAG_OFFSET] as i32)
-                .ok_or(Course2ConvertError::CompletionFlagParse)?;
+        let completion_version = u32::from_le_bytes([
+            course_data[COMPLETION_VERSION_OFFSET],
+            course_data[COMPLETION_VERSION_OFFSET + 1],
+            course_data[COMPLETION_VERSION_OFFSET + 2],
+            course_data[COMPLETION_VERSION_OFFSET + 3],
+        ]);
 
         Ok(SingularPtrField::some(SMM2CourseHeader {
             modified,
@@ -344,7 +353,7 @@ impl Course2 {
             management_flags,
             creation_id,
             upload_id,
-            completion_flag,
+            completion_version,
             ..SMM2CourseHeader::default()
         }))
     }

@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-pub const VERSION: u32 = 1;
+pub const VERSION: u32 = 2;
 
 pub const COURSE_DATA_PREFIX: &str = "course_data_";
 pub const COURSE_DATA_SUFFIX: &str = ".bcd";
@@ -45,7 +45,7 @@ pub const MANAGEMENT_FLAGS_OFFSET: usize = LEVEL_HEADER_OFFSET + 0x18;
 pub const CREATION_ID_OFFSET: usize = LEVEL_HEADER_OFFSET + 0x24;
 pub const UPLOAD_ID_OFFSET: usize = LEVEL_HEADER_OFFSET + 0x28;
 
-pub const COMPLETION_FLAG_OFFSET: usize = LEVEL_HEADER_OFFSET + 0x30;
+pub const COMPLETION_VERSION_OFFSET: usize = LEVEL_HEADER_OFFSET + 0x30;
 
 // level area
 pub const LEVEL_AREA_OFFSET: usize = 0x210;
