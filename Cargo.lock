@@ -137,7 +137,6 @@ dependencies = [
  "bytes",
  "cfg-if",
  "chrono",
- "compression",
  "console_error_panic_hook",
  "crc",
  "failure",
@@ -150,7 +149,6 @@ dependencies = [
  "regex",
  "serde",
  "serde_derive",
- "serde_json",
  "typenum",
  "wasm-bindgen",
  "wasm-bindgen-test",
@@ -181,18 +179,6 @@ name = "color_quant"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0dbbb57365263e881e805dc77d94697c9118fd94d8da011240555aa7b23445bd"
-
-[[package]]
-name = "compression"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a82b366ae14633c67a1cbb4aa3738210a23f77d2868a0fd50faa23a956f9ec4"
-dependencies = [
- "cfg-if",
- "lazy_static",
- "log",
- "num-traits",
-]
 
 [[package]]
 name = "console_error_panic_hook"
