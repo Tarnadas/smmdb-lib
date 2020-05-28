@@ -94,6 +94,3 @@ wasm-opt = false
 debug = false
 lto = true
 codegen-units = 1
-
-[profile.dev]
-opt-level = 1
