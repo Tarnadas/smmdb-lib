@@ -1,7 +1,7 @@
 language: rust
 
 rust:
-  - nightly
+  - stable
 
 env:
   global:
@@ -24,12 +24,12 @@ jobs:
   include:
     - stage: test
       script: yarn test
-      name: 'Test WASM'
+      name: "Test WASM"
     - script: cargo test
-      name: 'Test Rust'
+      name: "Test Rust"
     - stage: deploy
       script: echo "deploying to NPM..."
-      name: 'Deploy to NPM'
+      name: "Deploy to NPM"
       deploy:
         - provider: script
           skip_cleanup: true
@@ -37,7 +37,7 @@ jobs:
           on:
             tags: true
     - script: echo "deploying to crates.io..."
-      name: 'Deploy to Crates.io'
+      name: "Deploy to Crates.io"
       deploy:
         - provider: cargo
           skip_cleanup: true
