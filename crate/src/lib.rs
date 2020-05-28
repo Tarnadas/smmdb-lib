@@ -37,12 +37,9 @@ pub use errors::*;
 pub use thumbnail2::*;
 
 cfg_if! {
-    if #[cfg(feature = "console_error_panic_hook", feature = "wasm")] {
+    if #[cfg(feature = "wasm")] {
         extern crate console_error_panic_hook;
         use console_error_panic_hook::set_once as set_panic_hook;
-    } else {
-        #[inline]
-        fn set_panic_hook() {}
     }
 }
 

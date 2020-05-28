@@ -7,7 +7,7 @@ license = "MIT"
 name = "cemu-smm"
 readme = "./README.md"
 repository = "https://github.com/Tarnadas/cemu-smm"
-version = "4.0.26"
+version = "4.0.27"
 include = [
     "/crate/src/**/*.rs",
     "/proto/**/*.proto",
@@ -77,8 +77,8 @@ version = "0.5"
 wasm-bindgen-test = "0.3"
 
 [features]
-default = ["console_error_panic_hook", "with-serde"]
-wasm = ["js-sys", "wasm-bindgen", "web-sys"]
+default = ["with-serde"]
+wasm = ["console_error_panic_hook", "js-sys", "wasm-bindgen", "web-sys"]
 with-serde = []
 
 [lib]
