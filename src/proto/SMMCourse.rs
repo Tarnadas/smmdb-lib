@@ -132,7 +132,7 @@ impl SMMCourse {
         ::std::mem::replace(&mut self.maker, ::std::string::String::new())
     }
 
-    // .cemu_smm.SMMCourse.GameStyle game_style = 4;
+    // .smmdb.SMMCourse.GameStyle game_style = 4;
 
 
     pub fn get_game_style(&self) -> SMMCourse_GameStyle {
@@ -147,7 +147,7 @@ impl SMMCourse {
         self.game_style = v;
     }
 
-    // .cemu_smm.SMMCourse.CourseTheme course_theme = 5;
+    // .smmdb.SMMCourse.CourseTheme course_theme = 5;
 
 
     pub fn get_course_theme(&self) -> SMMCourse_CourseTheme {
@@ -162,7 +162,7 @@ impl SMMCourse {
         self.course_theme = v;
     }
 
-    // .cemu_smm.SMMCourse.CourseTheme course_theme_sub = 6;
+    // .smmdb.SMMCourse.CourseTheme course_theme_sub = 6;
 
 
     pub fn get_course_theme_sub(&self) -> SMMCourse_CourseTheme {
@@ -192,7 +192,7 @@ impl SMMCourse {
         self.time = v;
     }
 
-    // .cemu_smm.SMMCourse.AutoScroll auto_scroll = 8;
+    // .smmdb.SMMCourse.AutoScroll auto_scroll = 8;
 
 
     pub fn get_auto_scroll(&self) -> SMMCourse_AutoScroll {
@@ -207,7 +207,7 @@ impl SMMCourse {
         self.auto_scroll = v;
     }
 
-    // .cemu_smm.SMMCourse.AutoScroll auto_scroll_sub = 9;
+    // .smmdb.SMMCourse.AutoScroll auto_scroll_sub = 9;
 
 
     pub fn get_auto_scroll_sub(&self) -> SMMCourse_AutoScroll {
@@ -252,7 +252,7 @@ impl SMMCourse {
         self.width_sub = v;
     }
 
-    // repeated .cemu_smm.Tile tiles = 12;
+    // repeated .smmdb.Tile tiles = 12;
 
 
     pub fn get_tiles(&self) -> &[super::Tile::Tile] {
@@ -277,7 +277,7 @@ impl SMMCourse {
         ::std::mem::replace(&mut self.tiles, ::protobuf::RepeatedField::new())
     }
 
-    // repeated .cemu_smm.Tile tiles_sub = 13;
+    // repeated .smmdb.Tile tiles_sub = 13;
 
 
     pub fn get_tiles_sub(&self) -> &[super::Tile::Tile] {
@@ -302,7 +302,7 @@ impl SMMCourse {
         ::std::mem::replace(&mut self.tiles_sub, ::protobuf::RepeatedField::new())
     }
 
-    // repeated .cemu_smm.Sound sounds = 14;
+    // repeated .smmdb.Sound sounds = 14;
 
 
     pub fn get_sounds(&self) -> &[super::Sound::Sound] {
@@ -327,7 +327,7 @@ impl SMMCourse {
         ::std::mem::replace(&mut self.sounds, ::protobuf::RepeatedField::new())
     }
 
-    // repeated .cemu_smm.Sound sounds_sub = 15;
+    // repeated .smmdb.Sound sounds_sub = 15;
 
 
     pub fn get_sounds_sub(&self) -> &[super::Sound::Sound] {
@@ -996,28 +996,28 @@ impl ::protobuf::reflect::ProtobufValue for SMMCourse_AutoScroll {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x0fSMMCourse.proto\x12\x08cemu_smm\"\xb8\x06\n\tSMMCourse\x12\x12\n\
-    \x08modified\x18\x01\x20\x01(\x04B\0\x12\x0f\n\x05title\x18\x02\x20\x01(\
-    \tB\0\x12\x0f\n\x05maker\x18\x03\x20\x01(\tB\0\x123\n\ngame_style\x18\
-    \x04\x20\x01(\x0e2\x1d.cemu_smm.SMMCourse.GameStyleB\0\x127\n\x0ccourse_\
-    theme\x18\x05\x20\x01(\x0e2\x1f.cemu_smm.SMMCourse.CourseThemeB\0\x12;\n\
-    \x10course_theme_sub\x18\x06\x20\x01(\x0e2\x1f.cemu_smm.SMMCourse.Course\
-    ThemeB\0\x12\x0e\n\x04time\x18\x07\x20\x01(\rB\0\x125\n\x0bauto_scroll\
-    \x18\x08\x20\x01(\x0e2\x1e.cemu_smm.SMMCourse.AutoScrollB\0\x129\n\x0fau\
-    to_scroll_sub\x18\t\x20\x01(\x0e2\x1e.cemu_smm.SMMCourse.AutoScrollB\0\
-    \x12\x0f\n\x05width\x18\n\x20\x01(\rB\0\x12\x13\n\twidth_sub\x18\x0b\x20\
-    \x01(\rB\0\x12\x1f\n\x05tiles\x18\x0c\x20\x03(\x0b2\x0e.cemu_smm.TileB\0\
-    \x12#\n\ttiles_sub\x18\r\x20\x03(\x0b2\x0e.cemu_smm.TileB\0\x12!\n\x06so\
-    unds\x18\x0e\x20\x03(\x0b2\x0f.cemu_smm.SoundB\0\x12%\n\nsounds_sub\x18\
-    \x0f\x20\x03(\x0b2\x0f.cemu_smm.SoundB\0\x12\x13\n\tthumbnail\x18\x10\
-    \x20\x01(\x0cB\0\x12\x1b\n\x11thumbnail_preview\x18\x11\x20\x01(\x0cB\0\
-    \"-\n\tGameStyle\x12\x06\n\x02M1\x10\0\x12\x06\n\x02M3\x10\x01\x12\x06\n\
-    \x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x1a\0\"g\n\x0bCourseTheme\x12\n\n\
-    \x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\x10\
-    \x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\x10\
-    \n\x0cGHOUST_HOUSE\x10\x05\x1a\0\"F\n\nAutoScroll\x12\x0c\n\x08DISABLED\
-    \x10\0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04\
-    FAST\x10\x03\x12\x08\n\x04LOCK\x10\x04\x1a\0:\0B\0b\x06proto3\
+    \n\x0fSMMCourse.proto\x12\x05smmdb\"\x9d\x06\n\tSMMCourse\x12\x12\n\x08m\
+    odified\x18\x01\x20\x01(\x04B\0\x12\x0f\n\x05title\x18\x02\x20\x01(\tB\0\
+    \x12\x0f\n\x05maker\x18\x03\x20\x01(\tB\0\x120\n\ngame_style\x18\x04\x20\
+    \x01(\x0e2\x1a.smmdb.SMMCourse.GameStyleB\0\x124\n\x0ccourse_theme\x18\
+    \x05\x20\x01(\x0e2\x1c.smmdb.SMMCourse.CourseThemeB\0\x128\n\x10course_t\
+    heme_sub\x18\x06\x20\x01(\x0e2\x1c.smmdb.SMMCourse.CourseThemeB\0\x12\
+    \x0e\n\x04time\x18\x07\x20\x01(\rB\0\x122\n\x0bauto_scroll\x18\x08\x20\
+    \x01(\x0e2\x1b.smmdb.SMMCourse.AutoScrollB\0\x126\n\x0fauto_scroll_sub\
+    \x18\t\x20\x01(\x0e2\x1b.smmdb.SMMCourse.AutoScrollB\0\x12\x0f\n\x05widt\
+    h\x18\n\x20\x01(\rB\0\x12\x13\n\twidth_sub\x18\x0b\x20\x01(\rB\0\x12\x1c\
+    \n\x05tiles\x18\x0c\x20\x03(\x0b2\x0b.smmdb.TileB\0\x12\x20\n\ttiles_sub\
+    \x18\r\x20\x03(\x0b2\x0b.smmdb.TileB\0\x12\x1e\n\x06sounds\x18\x0e\x20\
+    \x03(\x0b2\x0c.smmdb.SoundB\0\x12\"\n\nsounds_sub\x18\x0f\x20\x03(\x0b2\
+    \x0c.smmdb.SoundB\0\x12\x13\n\tthumbnail\x18\x10\x20\x01(\x0cB\0\x12\x1b\
+    \n\x11thumbnail_preview\x18\x11\x20\x01(\x0cB\0\"-\n\tGameStyle\x12\x06\
+    \n\x02M1\x10\0\x12\x06\n\x02M3\x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\
+    \x02WU\x10\x03\x1a\0\"g\n\x0bCourseTheme\x12\n\n\x06GROUND\x10\0\x12\x0f\
+    \n\x0bUNDERGROUND\x10\x01\x12\n\n\x06CASTLE\x10\x02\x12\x0b\n\x07AIRSHIP\
+    \x10\x03\x12\x0e\n\nUNDERWATER\x10\x04\x12\x10\n\x0cGHOUST_HOUSE\x10\x05\
+    \x1a\0\"F\n\nAutoScroll\x12\x0c\n\x08DISABLED\x10\0\x12\x08\n\x04SLOW\
+    \x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x12\x08\n\
+    \x04LOCK\x10\x04\x1a\0:\0B\0b\x06proto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy::INIT;

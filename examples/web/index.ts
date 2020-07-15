@@ -1,4 +1,4 @@
-import('../pkg/cemu_smm').then(module => {
+import('../../pkg/smmdb').then(module => {
   const { Course, Course2, run } = module;
   run();
   const input = document.createElement('input');

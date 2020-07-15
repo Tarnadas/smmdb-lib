@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
-extern crate cemu_smm;
+extern crate smmdb;
 
-use cemu_smm::thumbnail2::*;
+use smmdb::thumbnail2::*;
 use std::fs::{read, read_dir, File};
 use std::io::{self, prelude::*};
 use std::path::PathBuf;

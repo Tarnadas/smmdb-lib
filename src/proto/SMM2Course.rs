@@ -67,7 +67,7 @@ impl SMM2Course {
         self.version = v;
     }
 
-    // .cemu_smm.SMM2CourseHeader header = 2;
+    // .smmdb.SMM2CourseHeader header = 2;
 
 
     pub fn get_header(&self) -> &SMM2CourseHeader {
@@ -100,7 +100,7 @@ impl SMM2Course {
         self.header.take().unwrap_or_else(|| SMM2CourseHeader::new())
     }
 
-    // .cemu_smm.SMM2CourseArea course_area = 3;
+    // .smmdb.SMM2CourseArea course_area = 3;
 
 
     pub fn get_course_area(&self) -> &SMM2CourseArea {
@@ -133,7 +133,7 @@ impl SMM2Course {
         self.course_area.take().unwrap_or_else(|| SMM2CourseArea::new())
     }
 
-    // .cemu_smm.SMM2CourseArea course_sub_area = 4;
+    // .smmdb.SMM2CourseArea course_sub_area = 4;
 
 
     pub fn get_course_sub_area(&self) -> &SMM2CourseArea {
@@ -523,7 +523,7 @@ impl SMM2CourseHeader {
         self.time = v;
     }
 
-    // .cemu_smm.SMM2CourseHeader.GameStyle game_style = 8;
+    // .smmdb.SMM2CourseHeader.GameStyle game_style = 8;
 
 
     pub fn get_game_style(&self) -> SMM2CourseHeader_GameStyle {
@@ -538,7 +538,7 @@ impl SMM2CourseHeader {
         self.game_style = v;
     }
 
-    // .cemu_smm.SMM2CourseHeader.ClearConditionType clear_condition_type = 9;
+    // .smmdb.SMM2CourseHeader.ClearConditionType clear_condition_type = 9;
 
 
     pub fn get_clear_condition_type(&self) -> SMM2CourseHeader_ClearConditionType {
@@ -1282,7 +1282,7 @@ impl SMM2CourseArea {
         ::std::default::Default::default()
     }
 
-    // .cemu_smm.SMM2CourseArea.CourseTheme course_theme = 1;
+    // .smmdb.SMM2CourseArea.CourseTheme course_theme = 1;
 
 
     pub fn get_course_theme(&self) -> SMM2CourseArea_CourseTheme {
@@ -1297,7 +1297,7 @@ impl SMM2CourseArea {
         self.course_theme = v;
     }
 
-    // .cemu_smm.SMM2CourseArea.AutoScroll auto_scroll = 2;
+    // .smmdb.SMM2CourseArea.AutoScroll auto_scroll = 2;
 
 
     pub fn get_auto_scroll(&self) -> SMM2CourseArea_AutoScroll {
@@ -1312,7 +1312,7 @@ impl SMM2CourseArea {
         self.auto_scroll = v;
     }
 
-    // .cemu_smm.SMM2CourseArea.ScreenBoundary screen_boundary = 3;
+    // .smmdb.SMM2CourseArea.ScreenBoundary screen_boundary = 3;
 
 
     pub fn get_screen_boundary(&self) -> SMM2CourseArea_ScreenBoundary {
@@ -1327,7 +1327,7 @@ impl SMM2CourseArea {
         self.screen_boundary = v;
     }
 
-    // .cemu_smm.SMM2CourseArea.Orientation orientation = 4;
+    // .smmdb.SMM2CourseArea.Orientation orientation = 4;
 
 
     pub fn get_orientation(&self) -> SMM2CourseArea_Orientation {
@@ -1357,7 +1357,7 @@ impl SMM2CourseArea {
         self.liquid_max = v;
     }
 
-    // .cemu_smm.SMM2CourseArea.LiquidMode liquid_mode = 6;
+    // .smmdb.SMM2CourseArea.LiquidMode liquid_mode = 6;
 
 
     pub fn get_liquid_mode(&self) -> SMM2CourseArea_LiquidMode {
@@ -1372,7 +1372,7 @@ impl SMM2CourseArea {
         self.liquid_mode = v;
     }
 
-    // .cemu_smm.SMM2CourseArea.LiquidSpeed liquid_speed = 7;
+    // .smmdb.SMM2CourseArea.LiquidSpeed liquid_speed = 7;
 
 
     pub fn get_liquid_speed(&self) -> SMM2CourseArea_LiquidSpeed {
@@ -1462,7 +1462,7 @@ impl SMM2CourseArea {
         self.bottom_boundary = v;
     }
 
-    // .cemu_smm.SMM2CourseArea.DayTime day_time = 13;
+    // .smmdb.SMM2CourseArea.DayTime day_time = 13;
 
 
     pub fn get_day_time(&self) -> SMM2CourseArea_DayTime {
@@ -2558,63 +2558,63 @@ impl ::protobuf::reflect::ProtobufValue for SMM2CourseArea_DayTime {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x10SMM2Course.proto\x12\x08cemu_smm\"\xb5\x01\n\nSMM2Course\x12\x11\n\
-    \x07version\x18\x01\x20\x01(\rB\0\x12,\n\x06header\x18\x02\x20\x01(\x0b2\
-    \x1a.cemu_smm.SMM2CourseHeaderB\0\x12/\n\x0bcourse_area\x18\x03\x20\x01(\
-    \x0b2\x18.cemu_smm.SMM2CourseAreaB\0\x123\n\x0fcourse_sub_area\x18\x04\
-    \x20\x01(\x0b2\x18.cemu_smm.SMM2CourseAreaB\0:\0\"\x96\x05\n\x10SMM2Cour\
-    seHeader\x12\x12\n\x08modified\x18\x01\x20\x01(\x04B\0\x12\x0f\n\x05titl\
-    e\x18\x02\x20\x01(\tB\0\x12\x15\n\x0bdescription\x18\x03\x20\x01(\tB\0\
-    \x12\x11\n\x07start_y\x18\x04\x20\x01(\rB\0\x12\x12\n\x08finish_y\x18\
-    \x05\x20\x01(\rB\0\x12\x12\n\x08finish_x\x18\x06\x20\x01(\rB\0\x12\x0e\n\
-    \x04time\x18\x07\x20\x01(\rB\0\x12:\n\ngame_style\x18\x08\x20\x01(\x0e2$\
-    .cemu_smm.SMM2CourseHeader.GameStyleB\0\x12M\n\x14clear_condition_type\
-    \x18\t\x20\x01(\x0e2-.cemu_smm.SMM2CourseHeader.ClearConditionTypeB\0\
-    \x12\x19\n\x0fclear_condition\x18\n\x20\x01(\rB\0\x12\x20\n\x16clear_con\
-    dition_amount\x18\x0b\x20\x01(\rB\0\x12\x1b\n\x11clear_check_tries\x18\
-    \x0c\x20\x01(\rB\0\x12\x1a\n\x10clear_check_time\x18\r\x20\x01(\rB\0\x12\
-    \x16\n\x0cgame_version\x18\x0e\x20\x01(\rB\0\x12\x1a\n\x10management_fla\
-    gs\x18\x0f\x20\x01(\rB\0\x12\x15\n\x0bcreation_id\x18\x10\x20\x01(\rB\0\
-    \x12\x13\n\tupload_id\x18\x11\x20\x01(\x04B\0\x12\x1c\n\x12completion_ve\
-    rsion\x18\x12\x20\x01(\rB\0\"5\n\tGameStyle\x12\x06\n\x02M1\x10\0\x12\
-    \x06\n\x02M3\x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x12\
-    \x06\n\x02W3\x10\x04\x1a\0\"C\n\x12ClearConditionType\x12\x08\n\x04NONE\
-    \x10\0\x12\t\n\x05PARTS\x10\x01\x12\n\n\x06STATUS\x10\x02\x12\n\n\x06ACT\
-    ION\x10\x03\x1a\0:\0\"\xd3\n\n\x0eSMM2CourseArea\x12<\n\x0ccourse_theme\
-    \x18\x01\x20\x01(\x0e2$.cemu_smm.SMM2CourseArea.CourseThemeB\0\x12:\n\
-    \x0bauto_scroll\x18\x02\x20\x01(\x0e2#.cemu_smm.SMM2CourseArea.AutoScrol\
-    lB\0\x12B\n\x0fscreen_boundary\x18\x03\x20\x01(\x0e2'.cemu_smm.SMM2Cours\
-    eArea.ScreenBoundaryB\0\x12;\n\x0borientation\x18\x04\x20\x01(\x0e2$.cem\
-    u_smm.SMM2CourseArea.OrientationB\0\x12\x14\n\nliquid_max\x18\x05\x20\
-    \x01(\rB\0\x12:\n\x0bliquid_mode\x18\x06\x20\x01(\x0e2#.cemu_smm.SMM2Cou\
-    rseArea.LiquidModeB\0\x12<\n\x0cliquid_speed\x18\x07\x20\x01(\x0e2$.cemu\
-    _smm.SMM2CourseArea.LiquidSpeedB\0\x12\x14\n\nliquid_min\x18\x08\x20\x01\
-    (\rB\0\x12\x18\n\x0eright_boundary\x18\t\x20\x01(\rB\0\x12\x16\n\x0ctop_\
-    boundary\x18\n\x20\x01(\rB\0\x12\x17\n\rleft_boundary\x18\x0b\x20\x01(\r\
-    B\0\x12\x19\n\x0fbottom_boundary\x18\x0c\x20\x01(\rB\0\x124\n\x08day_tim\
-    e\x18\r\x20\x01(\x0e2\x20.cemu_smm.SMM2CourseArea.DayTimeB\0\x12\x16\n\
-    \x0cobject_count\x18\x0e\x20\x01(\rB\0\x12\x1c\n\x12sound_effect_count\
-    \x18\x0f\x20\x01(\rB\0\x12\x1b\n\x11snake_block_count\x18\x10\x20\x01(\r\
-    B\0\x12\x1a\n\x10clear_pipe_count\x18\x11\x20\x01(\rB\0\x12\x1f\n\x15pir\
-    anha_creeper_count\x18\x12\x20\x01(\rB\0\x12!\n\x17exclamation_block_cou\
-    nt\x18\x13\x20\x01(\rB\0\x12\x1b\n\x11track_block_count\x18\x14\x20\x01(\
-    \rB\0\x12\x14\n\ntile_count\x18\x15\x20\x01(\rB\0\x12\x15\n\x0btrack_cou\
-    nt\x18\x16\x20\x01(\rB\0\x12\x16\n\x0cicicle_count\x18\x17\x20\x01(\rB\0\
-    \"\x92\x01\n\x0bCourseTheme\x12\n\n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGR\
-    OUND\x10\x01\x12\n\n\x06CASTLE\x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\
-    \x0e\n\nUNDERWATER\x10\x04\x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\
-    \x04SNOW\x10\x06\x12\n\n\x06DESERT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\
-    \n\n\x06FOREST\x10\t\x1a\0\"D\n\nAutoScroll\x12\x08\n\x04NONE\x10\0\x12\
-    \x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\
-    \x03\x12\n\n\x06CUSTOM\x10\x04\x1a\0\"2\n\x0eScreenBoundary\x12\x0e\n\nA\
-    BOVE_LINE\x10\0\x12\x0e\n\nUNDER_LINE\x10\x01\x1a\0\"-\n\x0bOrientation\
-    \x12\x0e\n\nHORIZONTAL\x10\0\x12\x0c\n\x08VERTICAL\x10\x01\x1a\0\"7\n\nL\
-    iquidMode\x12\t\n\x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\n\
-    \x0bOSCILLATING\x10\x02\x1a\0\"9\n\x0bLiquidSpeed\x12\x08\n\x04NONE\x10\
-    \0\x12\x08\n\x04SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\
-    \x10\x03\x1a\0\";\n\x07DayTime\x12\x07\n\x03DAY\x10\0\x12\x0c\n\x08UNKNO\
-    WN0\x10\x01\x12\t\n\x05NIGHT\x10\x02\x12\x0c\n\x08UNKNOWN1\x10\x03\x1a\0\
-    :\0B\0b\x06proto3\
+    \n\x10SMM2Course.proto\x12\x05smmdb\"\xac\x01\n\nSMM2Course\x12\x11\n\
+    \x07version\x18\x01\x20\x01(\rB\0\x12)\n\x06header\x18\x02\x20\x01(\x0b2\
+    \x17.smmdb.SMM2CourseHeaderB\0\x12,\n\x0bcourse_area\x18\x03\x20\x01(\
+    \x0b2\x15.smmdb.SMM2CourseAreaB\0\x120\n\x0fcourse_sub_area\x18\x04\x20\
+    \x01(\x0b2\x15.smmdb.SMM2CourseAreaB\0:\0\"\x90\x05\n\x10SMM2CourseHeade\
+    r\x12\x12\n\x08modified\x18\x01\x20\x01(\x04B\0\x12\x0f\n\x05title\x18\
+    \x02\x20\x01(\tB\0\x12\x15\n\x0bdescription\x18\x03\x20\x01(\tB\0\x12\
+    \x11\n\x07start_y\x18\x04\x20\x01(\rB\0\x12\x12\n\x08finish_y\x18\x05\
+    \x20\x01(\rB\0\x12\x12\n\x08finish_x\x18\x06\x20\x01(\rB\0\x12\x0e\n\x04\
+    time\x18\x07\x20\x01(\rB\0\x127\n\ngame_style\x18\x08\x20\x01(\x0e2!.smm\
+    db.SMM2CourseHeader.GameStyleB\0\x12J\n\x14clear_condition_type\x18\t\
+    \x20\x01(\x0e2*.smmdb.SMM2CourseHeader.ClearConditionTypeB\0\x12\x19\n\
+    \x0fclear_condition\x18\n\x20\x01(\rB\0\x12\x20\n\x16clear_condition_amo\
+    unt\x18\x0b\x20\x01(\rB\0\x12\x1b\n\x11clear_check_tries\x18\x0c\x20\x01\
+    (\rB\0\x12\x1a\n\x10clear_check_time\x18\r\x20\x01(\rB\0\x12\x16\n\x0cga\
+    me_version\x18\x0e\x20\x01(\rB\0\x12\x1a\n\x10management_flags\x18\x0f\
+    \x20\x01(\rB\0\x12\x15\n\x0bcreation_id\x18\x10\x20\x01(\rB\0\x12\x13\n\
+    \tupload_id\x18\x11\x20\x01(\x04B\0\x12\x1c\n\x12completion_version\x18\
+    \x12\x20\x01(\rB\0\"5\n\tGameStyle\x12\x06\n\x02M1\x10\0\x12\x06\n\x02M3\
+    \x10\x01\x12\x06\n\x02MW\x10\x02\x12\x06\n\x02WU\x10\x03\x12\x06\n\x02W3\
+    \x10\x04\x1a\0\"C\n\x12ClearConditionType\x12\x08\n\x04NONE\x10\0\x12\t\
+    \n\x05PARTS\x10\x01\x12\n\n\x06STATUS\x10\x02\x12\n\n\x06ACTION\x10\x03\
+    \x1a\0:\0\"\xbe\n\n\x0eSMM2CourseArea\x129\n\x0ccourse_theme\x18\x01\x20\
+    \x01(\x0e2!.smmdb.SMM2CourseArea.CourseThemeB\0\x127\n\x0bauto_scroll\
+    \x18\x02\x20\x01(\x0e2\x20.smmdb.SMM2CourseArea.AutoScrollB\0\x12?\n\x0f\
+    screen_boundary\x18\x03\x20\x01(\x0e2$.smmdb.SMM2CourseArea.ScreenBounda\
+    ryB\0\x128\n\x0borientation\x18\x04\x20\x01(\x0e2!.smmdb.SMM2CourseArea.\
+    OrientationB\0\x12\x14\n\nliquid_max\x18\x05\x20\x01(\rB\0\x127\n\x0bliq\
+    uid_mode\x18\x06\x20\x01(\x0e2\x20.smmdb.SMM2CourseArea.LiquidModeB\0\
+    \x129\n\x0cliquid_speed\x18\x07\x20\x01(\x0e2!.smmdb.SMM2CourseArea.Liqu\
+    idSpeedB\0\x12\x14\n\nliquid_min\x18\x08\x20\x01(\rB\0\x12\x18\n\x0erigh\
+    t_boundary\x18\t\x20\x01(\rB\0\x12\x16\n\x0ctop_boundary\x18\n\x20\x01(\
+    \rB\0\x12\x17\n\rleft_boundary\x18\x0b\x20\x01(\rB\0\x12\x19\n\x0fbottom\
+    _boundary\x18\x0c\x20\x01(\rB\0\x121\n\x08day_time\x18\r\x20\x01(\x0e2\
+    \x1d.smmdb.SMM2CourseArea.DayTimeB\0\x12\x16\n\x0cobject_count\x18\x0e\
+    \x20\x01(\rB\0\x12\x1c\n\x12sound_effect_count\x18\x0f\x20\x01(\rB\0\x12\
+    \x1b\n\x11snake_block_count\x18\x10\x20\x01(\rB\0\x12\x1a\n\x10clear_pip\
+    e_count\x18\x11\x20\x01(\rB\0\x12\x1f\n\x15piranha_creeper_count\x18\x12\
+    \x20\x01(\rB\0\x12!\n\x17exclamation_block_count\x18\x13\x20\x01(\rB\0\
+    \x12\x1b\n\x11track_block_count\x18\x14\x20\x01(\rB\0\x12\x14\n\ntile_co\
+    unt\x18\x15\x20\x01(\rB\0\x12\x15\n\x0btrack_count\x18\x16\x20\x01(\rB\0\
+    \x12\x16\n\x0cicicle_count\x18\x17\x20\x01(\rB\0\"\x92\x01\n\x0bCourseTh\
+    eme\x12\n\n\x06GROUND\x10\0\x12\x0f\n\x0bUNDERGROUND\x10\x01\x12\n\n\x06\
+    CASTLE\x10\x02\x12\x0b\n\x07AIRSHIP\x10\x03\x12\x0e\n\nUNDERWATER\x10\
+    \x04\x12\x10\n\x0cGHOUST_HOUSE\x10\x05\x12\x08\n\x04SNOW\x10\x06\x12\n\n\
+    \x06DESERT\x10\x07\x12\x07\n\x03SKY\x10\x08\x12\n\n\x06FOREST\x10\t\x1a\
+    \0\"D\n\nAutoScroll\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04SLOW\x10\x01\
+    \x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x12\n\n\x06CUSTOM\
+    \x10\x04\x1a\0\"2\n\x0eScreenBoundary\x12\x0e\n\nABOVE_LINE\x10\0\x12\
+    \x0e\n\nUNDER_LINE\x10\x01\x1a\0\"-\n\x0bOrientation\x12\x0e\n\nHORIZONT\
+    AL\x10\0\x12\x0c\n\x08VERTICAL\x10\x01\x1a\0\"7\n\nLiquidMode\x12\t\n\
+    \x05FIXED\x10\0\x12\x0b\n\x07ONE_WAY\x10\x01\x12\x0f\n\x0bOSCILLATING\
+    \x10\x02\x1a\0\"9\n\x0bLiquidSpeed\x12\x08\n\x04NONE\x10\0\x12\x08\n\x04\
+    SLOW\x10\x01\x12\n\n\x06MEDIUM\x10\x02\x12\x08\n\x04FAST\x10\x03\x1a\0\"\
+    ;\n\x07DayTime\x12\x07\n\x03DAY\x10\0\x12\x0c\n\x08UNKNOWN0\x10\x01\x12\
+    \t\n\x05NIGHT\x10\x02\x12\x0c\n\x08UNKNOWN1\x10\x03\x1a\0:\0B\0b\x06prot\
+    o3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy::INIT;

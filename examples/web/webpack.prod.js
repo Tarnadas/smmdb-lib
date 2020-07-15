@@ -10,7 +10,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 
 module.exports = {
   mode: 'production',
-  entry: './js/index.ts',
+  entry: './index.ts',
   output: {
     path: dist,
     filename: 'bundle.js'
@@ -21,7 +21,9 @@ module.exports = {
       template: 'index.html'
     }),
     new WasmPackPlugin({
-      crateDirectory: '.',
+      crateDirectory: '../..',
+      outName: 'smmdb',
+      extraArgs: '-- --features wasm',
       forceMode: 'production'
     }),
     new webpack.EnvironmentPlugin({

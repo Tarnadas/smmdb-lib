@@ -5,4 +5,4 @@ target
 wasm-pack.log
 stats.json
 bundle-report.html
-cemu-smm-*.tgz
+smmdb-*.tgz

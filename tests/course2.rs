@@ -1,6 +1,6 @@
-extern crate cemu_smm;
+extern crate smmdb;
 
-use cemu_smm::course2::*;
+use smmdb::course2::*;
 use std::fs::{read, read_dir};
 use std::io;
 use std::process::Command;

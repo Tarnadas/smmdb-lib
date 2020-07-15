@@ -7,7 +7,7 @@ const dist = path.resolve(__dirname, 'dist');
 
 module.exports = {
   mode: 'development',
-  entry: path.join(__dirname, 'js/index.ts'),
+  entry: './index.ts',
   output: {
     path: dist,
     filename: 'bundle.js'
@@ -21,7 +21,10 @@ module.exports = {
       template: 'index.html'
     }),
     new WasmPackPlugin({
-      crateDirectory: '.'
+      crateDirectory: '../..',
+      outName: 'smmdb',
+      extraArgs: '-- --features wasm',
+      watchDirectories: [path.resolve(__dirname, '../../src')]
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development'
@@ -31,7 +34,7 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.wasm']
   },
   watchOptions: {
-    ignored: [/target\/.*/]
+    ignored: ['../../target/**']
   },
   module: {
     rules: [

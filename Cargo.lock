@@ -128,36 +128,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cemu-smm"
-version = "4.0.27"
-dependencies = [
- "aes-soft",
- "block-modes",
- "byteorder",
- "bytes",
- "cfg-if",
- "chrono",
- "console_error_panic_hook",
- "crc",
- "failure",
- "image",
- "infer",
- "itertools",
- "js-sys",
- "protobuf",
- "protobuf-codegen-pure",
- "regex",
- "serde",
- "serde_derive",
- "typenum",
- "wasm-bindgen",
- "wasm-bindgen-test",
- "web-sys",
- "wee_alloc",
- "zip",
-]
-
-[[package]]
 name = "cfg-if"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -699,6 +669,36 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "smmdb"
+version = "1.0.0"
+dependencies = [
+ "aes-soft",
+ "block-modes",
+ "byteorder",
+ "bytes",
+ "cfg-if",
+ "chrono",
+ "console_error_panic_hook",
+ "crc",
+ "failure",
+ "image",
+ "infer",
+ "itertools",
+ "js-sys",
+ "protobuf",
+ "protobuf-codegen-pure",
+ "regex",
+ "serde",
+ "serde_derive",
+ "typenum",
+ "wasm-bindgen",
+ "wasm-bindgen-test",
+ "web-sys",
+ "wee_alloc",
+ "zip",
 ]
 
 [[package]]

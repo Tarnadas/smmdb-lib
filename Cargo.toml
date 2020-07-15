@@ -4,12 +4,12 @@ categories = ["wasm", "emulators"]
 description = "A utility library for Super Mario Maker and Super Mario Maker 2 to read and manipulate game files."
 edition = "2018"
 license = "MIT"
-name = "cemu-smm"
+name = "smmdb"
 readme = "./README.md"
 repository = "https://github.com/Tarnadas/cemu-smm"
-version = "4.0.27"
+version = "1.0.0"
 include = [
-    "/crate/src/**/*.rs",
+    "/src/**/*.rs",
     "/proto/**/*.proto",
     "/build.rs",
     "/Cargo.toml",
@@ -83,8 +83,8 @@ with-serde = []
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "cemu_smm"
-path = "crate/src/lib.rs"
+name = "smmdb"
+path = "src/lib.rs"
 
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = false

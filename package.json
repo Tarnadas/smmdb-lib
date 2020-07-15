@@ -1,34 +1,17 @@
 {
   "author": "Mario Reder <mreder1289@gmail.com>",
-  "name": "cemu-smm",
-  "version": "4.0.25",
-  "description": "A utility library for Super Mario Maker and possibly Super Mario Maker 2 in the future to read and manipulate game files.",
-  "repository": "https://github.com/Tarnadas/cemu-smm",
+  "name": "smmdb",
+  "version": "1.0.0",
+  "description": "A utility library for Super Mario Maker and Super Mario Maker 2 to read and manipulate game files.",
+  "repository": "https://github.com/Tarnadas/smmdb-lib",
   "license": "MIT",
   "scripts": {
-    "start": "yarn clean && webpack-dev-server -d --env=dev",
-    "build": "yarn clean && webpack --env=prod",
-    "pack": "wasm-pack build && wasm-pack pack",
     "clean": "rimraf ./dist && rimraf ./pkg",
-    "test": "yarn test:node",
+    "test": "yarn test:node && yarn test:web",
     "test:node": "wasm-pack test --node -- --features wasm",
     "test:web": "wasm-pack test --headless --chrome --firefox -- --features wasm"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.1",
-    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
-    "@babel/plugin-transform-typescript": "^7.10.1",
-    "@babel/polyfill": "^7.10.1",
-    "@babel/preset-env": "^7.10.1",
-    "@wasm-tool/wasm-pack-plugin": "1.3.1",
-    "babel-loader": "^8.0.5",
-    "core-js": "3",
-    "html-webpack-plugin": "^4.3.0",
-    "prettier": "^2.0.5",
-    "typescript": "^3.9.3",
-    "webpack": "^4.43.0",
-    "webpack-bundle-analyzer": "^3.8.0",
-    "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.11.0"
+    "rimraf": "^3"
   }
 }

@@ -1,7 +1,7 @@
-extern crate cemu_smm;
+extern crate smmdb;
 
 use bytes::Bytes;
-use cemu_smm::course::*;
+use smmdb::course::*;
 #[cfg(feature = "wasm")]
 use wasm_bindgen_test::*;
 

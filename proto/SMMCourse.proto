@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package cemu_smm;
+package smmdb;
 
 import "Tile.proto";
 import "Sound.proto";

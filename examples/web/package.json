@@ -1,0 +1,30 @@
+{
+  "author": "Mario Reder <mreder1289@gmail.com>",
+  "name": "smmdb-lib-example",
+  "version": "1.0.0",
+  "description": "SMMDB lib example.",
+  "repository": "https://github.com/Tarnadas/smmdb-lib",
+  "license": "MIT",
+  "scripts": {
+    "start": "yarn clean && webpack-dev-server -d --env=dev",
+    "build": "yarn clean && webpack --env=prod",
+    "clean": "rimraf ./dist && rimraf ../../pkg"
+  },
+  "devDependencies": {
+    "@babel/core": "^7",
+    "@babel/plugin-syntax-dynamic-import": "^7",
+    "@babel/plugin-transform-typescript": "^7",
+    "@babel/polyfill": "^7",
+    "@babel/preset-env": "^7",
+    "@wasm-tool/wasm-pack-plugin": "^1",
+    "babel-loader": "^8",
+    "core-js": "3",
+    "html-webpack-plugin": "^4",
+    "prettier": "^2",
+    "typescript": "3.9",
+    "webpack": "^4",
+    "webpack-bundle-analyzer": "^3",
+    "webpack-cli": "^3",
+    "webpack-dev-server": "^3"
+  }
+}

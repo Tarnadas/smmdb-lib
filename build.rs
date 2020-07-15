@@ -4,7 +4,7 @@ use protobuf_codegen_pure::{Codegen, Customize};
 use std::fs::create_dir;
 use std::path::Path;
 
-const OUT_DIR: &str = "crate/src/proto";
+const OUT_DIR: &str = "src/proto";
 
 fn main() {
     if !Path::new(OUT_DIR).exists() {

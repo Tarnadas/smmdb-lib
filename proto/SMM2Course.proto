@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package cemu_smm;
+package smmdb;
 
 message SMM2Course {
     uint32 version = 1;
