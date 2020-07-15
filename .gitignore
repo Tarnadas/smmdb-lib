@@ -6,3 +6,4 @@ wasm-pack.log
 stats.json
 bundle-report.html
 smmdb-*.tgz
+Cargo.lock
