@@ -7,3 +7,4 @@ stats.json
 bundle-report.html
 smmdb-*.tgz
 Cargo.lock
+*.opt
