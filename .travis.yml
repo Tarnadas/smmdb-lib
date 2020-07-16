@@ -18,13 +18,18 @@ install:
   - source ~/.nvm/nvm.sh
   - nvm install 14
   - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+  - cargo install cargo-whatfeatures --no-default-features --features "rustls"
+
+after_install:
+  - export NO_COLOR=1
+  - export LIB_VERSION=$(cat Cargo.toml | grep version | head -1 | sed 's/[",(version = )]//g')
+  - export NPM_VERSION_EXISTS=$(./npm_version_exists.sh $LIB_VERSION)
+  - export CRATE_VERSION_EXISTS=$(./crate_version_exists.sh $LIB_VERSION)
 
 cache: cargo
 
 stages:
   - test
-  - name: deploy
-    if: tag IS present
 
 jobs:
   include:
@@ -33,7 +38,8 @@ jobs:
       name: "Test WASM"
     - script: cargo test
       name: "Test Rust"
-    - stage: deploy
+    - stage: deploy-npm
+      if: env(NPM_VERION_EXISTS) = 0
       script: echo "deploying to NPM..."
       name: "Deploy to NPM"
       deploy:
@@ -42,12 +48,12 @@ jobs:
           script: bash deploy.sh
           on:
             tags: true
-    - script: echo "deploying to crates.io..."
+    - stage: deploy-crate
+      if: env(CRATE_VERION_EXISTS) = 0
+      script: echo "deploying to crates.io..."
       name: "Deploy to Crates.io"
       deploy:
         - provider: cargo
           skip_cleanup: true
           token:
             secure: NJ2lWYy8Lgr3aKFk+F+p+d6EATtXRSNebI8C1VVk5I+arXBOV4sUPqzOX2bptPKEuPhgN05c7g08GdisZjhnHSNnRQcNd9eolCY+J9VApXHlBbC9Snp6wqmciOZPqfNvEb6w+uYMvSxdsExSCX1c/7VJec7/AEykTPOvbnrgHAfCGT7ha17UYpjQQk249rPKZ52YZ6DrpX9eUWG1H/1Gyi9OXLE2xhXS0db6YQXzX2tqE2yLp7z7GFWTzxJxe7xcrYptNu2+RAin1rHb6Yq0VWU6rroaIXFQozfCIm3HEQjh7aFKCUy4ggjPqF3RPkY/E0bnuXxmq0ZFzGr3sbHnOe7odHttXTLA88O7A91gntAJsxrzRaXgkrx4eWZV6KWwg5F1HGOj3p3l5308DotaeG6AEQls9bpvx+tEWYvXYAwcqU3ZYkFnQCJYff3P4HqQTuICu6iz4jWvY/CBYBW85Aakzed3bs5GL9kEaOu6cNniTqRewlBhHNSDax1H2B4vc9p3SLFjFK3Y6jrb/AL4rQooyNxqZsz0XPtS7+yW80mTsQ7EKk1pTSWhFJk+BGfWbPP4lF6MxaLzU99Q80u18qbm4J+GPRX5GZ1BvfM/YVn3cji49uRV5AdPX/Qg47nBXcQyhubk90bNijgw+jl4v2yh000JO4wyrvy3C5qi71k=
-          on:
-            tags: true

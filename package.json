@@ -1,7 +1,7 @@
 {
   "author": "Mario Reder <mreder1289@gmail.com>",
   "name": "smmdb",
-  "version": "1.0.0",
+  "version": "auto",
   "description": "A utility library for Super Mario Maker and Super Mario Maker 2 to read and manipulate game files.",
   "repository": "https://github.com/Tarnadas/smmdb-lib",
   "license": "MIT",
