@@ -10,7 +10,8 @@ addons:
 env:
   global:
     - CARGO_TARGET_DIR=$HOME/.cargo/target
-    - secure: VKmbEYVEpNwgrKvsjCx1JYCYNKDtG1uq+uDjScgcNuNQRUbWK7c7vsnupuxHTIL0543YXtxJlI8CAOmDUblANrtLSvo3O2FxpgMlvNvs3c98qk0a6tS1wy6vFhn1BbeaAPeaRtVzVqBY/2gqZLHzjGbA6sbH6sYkGN/HRSa/+J7jtYt5khk3S6AhpZglthtGipmNNXylB1WvhdD3XC9dmdxjmJOHDYI5tIlxpNrHsyChN9hTKubzKHaYrXS+g4rHZBO3qvDmOpYMIGe81bQAmBX+IzOBFU4gCgQOrVZcr5BxSG+zmoNtAkAKYV/0ZUIbAhcz893MIBHgMRXrUQDtV0WyhXQZVaml3AntGY5wOM1n+WRfMl8dvpblTqSxRKrJCde9UUAsDzuDliXxeaRyrimTTyzo6oE5850KnFExL6fiTM+j8ZgN5KAzKKEhh8c/KCaJy0iQA0RwWBcB8P/MdhdXXFtjgDlOuYN8Tp9ZIpkFX6lT1wCUGuNXpvhNPEsJiuvNFWDEYJrVvHeMwJNyNcFifBR3WBnibxt+QS3uH6UBZUDHa9lmmANPCrjosPKdb3QKj+NEXd67s0ksflaIQiEBibs8S6WcvtadmI2Y7UtsOq9aZuvsItba7QvDZQHyiHYHcRDxwGoVuTbwfG/8MP2KZe6DenhsbRLoGqCyXco=
+    - secure: D1PFf/A6KVOEzVWTOrCINwrF3q1J9pFL4MXNI/0/pteWWUlUctgp5Pt0LpeLJglyx8qtsO7BPmiuVNHXhObCLaFkz2+9TNL5hqz7RkMbJA9PPgSlzt9NxY5puhE9RtKKCJ0L7Xb9F7Ft+8ujds9qLlzpSrXfDCzdFTROblT1eRiRZAcueXbHGol9P7lJsE52Nns22cmThmlKFQIaYwQDtnhNHuDjQCnfAGCPrPNrbmxOYyk8X5RgThgeSoX/Fwsnm6Tdt7c9dL3fh8Rcxu7Dje+wh1cEG1QMeyXxFJ1XJfB0Yi5ZK8zGXg+KqR6EwedOcoxf04yEQdWQXB9J+g613KPuX2covMzt/+fDx3vREN0vAMVREDXV0YclA7JPcN8lTE6w/GhOA7/Qi8Zmbzu9SYPfR2HsCSeeBd8u/zaeCC0AB0gI75TzUr6+YpJewYuUG3eXL5+L9eAE+fg0hOoeWzr9cgNnlT/xz27XuGbatQkzkuuXcHClPwPgLwiFoDbzFGW0i1gxGZ787R/UQJBfKmbDtDys6P9B/ZP9eO82lxPMvfCnBf9fEan2vvsX1rmAvt4GqjEuMZ21hP++y16xRHTaxxFpsPwh9beJWCLhs/V/t6Kmv5Oao7JnOqzTzo5BnE1hCkoIHXyg2YNBW/q0EgOUPHBzbjPA6TnKSM70VI0=
+    - secure: HR94JH0kioiY3VK6+9Cs9LHA2uWs9nqWmX0gq1pjjU98Z7E/sPM54bBqsZBCd/odeou3BUotOSs/90DnS6Eedrcv6lb84Q7Lc7Pj+uZL/hafKyi4sz78COzHJliX9T57y0YwCtygiD7XP/h41yWPZDXznmoyAxcKg4c7/a9qs4JAEORVks9gNZ0Mt8T5KKWqqx33pTouACppWmiRbJBcwXhe8nS03QAr3w41xdAerhAGC8jLqWY6eWRDjQ8pDMqUD0KTHzsOBzbjXdXajUpS67bFHGiSsEsoErsgCp9frarlbs0JPcDpa035on9iYMwBVNaF5SmGwT5PqEmL1tiVa08wy13/H60H7eTqNEb9hweg9vpLc/t2Msba4DZ6fAZKNs6ohd2q3QOXUjI2h9DK3TYqINqfxQSIIksdw8i3H+Dbez1Cn2lsTxLzAHm8RyarG4T6QQBeCOEbcfDdUhckZgNd7c5rPjqj6TWP2BB8RiQfCv8A/6qLhZF3IRfYTBU6KQRNFFrvLeuoH26SJV70cKe5PQE/I760VZ/KTRAKXp11a3jBEVeuLEEzCiTGkZxAjwOMoBhEJ+rry2vVESTxv8ASy/XTXfY1qvW6elj1Tz2efvKuhNc+ry/4jHZVvJ+260InzGCOZ88XgnaUU08jJqIO6wmi7yB7VqDXoBDF1dE=
 
 install:
   - mkdir -p ~/.cargo/target
@@ -22,7 +23,8 @@ install:
 
 after_install:
   - export NO_COLOR=1
-  - export LIB_VERSION=$(cat Cargo.toml | grep version | head -1 | sed 's/[",(version = )]//g')
+  - export LIB_VERSION=$(cat Cargo.toml | grep version | head -1 | sed 's/[",(version
+    = )]//g')
   - export NPM_VERSION_EXISTS=$(./npm_version_exists.sh $LIB_VERSION)
   - export CRATE_VERSION_EXISTS=$(./crate_version_exists.sh $LIB_VERSION)
 
@@ -30,30 +32,25 @@ cache: cargo
 
 stages:
   - test
+  - deploy
 
 jobs:
   include:
     - stage: test
       script: yarn test
-      name: "Test WASM"
+      name: Test WASM
     - script: cargo test
-      name: "Test Rust"
-    - stage: deploy-npm
-      if: env(NPM_VERION_EXISTS) = 0
+      name: Test Rust
+    - stage: deploy
       script: echo "deploying to NPM..."
-      name: "Deploy to NPM"
+      name: Deploy to NPM
       deploy:
         - provider: script
           skip_cleanup: true
-          script: bash deploy.sh
-          on:
-            tags: true
-    - stage: deploy-crate
-      if: env(CRATE_VERION_EXISTS) = 0
-      script: echo "deploying to crates.io..."
-      name: "Deploy to Crates.io"
+          script: bash npm_deploy.sh
+    - script: echo "deploying to crates.io..."
+      name: Deploy to Crates.io
       deploy:
-        - provider: cargo
+        - provider: script
           skip_cleanup: true
-          token:
-            secure: NJ2lWYy8Lgr3aKFk+F+p+d6EATtXRSNebI8C1VVk5I+arXBOV4sUPqzOX2bptPKEuPhgN05c7g08GdisZjhnHSNnRQcNd9eolCY+J9VApXHlBbC9Snp6wqmciOZPqfNvEb6w+uYMvSxdsExSCX1c/7VJec7/AEykTPOvbnrgHAfCGT7ha17UYpjQQk249rPKZ52YZ6DrpX9eUWG1H/1Gyi9OXLE2xhXS0db6YQXzX2tqE2yLp7z7GFWTzxJxe7xcrYptNu2+RAin1rHb6Yq0VWU6rroaIXFQozfCIm3HEQjh7aFKCUy4ggjPqF3RPkY/E0bnuXxmq0ZFzGr3sbHnOe7odHttXTLA88O7A91gntAJsxrzRaXgkrx4eWZV6KWwg5F1HGOj3p3l5308DotaeG6AEQls9bpvx+tEWYvXYAwcqU3ZYkFnQCJYff3P4HqQTuICu6iz4jWvY/CBYBW85Aakzed3bs5GL9kEaOu6cNniTqRewlBhHNSDax1H2B4vc9p3SLFjFK3Y6jrb/AL4rQooyNxqZsz0XPtS7+yW80mTsQ7EKk1pTSWhFJk+BGfWbPP4lF6MxaLzU99Q80u18qbm4J+GPRX5GZ1BvfM/YVn3cji49uRV5AdPX/Qg47nBXcQyhubk90bNijgw+jl4v2yh000JO4wyrvy3C5qi71k=
+          script: bash crate_deploy.sh

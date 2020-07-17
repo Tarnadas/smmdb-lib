@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [[ $NPM_VERSION_EXISTS == 0 ]]; then
+    exit 0
+fi
+
 # Set package.json version
 search='("version":[[:space:]]*").+(")'
 replace="\1${LIB_VERSION}\2"
@@ -9,7 +13,6 @@ mv package.tmp.json package.json
 # NPM login
 touch ~/.npmrc
 echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN"
 
 # NPM build and publish
 wasm-pack build -- --features wasm
