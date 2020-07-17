@@ -19,4 +19,3 @@
 } >/dev/null 2>&1
 
 echo $VERION_EXISTS
-

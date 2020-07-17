@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ $NPM_VERSION_EXISTS == 0 ]]; then
+if [[ $NPM_VERSION_EXISTS == 1 ]]; then
     exit 0
 fi
 

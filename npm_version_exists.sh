@@ -5,6 +5,7 @@
     LIB_VERSION=${args[0]}
 
     VERSIONS=$(npm view smmdb versions)
+    VERSIONS=$(echo $VERSIONS | sed 's/[][]//g' | sed 's/[[:space:]]//g')
 
     VERION_EXISTS=0
 
@@ -19,4 +20,3 @@
 } >/dev/null 2>&1
 
 echo $VERION_EXISTS
-
