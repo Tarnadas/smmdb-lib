@@ -1,10 +1,8 @@
 //! Super Mario Maker 2 thumbnail file manipulation.
 
-use crate::decrypt;
-use crate::key_tables::*;
+use crate::{decrypt, encrypt, key_tables::*};
 
-use image::jpeg::JPEGEncoder;
-use image::{load_from_memory, DynamicImage, ImageError};
+use image::{jpeg::JPEGEncoder, load_from_memory, DynamicImage, ImageError};
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
@@ -23,6 +21,22 @@ impl Thumbnail2 {
             jpeg: None,
             jpeg_opt: None,
         }
+    }
+
+    pub fn from_decrypted(bytes: Vec<u8>) -> Thumbnail2 {
+        Thumbnail2 {
+            encrypted: encrypt(bytes.clone(), &THUMBNAIL_KEY_TABLE),
+            jpeg: Some(bytes),
+            jpeg_opt: None,
+        }
+    }
+
+    pub fn encrypt(bytes: Vec<u8>) -> Vec<u8> {
+        encrypt(bytes, &THUMBNAIL_KEY_TABLE)
+    }
+
+    pub fn decrypt(bytes: Vec<u8>) -> Vec<u8> {
+        decrypt(bytes, &THUMBNAIL_KEY_TABLE)
     }
 
     pub fn get_encrypted(&self) -> &Vec<u8> {
