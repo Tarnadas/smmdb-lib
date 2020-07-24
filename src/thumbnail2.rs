@@ -25,14 +25,14 @@ impl Thumbnail2 {
 
     pub fn from_decrypted(bytes: Vec<u8>) -> Thumbnail2 {
         Thumbnail2 {
-            encrypted: encrypt(bytes.clone(), &THUMBNAIL_KEY_TABLE),
+            encrypted: encrypt(bytes.clone(), &THUMBNAIL_KEY_TABLE, false),
             jpeg: Some(bytes),
             jpeg_opt: None,
         }
     }
 
     pub fn encrypt(bytes: Vec<u8>) -> Vec<u8> {
-        encrypt(bytes, &THUMBNAIL_KEY_TABLE)
+        encrypt(bytes, &THUMBNAIL_KEY_TABLE, false)
     }
 
     pub fn decrypt(bytes: Vec<u8>) -> Vec<u8> {

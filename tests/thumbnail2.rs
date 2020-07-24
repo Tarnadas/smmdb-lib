@@ -3,10 +3,12 @@
 extern crate smmdb;
 
 use smmdb::thumbnail2::*;
-use std::fs::{read, read_dir, File};
-use std::io::{self, prelude::*};
-use std::path::PathBuf;
-use std::process::Command;
+use std::{
+    fs::{read, read_dir, File},
+    io::{self, prelude::*},
+    path::PathBuf,
+    process::Command,
+};
 
 fn decrypt_test_assets() -> io::Result<()> {
     let save_folders = vec![
@@ -33,7 +35,30 @@ fn decrypt_test_assets() -> io::Result<()> {
 
 #[test]
 fn thumbnail_decrypt() {
+    for (_, encrypted, decrypted) in get_test_assets().into_iter() {
+        let thumbnail = Thumbnail2::decrypt(encrypted);
+
+        assert_eq!(thumbnail.len(), decrypted.len());
+        assert_eq!(&thumbnail[..100], &decrypted[..100]);
+    }
+}
+
+#[test]
+fn thumbnail_decrypt_all() {
     decrypt_test_assets().unwrap();
+}
+
+#[test]
+fn thumbnail_encrypt() {
+    for (_, encrypted_ext, decrypted) in get_test_assets().into_iter() {
+        let encrypted = Thumbnail2::encrypt(decrypted.clone());
+        assert_eq!(encrypted_ext.len(), encrypted.len());
+
+        let mut thumbnail = Thumbnail2::new(encrypted);
+
+        assert_eq!(decrypted.len(), thumbnail.get_jpeg_no_opt().len());
+        assert_eq!(decrypted, thumbnail.get_jpeg_no_opt());
+    }
 }
 
 #[test]

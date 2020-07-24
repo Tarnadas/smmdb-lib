@@ -137,8 +137,7 @@ impl Course2 {
     pub fn encrypt(course: Vec<u8>) -> Vec<u8> {
         [
             &fix_crc32(&course[..0x10], &course[0x10..course.len() - 0x30].to_vec())[..],
-            &encrypt(course[0x10..].to_vec(), &COURSE_KEY_TABLE)[..],
-            &course[course.len() - 0x30..],
+            &encrypt(course[0x10..].to_vec(), &COURSE_KEY_TABLE, true)[..],
         ]
         .concat()
     }
