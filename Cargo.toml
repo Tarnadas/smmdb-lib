@@ -83,7 +83,7 @@ wasm-bindgen-test = "0.3"
 
 [features]
 default = ["with-serde"]
-wasm = ["console_error_panic_hook", "js-sys", "wasm-bindgen", "web-sys"]
+wasm = ["console_error_panic_hook", "js-sys", "wasm-bindgen", "web-sys", "with-serde"]
 with-serde = []
 save = ["arr_macro", "generic-array"]
 
