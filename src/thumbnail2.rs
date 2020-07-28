@@ -35,8 +35,8 @@ impl Thumbnail2 {
         encrypt(bytes, &THUMBNAIL_KEY_TABLE, false)
     }
 
-    pub fn decrypt(bytes: Vec<u8>) -> Vec<u8> {
-        decrypt(bytes, &THUMBNAIL_KEY_TABLE)
+    pub fn decrypt(bytes: &mut [u8]) {
+        decrypt(bytes, &THUMBNAIL_KEY_TABLE);
     }
 
     pub fn get_encrypted(&self) -> &Vec<u8> {
@@ -89,7 +89,9 @@ impl Thumbnail2 {
 
     fn lazy_load_jpeg(&mut self) {
         let decrypted = if self.jpeg.is_none() {
-            Some(decrypt(self.encrypted.clone(), &THUMBNAIL_KEY_TABLE))
+            let mut encrypted = self.encrypted.clone();
+            decrypt(&mut encrypted, &THUMBNAIL_KEY_TABLE);
+            Some(encrypted[..encrypted.len() - 0x30].to_vec())
         } else {
             None
         };

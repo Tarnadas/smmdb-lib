@@ -35,10 +35,10 @@ fn decrypt_test_assets() -> io::Result<()> {
 
 #[test]
 fn thumbnail_decrypt() {
-    for (_, encrypted, decrypted) in get_test_assets().into_iter() {
-        let thumbnail = Thumbnail2::decrypt(encrypted);
+    for (_, mut thumbnail, decrypted) in get_test_assets().into_iter() {
+        Thumbnail2::decrypt(&mut thumbnail);
 
-        assert_eq!(thumbnail.len(), decrypted.len());
+        assert_eq!(thumbnail.len() - 0x30, decrypted.len());
         assert_eq!(&thumbnail[..100], &decrypted[..100]);
     }
 }

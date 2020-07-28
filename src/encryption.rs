@@ -7,7 +7,7 @@ use rand::Rng;
 use std::convert::TryInto;
 use typenum::*;
 
-pub fn decrypt(mut bytes: Vec<u8>, key_table: &[u32]) -> Vec<u8> {
+pub fn decrypt(bytes: &mut [u8], key_table: &[u32]) {
     let end_index = bytes.len() - 0x30;
     let aes_info = &bytes[end_index..];
     let iv = GenericArray::from_slice(&aes_info[0..16]);
@@ -30,8 +30,6 @@ pub fn decrypt(mut bytes: Vec<u8>, key_table: &[u32]) -> Vec<u8> {
     if cmac != cmac_calculated.as_slice() {
         panic!("CMAC WRONG");
     }
-
-    bytes[..end_index].to_vec()
 }
 
 pub fn encrypt(mut bytes: Vec<u8>, key_table: &[u32], preserved_aes: bool) -> Vec<u8> {

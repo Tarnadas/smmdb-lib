@@ -124,13 +124,8 @@ impl Course2 {
     }
 
     #[cfg_attr(feature = "wasm", wasm_bindgen)]
-    pub fn decrypt(course: Vec<u8>) -> Vec<u8> {
-        [
-            &course[..0x10],
-            &decrypt(course[0x10..].to_vec(), &COURSE_KEY_TABLE)[..],
-            &course[course.len() - 0x30..],
-        ]
-        .concat()
+    pub fn decrypt(course: &mut [u8]) {
+        decrypt(&mut course[0x10..], &COURSE_KEY_TABLE);
     }
 
     #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -164,14 +159,12 @@ impl Course2 {
     }
 
     pub fn from_switch_files(
-        course_data: &[u8],
+        mut data: Vec<u8>,
         thumb: Option<Vec<u8>>,
         is_encrypted: bool,
     ) -> Result<Course2, Course2ConvertError> {
-        let data = if is_encrypted {
-            Course2::decrypt(course_data.to_vec())
-        } else {
-            course_data.to_vec()
+        if is_encrypted {
+            Course2::decrypt(&mut data)
         };
 
         let header = Course2::get_course_header(&data)?;
@@ -200,9 +193,7 @@ impl Course2 {
         for (course, thumb) in courses {
             let course_data = Course2::read_file_from_archive(&mut zip, course)?;
             let course_thumb = Course2::read_file_from_archive(&mut zip, thumb)?;
-            if let Ok(course) =
-                Course2::from_switch_files(&course_data[..], Some(course_thumb), true)
-            {
+            if let Ok(course) = Course2::from_switch_files(course_data, Some(course_thumb), true) {
                 res.push(course);
             };
         }

@@ -46,7 +46,8 @@ fn course2_decrypt() {
                 let out_path = out_path[0].to_owned() + ".decrypted";
                 let expected = read(out_path).unwrap();
 
-                let decrypted = Course2::decrypt(read(path).unwrap());
+                let mut decrypted = read(path).unwrap();
+                Course2::decrypt(&mut decrypted);
 
                 // @simontime's implementation truncates non relevant bytes, which we won't do
                 assert_eq!(decrypted[0x10..decrypted.len() - 0x30], expected[..]);
@@ -70,7 +71,8 @@ fn course2_encrypt() {
                 let path = entry.path();
                 let expected = read(&path).unwrap();
 
-                let decrypted = Course2::decrypt(read(path).unwrap());
+                let mut decrypted = read(path).unwrap();
+                Course2::decrypt(&mut decrypted);
                 let encrypted = Course2::encrypt(decrypted);
 
                 assert_eq!(encrypted.len(), expected.len());
@@ -112,10 +114,9 @@ fn course2_from_packed() -> Result<(), failure::Error> {
 
     let res = Course2::from_packed(&zip_file[..])?;
 
-    assert_eq!(
-        res.get(0).unwrap().get_course_data(),
-        &Course2::decrypt(course_120.to_vec())
-    );
+    let mut course = course_120.to_vec();
+    &Course2::decrypt(&mut course);
+    assert_eq!(res.get(0).unwrap().get_course_data(), &course);
     assert_eq!(
         &res.get(0)
             .unwrap()
@@ -125,10 +126,9 @@ fn course2_from_packed() -> Result<(), failure::Error> {
         &course_thumb_120[..]
     );
 
-    assert_eq!(
-        res.get(1).unwrap().get_course_data(),
-        &Course2::decrypt(course_121.to_vec())
-    );
+    let mut course = course_121.to_vec();
+    &Course2::decrypt(&mut course);
+    assert_eq!(res.get(1).unwrap().get_course_data(), &course);
     assert_eq!(
         &res.get(1)
             .unwrap()

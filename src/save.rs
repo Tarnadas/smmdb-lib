@@ -37,12 +37,7 @@ impl<'a> Save<'a> {
         let mut file = File::open(save_path)?;
         let mut save_file = vec![];
         file.read_to_end(&mut save_file)?;
-        let save_file = [
-            save_file[..0x10].to_vec(),
-            decrypt(save_file[0x10..].to_vec(), &SAVE_KEY_TABLE),
-            save_file[save_file.len() - 0x30..].to_vec(),
-        ]
-        .concat();
+        decrypt(&mut save_file[0x10..], &SAVE_KEY_TABLE);
 
         let mut own_courses = GenericArray::clone_from_slice(&arr![None; 60]);
         let mut unknown_courses = GenericArray::clone_from_slice(&arr![None; 60]);
@@ -77,7 +72,7 @@ impl<'a> Save<'a> {
             }
             courses[index % 60] = Some(SavedCourse::new(
                 array_ref!(&save_file[..], offset, 8).clone(),
-                Course2::from_switch_files(&course_data, Some(thumb_data), true)?,
+                Course2::from_switch_files(course_data, Some(thumb_data), true)?,
             ));
 
             index += 1;
