@@ -1,5 +1,7 @@
 //! Module which contains error types.
 
+#[cfg(feature = "save")]
+use std::io;
 use zip::result::ZipError;
 
 /// Error which can occur during Super Mario Maker course file serialization.
@@ -46,4 +48,29 @@ pub enum DecompressionError {
     /// Failed to decompress zip file
     #[fail(display = "{}", _0)]
     Zip(ZipError),
+}
+
+#[cfg(feature = "save")]
+#[derive(Debug, Fail)]
+pub enum SaveError {
+    #[fail(display = "{}", _0)]
+    IoError(io::Error),
+    #[fail(display = "{}", _0)]
+    Course2ConvertError(Course2ConvertError),
+    #[fail(display = "index must be between 0 and 180, but received {}", _0)]
+    CourseIndexOutOfBounds(u8),
+}
+
+#[cfg(feature = "save")]
+impl From<io::Error> for SaveError {
+    fn from(err: io::Error) -> SaveError {
+        SaveError::IoError(err)
+    }
+}
+
+#[cfg(feature = "save")]
+impl From<Course2ConvertError> for SaveError {
+    fn from(err: Course2ConvertError) -> SaveError {
+        SaveError::Course2ConvertError(err)
+    }
 }

@@ -82,12 +82,15 @@ pub fn encrypt(mut bytes: Vec<u8>, key_table: &[u32], preserved_aes: bool) -> Ve
     [&bytes[..end_index], &aes_info].concat()
 }
 
-pub fn fix_crc32(save_header: &[u8], course_data: &[u8]) -> Vec<u8> {
+pub fn fix_crc32(data: &mut [u8]) {
     use std::mem::transmute;
 
-    let checksum = crc32::checksum_ieee(course_data);
+    let checksum = crc32::checksum_ieee(&data[0x10..]);
     let bytes: [u8; 4] = unsafe { transmute(checksum.to_le()) };
-    [&save_header[..0x8], &bytes[..], &save_header[0xC..]].concat()
+    data[0x8] = bytes[0];
+    data[0x9] = bytes[1];
+    data[0xA] = bytes[2];
+    data[0xB] = bytes[3];
 }
 
 fn rand_init(rand_state: &mut [u32; 4], rand_seed: &[u8; 0x10]) {

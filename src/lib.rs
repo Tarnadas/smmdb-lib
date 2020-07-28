@@ -31,6 +31,8 @@ mod encryption;
 pub mod errors;
 pub(crate) mod key_tables;
 pub mod proto;
+#[cfg(feature = "save")]
+pub mod save;
 pub mod thumbnail2;
 
 pub use course::*;

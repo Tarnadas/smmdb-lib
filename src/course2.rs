@@ -134,9 +134,11 @@ impl Course2 {
     }
 
     #[cfg_attr(feature = "wasm", wasm_bindgen)]
-    pub fn encrypt(course: Vec<u8>) -> Vec<u8> {
+    pub fn encrypt(mut course: Vec<u8>) -> Vec<u8> {
+        let len = course.len() - 0x30;
+        fix_crc32(&mut course[..len]);
         [
-            &fix_crc32(&course[..0x10], &course[0x10..course.len() - 0x30].to_vec())[..],
+            &course[..0x10],
             &encrypt(course[0x10..].to_vec(), &COURSE_KEY_TABLE, true)[..],
         ]
         .concat()
