@@ -33,6 +33,7 @@ install:
 cache: cargo
 
 stages:
+  - check
   - test
   - deploy
 
