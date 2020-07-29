@@ -3,6 +3,9 @@ language: rust
 rust:
   - stable
 
+git:
+  depth: 5
+
 addons:
   firefox: latest
   chrome: stable
