@@ -138,17 +138,12 @@ impl<'a> Save<'a> {
             let offset = SAVE_COURSE_OFFSET as usize + 0x10;
             let end = self.save_file.len() - 0x30;
             fix_crc32(&mut self.save_file[offset..end]);
-
-            let data = [
-                self.save_file[..0x10].to_vec(),
-                encrypt(self.save_file[0x10..].to_vec(), &SAVE_KEY_TABLE, true),
-            ]
-            .concat();
+            encrypt(&mut self.save_file[0x10..], &SAVE_KEY_TABLE, true);
 
             let mut save_path = self.path.clone();
             save_path.push("save.dat");
             let mut save_file = File::create(save_path)?;
-            save_file.write_all(&data)?;
+            save_file.write_all(&self.save_file)?;
             // TODO
         }
         Ok(())

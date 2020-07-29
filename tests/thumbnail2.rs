@@ -51,7 +51,8 @@ fn thumbnail_decrypt_all() {
 #[test]
 fn thumbnail_encrypt() {
     for (_, encrypted_ext, decrypted) in get_test_assets().into_iter() {
-        let encrypted = Thumbnail2::encrypt(decrypted.clone());
+        let mut encrypted = decrypted.clone();
+        Thumbnail2::encrypt(&mut encrypted);
         assert_eq!(encrypted_ext.len(), encrypted.len());
 
         let mut thumbnail = Thumbnail2::new(encrypted);

@@ -73,7 +73,8 @@ fn course2_encrypt() {
 
                 let mut decrypted = read(path).unwrap();
                 Course2::decrypt(&mut decrypted);
-                let encrypted = Course2::encrypt(decrypted);
+                let mut encrypted = decrypted.clone();
+                Course2::encrypt(&mut encrypted);
 
                 assert_eq!(encrypted.len(), expected.len());
                 assert_eq!(encrypted[..0x100], expected[..0x100]);

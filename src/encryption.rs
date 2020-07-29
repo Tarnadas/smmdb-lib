@@ -32,7 +32,7 @@ pub fn decrypt(bytes: &mut [u8], key_table: &[u32]) {
     }
 }
 
-pub fn encrypt(mut bytes: Vec<u8>, key_table: &[u32], preserved_aes: bool) -> Vec<u8> {
+pub fn encrypt(bytes: &mut [u8], key_table: &[u32], preserved_aes: bool) -> Option<Vec<u8>> {
     let end_index = if preserved_aes {
         bytes.len() - 0x30
     } else {
@@ -59,25 +59,24 @@ pub fn encrypt(mut bytes: Vec<u8>, key_table: &[u32], preserved_aes: bool) -> Ve
     rand_init(&mut rand_state, &rand_seed);
 
     let key = gen_key(&mut rand_state, key_table);
-    let cmac_bytes = bytes.clone();
+
+    let aes_info = if preserved_aes {
+        None
+    } else {
+        let cmac_key = gen_key(&mut rand_state, key_table);
+
+        let mut cmac = Cmac::<Aes128>::new(&cmac_key);
+        cmac.update(&bytes[..end_index]);
+        let cmac = cmac.finalize().into_bytes();
+
+        Some([iv.as_slice(), &rand_seed, cmac.as_slice()].concat())
+    };
 
     type Aes128Cbc = Cbc<Aes128, ZeroPadding>;
     let cipher = Aes128Cbc::new_fix(&key, &iv);
     cipher.encrypt(&mut bytes[..end_index], end_index).unwrap();
 
-    let aes_info = if preserved_aes {
-        array_ref!(bytes, end_index, 0x30).to_vec()
-    } else {
-        let cmac_key = gen_key(&mut rand_state, key_table);
-
-        let mut cmac = Cmac::<Aes128>::new(&cmac_key);
-        cmac.update(&cmac_bytes[..end_index]);
-        let cmac = cmac.finalize().into_bytes();
-
-        [iv.as_slice(), &rand_seed, cmac.as_slice()].concat()
-    };
-
-    [&bytes[..end_index], &aes_info].concat()
+    aes_info
 }
 
 pub fn fix_crc32(data: &mut [u8]) {

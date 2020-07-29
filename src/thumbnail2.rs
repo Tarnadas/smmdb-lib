@@ -24,15 +24,18 @@ impl Thumbnail2 {
     }
 
     pub fn from_decrypted(bytes: Vec<u8>) -> Thumbnail2 {
+        let mut encrypted = bytes.clone();
+        encrypt(&mut encrypted, &THUMBNAIL_KEY_TABLE, false);
         Thumbnail2 {
-            encrypted: encrypt(bytes.clone(), &THUMBNAIL_KEY_TABLE, false),
+            encrypted,
             jpeg: Some(bytes),
             jpeg_opt: None,
         }
     }
 
-    pub fn encrypt(bytes: Vec<u8>) -> Vec<u8> {
-        encrypt(bytes, &THUMBNAIL_KEY_TABLE, false)
+    pub fn encrypt(bytes: &mut Vec<u8>) {
+        let aes_info = encrypt(bytes, &THUMBNAIL_KEY_TABLE, false).unwrap();
+        bytes.extend_from_slice(&aes_info);
     }
 
     pub fn decrypt(bytes: &mut [u8]) {
