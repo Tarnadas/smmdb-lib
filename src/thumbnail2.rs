@@ -10,15 +10,18 @@ use wasm_bindgen::prelude::*;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Thumbnail2 {
     encrypted: Vec<u8>,
-    jpeg: Option<Vec<u8>>,
+    jpeg: Vec<u8>,
     jpeg_opt: Option<Vec<u8>>,
 }
 
 impl Thumbnail2 {
     pub fn new(bytes: Vec<u8>) -> Thumbnail2 {
+        let mut encrypted = bytes.clone();
+        decrypt(&mut encrypted, &THUMBNAIL_KEY_TABLE);
+        let jpeg = encrypted[..encrypted.len() - 0x30].to_vec();
         Thumbnail2 {
             encrypted: bytes,
-            jpeg: None,
+            jpeg,
             jpeg_opt: None,
         }
     }
@@ -28,7 +31,7 @@ impl Thumbnail2 {
         encrypt(&mut encrypted, &THUMBNAIL_KEY_TABLE, false);
         Thumbnail2 {
             encrypted,
-            jpeg: Some(bytes),
+            jpeg: bytes,
             jpeg_opt: None,
         }
     }
@@ -42,27 +45,28 @@ impl Thumbnail2 {
         decrypt(bytes, &THUMBNAIL_KEY_TABLE);
     }
 
+    pub fn take_encrypted(self) -> Vec<u8> {
+        self.encrypted
+    }
+
     pub fn get_encrypted(&self) -> &Vec<u8> {
         &self.encrypted
     }
 
-    pub fn move_jpeg(&mut self) -> Vec<u8> {
-        self.lazy_load_jpeg();
-        self.jpeg.clone().unwrap()
+    pub fn take_jpeg(self) -> Vec<u8> {
+        self.jpeg
     }
 
-    pub fn get_jpeg(&mut self) -> &[u8] {
-        self.lazy_load_jpeg();
+    pub fn get_jpeg(&self) -> &[u8] {
         if let Some(jpeg) = &self.jpeg_opt {
             &jpeg[..]
         } else {
-            self.jpeg.as_ref().unwrap()
+            &self.jpeg
         }
     }
 
-    pub fn get_jpeg_no_opt(&mut self) -> &[u8] {
-        self.lazy_load_jpeg();
-        self.jpeg.as_ref().unwrap()
+    pub fn get_jpeg_no_opt(&self) -> &[u8] {
+        &self.jpeg
     }
 
     pub fn optimize_jpeg(&mut self) -> Result<(), ImageError> {
@@ -87,19 +91,6 @@ impl Thumbnail2 {
                 Ok(())
             }
             _ => Ok(()),
-        }
-    }
-
-    fn lazy_load_jpeg(&mut self) {
-        let decrypted = if self.jpeg.is_none() {
-            let mut encrypted = self.encrypted.clone();
-            decrypt(&mut encrypted, &THUMBNAIL_KEY_TABLE);
-            Some(encrypted[..encrypted.len() - 0x30].to_vec())
-        } else {
-            None
-        };
-        if decrypted.is_some() {
-            self.jpeg = decrypted;
         }
     }
 }

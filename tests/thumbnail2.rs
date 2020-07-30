@@ -55,7 +55,7 @@ fn thumbnail_encrypt() {
         Thumbnail2::encrypt(&mut encrypted);
         assert_eq!(encrypted_ext.len(), encrypted.len());
 
-        let mut thumbnail = Thumbnail2::new(encrypted);
+        let thumbnail = Thumbnail2::new(encrypted);
 
         assert_eq!(decrypted.len(), thumbnail.get_jpeg_no_opt().len());
         assert_eq!(decrypted, thumbnail.get_jpeg_no_opt());
@@ -65,7 +65,7 @@ fn thumbnail_encrypt() {
 #[test]
 fn thumbnail_get_jpeg() {
     for (_, thumbnail, expected) in get_test_assets().into_iter() {
-        let mut thumbnail = Thumbnail2::new(thumbnail);
+        let thumbnail = Thumbnail2::new(thumbnail);
 
         assert_eq!(thumbnail.get_jpeg_no_opt(), &expected[..]);
     }
