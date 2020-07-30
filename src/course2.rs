@@ -51,6 +51,10 @@ impl Course2 {
         &self.data
     }
 
+    pub fn get_course_data_mut(&mut self) -> &mut Vec<u8> {
+        &mut self.data
+    }
+
     pub fn get_course_thumb(&self) -> Option<&Thumbnail2> {
         self.thumb.as_ref()
     }

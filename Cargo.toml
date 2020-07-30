@@ -79,6 +79,7 @@ features = ["deflate"]
 version = "0.5"
 
 [dev-dependencies]
+fs_extra = "1.1"
 wasm-bindgen-test = "0.3"
 
 [features]
@@ -96,6 +97,9 @@ path = "src/lib.rs"
 wasm-opt = false
 
 [profile]
+[profile.dev]
+opt-level = 1
+
 [profile.release]
 debug = false
 lto = true

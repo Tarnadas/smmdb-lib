@@ -10,7 +10,7 @@ use crate::{
 use arr_macro::arr;
 use generic_array::GenericArray;
 use std::{
-    fs::File,
+    fs::{remove_file, File},
     io::{Read, Write},
     path::PathBuf,
 };
@@ -19,17 +19,17 @@ use typenum::{U180, U60};
 type Courses = GenericArray<Option<SavedCourse>, U60>;
 
 #[derive(Debug)]
-pub struct Save<'a> {
+pub struct Save {
     path: PathBuf,
     save_file: Vec<u8>,
     own_courses: Courses,
     unknown_courses: Courses,
     downloaded_courses: Courses,
-    pending_fs_operations: GenericArray<Option<PendingFsOperation<'a>>, U180>,
+    pending_fs_operations: GenericArray<Option<PendingFsOperation>, U180>,
 }
 
-impl<'a> Save<'a> {
-    pub fn new<T: Into<PathBuf>>(path: T) -> Result<Save<'a>, SaveError> {
+impl Save {
+    pub fn new<T: Into<PathBuf>>(path: T) -> Result<Save, SaveError> {
         let path: PathBuf = path.into();
 
         let mut save_path = path.clone();
@@ -38,6 +38,7 @@ impl<'a> Save<'a> {
         let mut save_file = vec![];
         file.read_to_end(&mut save_file)?;
         decrypt(&mut save_file[0x10..], &SAVE_KEY_TABLE);
+        save_file = save_file[..save_file.len() - 0x30].to_vec();
 
         let mut own_courses = GenericArray::clone_from_slice(&arr![None; 60]);
         let mut unknown_courses = GenericArray::clone_from_slice(&arr![None; 60]);
@@ -88,7 +89,7 @@ impl<'a> Save<'a> {
         })
     }
 
-    pub fn add_course(&'a mut self, index: u8, course: Course2) -> Result<(), SaveError> {
+    pub fn add_course(&mut self, mut index: u8, course: Course2) -> Result<(), SaveError> {
         let courses = match index {
             i if i < 60 => &mut self.own_courses,
             i if i >= 60 && i < 120 => &mut self.unknown_courses,
@@ -99,11 +100,11 @@ impl<'a> Save<'a> {
         self.save_file[offset + 1] = 1;
         let course = SavedCourse::new(array_ref!(&self.save_file[..], offset, 8).clone(), course);
 
-        let index = index as usize % 60;
-        courses[index] = Some(course);
+        self.pending_fs_operations[index as usize] =
+            Some(PendingFsOperation::AddOrReplaceCourse(index));
 
-        self.pending_fs_operations[index] =
-            Some(PendingFsOperation::AddOrReplaceCourse(&courses[index]));
+        index = index % 60;
+        courses[index as usize] = Some(course);
 
         Ok(())
     }
@@ -118,33 +119,39 @@ impl<'a> Save<'a> {
         let offset = SAVE_COURSE_OFFSET as usize + 0x10 + index as usize * 8;
         self.save_file[offset + 1] = 0;
 
+        self.pending_fs_operations[index as usize] = Some(PendingFsOperation::RemoveCourse(index));
+
         index = index % 60;
         courses[index as usize] = None;
-
-        self.pending_fs_operations[index as usize] = Some(PendingFsOperation::RemoveCourse(index));
 
         Ok(())
     }
 
     pub fn save(&mut self) -> Result<(), SaveError> {
-        let mut update_save = false;
+        let mut update_save = true;
         for i in 0..180 {
             if let Some(op) = self.pending_fs_operations[i].take() {
-                op.run()?;
+                op.run(
+                    &self.path,
+                    &self.own_courses,
+                    &self.unknown_courses,
+                    &self.downloaded_courses,
+                )?;
                 update_save = true;
             }
         }
         if update_save {
-            let offset = SAVE_COURSE_OFFSET as usize + 0x10;
-            let end = self.save_file.len() - 0x30;
-            fix_crc32(&mut self.save_file[offset..end]);
-            encrypt(&mut self.save_file[0x10..], &SAVE_KEY_TABLE, true);
+            let offset = SAVE_COURSE_OFFSET as usize;
+            fix_crc32(&mut self.save_file[offset..]);
+            let mut save_data = self.save_file.clone();
+            let aes_info = encrypt(&mut save_data[0x10..], &SAVE_KEY_TABLE, false).unwrap();
+            save_data.extend_from_slice(&aes_info);
 
             let mut save_path = self.path.clone();
             save_path.push("save.dat");
+            dbg!(&save_path);
             let mut save_file = File::create(save_path)?;
-            save_file.write_all(&self.save_file)?;
-            // TODO
+            save_file.write_all(&save_data)?;
         }
         Ok(())
     }
@@ -170,19 +177,60 @@ impl SavedCourse {
 }
 
 #[derive(Clone, Debug)]
-enum PendingFsOperation<'a> {
-    AddOrReplaceCourse(&'a Option<SavedCourse>),
+enum PendingFsOperation {
+    AddOrReplaceCourse(u8),
     RemoveCourse(u8),
 }
 
-impl<'a> PendingFsOperation<'a> {
-    fn run(self) -> Result<(), SaveError> {
+impl PendingFsOperation {
+    fn run(
+        self,
+        path: &PathBuf,
+        own_courses: &Courses,
+        unknown_courses: &Courses,
+        downloaded_courses: &Courses,
+    ) -> Result<(), SaveError> {
         match self {
-            Self::AddOrReplaceCourse(course) => {
-                // TODO
+            Self::AddOrReplaceCourse(index) => {
+                let course = match index {
+                    i if i < 60 => own_courses[index as usize].as_ref().unwrap(),
+                    i if i >= 60 && i < 120 => unknown_courses[index as usize].as_ref().unwrap(),
+                    i if i >= 120 && i < 180 => {
+                        downloaded_courses[index as usize].as_ref().unwrap()
+                    }
+                    _ => return Err(SaveError::CourseIndexOutOfBounds(index)),
+                };
+
+                let mut course_path = path.clone();
+                course_path.push(format!("course_data_{:0>3}.bcd", index));
+                let mut course_file = File::create(course_path)?;
+                let mut course_data = course.course.get_course_data().clone();
+                Course2::encrypt(&mut course_data);
+                course_file.write_all(&course_data)?;
+
+                let thumb_data = course.course.get_course_thumb().ok_or_else(|| {
+                    SaveError::ThumbnailRequired(
+                        course
+                            .course
+                            .get_course()
+                            .get_header()
+                            .get_title()
+                            .to_string(),
+                    )
+                })?;
+                let mut thumb_path = path.clone();
+                thumb_path.push(format!("course_thumb_{:0>3}.btl", index));
+                let mut thumb_file = File::create(thumb_path)?;
+                thumb_file.write_all(thumb_data.get_encrypted())?;
             }
             Self::RemoveCourse(index) => {
-                // TODO
+                let mut course_path = path.clone();
+                course_path.push(format!("course_data_{:0>3}.bcd", index));
+                remove_file(course_path)?;
+
+                let mut thumb_path = path.clone();
+                thumb_path.push(format!("course_thumb_{:0>3}.btl", index));
+                remove_file(thumb_path)?;
             }
         }
 
@@ -194,14 +242,42 @@ impl<'a> PendingFsOperation<'a> {
 mod test {
     use super::*;
 
-    use std::io::Write;
+    use fs_extra::dir::{copy, CopyOptions};
 
-    #[test]
-    fn test_save() {
-        let save = Save::new("./tests/assets/saves/smm2/save1").unwrap();
-        // let save = Save::new("/home/marior/.local/share/yuzu/nand/user/save/0000000000000000/FDD588AE7826C7A9A70AE93C12A4E9CE/01009B90006DC000");
-        // dbg!(&save);
-        let mut file = File::create("./save.dat").unwrap();
-        file.write_all(&save.save_file).unwrap();
+    #[test_case]
+    fn test_save() -> Result<(), SaveError> {
+        let mut options = CopyOptions::new();
+        options.copy_inside = true;
+        options.overwrite = true;
+        copy(
+            "./tests/assets/saves/smm2/save1",
+            "tests/assets/saves/smm2/tmp",
+            &options,
+        )
+        .unwrap();
+        let mut save = Save::new("./tests/assets/saves/smm2/tmp")?;
+
+        let file = include_bytes!("../tests/assets/saves/smm2/save1.zip");
+        let courses = Course2::from_packed(file).unwrap();
+        save.add_course(0, courses[0].clone()).unwrap();
+        save.add_course(1, courses[1].clone()).unwrap();
+        save.add_course(2, courses[2].clone()).unwrap();
+        save.add_course(5, courses[3].clone()).unwrap();
+        save.add_course(6, courses[4].clone()).unwrap();
+        save.add_course(9, courses[5].clone()).unwrap();
+        save.add_course(12, courses[6].clone()).unwrap();
+        save.remove_course(122).unwrap();
+        save.remove_course(126).unwrap();
+        save.save()?;
+
+        let offset = SAVE_COURSE_OFFSET as usize;
+        let checksum = crc::crc32::checksum_ieee(&save.save_file[offset + 0x10..]);
+        let bytes: [u8; 4] = unsafe { std::mem::transmute(checksum.to_le()) };
+        assert_eq!(save.save_file[offset + 0x8], bytes[0]);
+        assert_eq!(save.save_file[offset + 0x9], bytes[1]);
+        assert_eq!(save.save_file[offset + 0xA], bytes[2]);
+        assert_eq!(save.save_file[offset + 0xB], bytes[3]);
+
+        Ok(())
     }
 }

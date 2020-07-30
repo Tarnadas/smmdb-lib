@@ -59,6 +59,8 @@ pub enum SaveError {
     Course2ConvertError(Course2ConvertError),
     #[fail(display = "index must be between 0 and 180, but received {}", _0)]
     CourseIndexOutOfBounds(u8),
+    #[fail(display = "thumbnail is missing for course {}", _0)]
+    ThumbnailRequired(String),
 }
 
 #[cfg(feature = "save")]

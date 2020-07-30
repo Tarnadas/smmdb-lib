@@ -6,6 +6,9 @@
 //! This is particularly useful for emulation and the 3DS, which is unable to download specific course files from the Nintendo servers.
 //! Courses are serialized via Protocol Buffer.
 
+#![feature(custom_test_frameworks)]
+#![test_runner(test_runner)]
+
 extern crate aes_soft as aes;
 
 #[macro_use]
@@ -73,3 +76,22 @@ pub fn run() -> Result<(), JsValue> {
 
     Ok(())
 }
+
+#[cfg(feature = "save")]
+#[cfg(test)]
+fn test_runner(test_cases: &[&dyn Fn() -> Result<(), SaveError>]) {
+    use fs_extra::dir::remove;
+
+    println!("Custom Test Framework running {} tests: ", test_cases.len());
+    for test_case in test_cases {
+        if let Err(err) = test_case() {
+            remove("./tests/assets/saves/smm2/tmp").unwrap();
+            panic!("{:?}", err);
+        }
+    }
+    remove("./tests/assets/saves/smm2/tmp").unwrap();
+}
+
+#[cfg(not(feature = "save"))]
+#[cfg(test)]
+fn test_runner(_: &[&dyn Fn()]) {}
