@@ -42,6 +42,8 @@ pub use course::*;
 pub use course2::*;
 pub(crate) use encryption::{decrypt, encrypt, fix_crc32};
 pub use errors::*;
+#[cfg(feature = "save")]
+pub use save::*;
 pub use thumbnail2::*;
 
 cfg_if! {
