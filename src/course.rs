@@ -6,7 +6,7 @@ use crate::proto::SMMCourse::{
 };
 use crate::proto::Sound::Sound;
 use crate::proto::Tile::Tile;
-use crate::{constants::*, CourseConvertError, DecompressionError};
+use crate::{constants::*, errors::CourseConvertError, Error};
 
 use bytes::Bytes;
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
@@ -53,12 +53,7 @@ impl Course {
     #[cfg(feature = "wasm")]
     #[wasm_bindgen]
     pub fn from_packed_js(buffer: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
-        let courses: Vec<JsValue> = Course::from_packed(buffer)
-            .map_err(|e| match e {
-                DecompressionError::Zip(err) => {
-                    JsValue::from(format!("[DecompressionError] {}", err))
-                }
-            })?
+        let courses: Vec<JsValue> = Course::from_packed(buffer)?
             .iter()
             .map(|course| course.into_js())
             .collect();
@@ -118,18 +113,17 @@ impl Course {
         self.course.set_thumbnail_preview(thumbnail);
     }
 
-    pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course>, DecompressionError> {
+    pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course>, Error> {
         let mut res = vec![];
 
         let mime_guess: Type = Infer::new().get(buffer).unwrap();
 
         match mime_guess.mime.as_ref() {
             "application/zip" => {
-                Course::decompress_zip(&mut res, buffer)
-                    .map_err(|err| DecompressionError::Zip(err))?;
+                Course::decompress_zip(&mut res, buffer)?;
             }
-            _ => {
-                // unimplemented!();
+            mime => {
+                return Err(Error::MimeTypeUnsupported(mime.to_string()));
             }
         };
 
@@ -141,7 +135,7 @@ impl Course {
         course_data_sub: &[u8],
         thumbnail: &[u8],
         thumbnail_preview: &[u8],
-    ) -> Result<Course, CourseConvertError> {
+    ) -> Result<Course, Error> {
         let modified = Course::get_modified(course_data);
         let title =
             Course::get_utf16_string_from_slice(&course_data[TITLE_OFFSET..TITLE_OFFSET_END]);

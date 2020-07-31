@@ -2,77 +2,80 @@
 
 #[cfg(feature = "save")]
 use std::io;
+use thiserror::Error;
+#[cfg(feature = "wasm")]
+use wasm_bindgen::JsValue;
 use zip::result::ZipError;
 
+#[derive(Debug, Error)]
+pub enum SmmdbError {
+    #[error("Mime type {0} not supported")]
+    MimeTypeUnsupported(String),
+    /// Failed to decompress zip file
+    #[error(transparent)]
+    Zip(#[from] ZipError),
+    #[cfg(feature = "save")]
+    #[error(transparent)]
+    IoError(#[from] io::Error),
+    #[error(transparent)]
+    CourseConvertError(#[from] CourseConvertError),
+    #[error(transparent)]
+    Course2ConvertError(#[from] Course2ConvertError),
+    #[cfg(feature = "save")]
+    #[error(transparent)]
+    SaveError(#[from] SaveError),
+}
+
 /// Error which can occur during Super Mario Maker course file serialization.
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum CourseConvertError {
-    #[fail(display = "CourseConvertError::GameStyleParse")]
+    #[error("CourseConvertError::GameStyleParse")]
     GameStyleParse,
-    #[fail(display = "CourseConvertError::CourseThemeParse")]
+    #[error("CourseConvertError::CourseThemeParse")]
     CourseThemeParse,
-    #[fail(display = "CourseConvertError::AutoScrollParse")]
+    #[error("CourseConvertError::AutoScrollParse")]
     AutoScrollParse,
-    #[fail(display = "CourseConvertError::SoundTypeConvert")]
+    #[error("CourseConvertError::SoundTypeConvert")]
     SoundTypeConvert,
 }
 
 /// Error which can occur during Super Mario Maker 2 course file serialization.
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum Course2ConvertError {
-    #[fail(display = "Course2ConvertError::GameStyleParse")]
+    #[error("Course2ConvertError::GameStyleParse")]
     GameStyleParse,
-    #[fail(display = "Course2ConvertError::ClearConditionTypeParse")]
+    #[error("Course2ConvertError::ClearConditionTypeParse")]
     ClearConditionTypeParse,
-    #[fail(display = "Course2ConvertError::CourseThemeParse")]
+    #[error("Course2ConvertError::CourseThemeParse")]
     CourseThemeParse,
-    #[fail(display = "Course2ConvertError::AutoScrollParse")]
+    #[error("Course2ConvertError::AutoScrollParse")]
     AutoScrollParse,
-    #[fail(display = "Course2ConvertError::ScreenBoundaryParse")]
+    #[error("Course2ConvertError::ScreenBoundaryParse")]
     ScreenBoundaryParse,
-    #[fail(display = "Course2ConvertError::OrientationParse")]
+    #[error("Course2ConvertError::OrientationParse")]
     OrientationParse,
-    #[fail(display = "Course2ConvertError::WaterModeParse")]
+    #[error("Course2ConvertError::WaterModeParse")]
     WaterModeParse,
-    #[fail(display = "Course2ConvertError::WaterSpeedParse")]
+    #[error("Course2ConvertError::WaterSpeedParse")]
     WaterSpeedParse,
-    #[fail(display = "Course2ConvertError::DayTimeParse")]
+    #[error("Course2ConvertError::DayTimeParse")]
     DayTimeParse,
-    #[fail(display = "Course2ConvertError::SoundTypeConvert")]
+    #[error("Course2ConvertError::SoundTypeConvert")]
     SoundTypeConvert,
 }
 
-/// Error which can occur during decompression.
-#[derive(Debug, Fail)]
-pub enum DecompressionError {
-    /// Failed to decompress zip file
-    #[fail(display = "{}", _0)]
-    Zip(ZipError),
-}
-
 #[cfg(feature = "save")]
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum SaveError {
-    #[fail(display = "{}", _0)]
-    IoError(io::Error),
-    #[fail(display = "{}", _0)]
-    Course2ConvertError(Course2ConvertError),
-    #[fail(display = "index must be between 0 and 180, but received {}", _0)]
+    #[error("index must be between 0 and 180, but received {0}")]
     CourseIndexOutOfBounds(u8),
-    #[fail(display = "thumbnail is missing for course {}", _0)]
+    #[error("thumbnail is missing for course {0}")]
     ThumbnailRequired(String),
 }
 
-#[cfg(feature = "save")]
-impl From<io::Error> for SaveError {
-    fn from(err: io::Error) -> SaveError {
-        SaveError::IoError(err)
-    }
-}
-
-#[cfg(feature = "save")]
-impl From<Course2ConvertError> for SaveError {
-    fn from(err: Course2ConvertError) -> SaveError {
-        SaveError::Course2ConvertError(err)
+#[cfg(feature = "wasm")]
+impl From<SmmdbError> for JsValue {
+    fn from(err: SmmdbError) -> JsValue {
+        JsValue::from(format!("{}", err))
     }
 }

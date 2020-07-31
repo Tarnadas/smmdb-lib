@@ -30,7 +30,6 @@ cfg-if = "0.1"
 chrono = "0.4"
 cmac = "0.3"
 crc = "1.8"
-failure = "0.1"
 generic-array = {version = "0.14", optional = true }
 image = "0.23"
 infer = "0.2"
@@ -38,6 +37,7 @@ itertools = "0.9"
 rand = "0.7"
 serde = "1.0"
 serde_derive = "1.0"
+thiserror = "1.0"
 typenum = "1.12"
 
 [dependencies.bytes]

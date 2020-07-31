@@ -18,9 +18,6 @@ extern crate arrayref;
 extern crate cfg_if;
 
 #[macro_use]
-extern crate failure;
-
-#[macro_use]
 extern crate serde_derive;
 
 #[cfg(feature = "wasm")]
@@ -41,7 +38,7 @@ pub mod thumbnail2;
 pub use course::*;
 pub use course2::*;
 pub(crate) use encryption::{decrypt, encrypt, fix_crc32};
-pub use errors::*;
+pub use errors::SmmdbError as Error;
 #[cfg(feature = "save")]
 pub use save::*;
 pub use thumbnail2::*;
@@ -81,7 +78,7 @@ pub fn run() -> Result<(), JsValue> {
 
 #[cfg(feature = "save")]
 #[cfg(test)]
-fn test_runner(test_cases: &[&dyn Fn() -> Result<(), SaveError>]) {
+fn test_runner(test_cases: &[&dyn Fn() -> Result<(), Error>]) {
     use fs_extra::dir::remove;
 
     println!("Custom Test Framework running {} tests: ", test_cases.len());

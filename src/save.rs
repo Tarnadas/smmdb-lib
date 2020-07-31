@@ -4,7 +4,7 @@ use crate::{
     errors::SaveError,
     fix_crc32,
     key_tables::*,
-    Course2,
+    Course2, Error,
 };
 
 use arr_macro::arr;
@@ -29,7 +29,7 @@ pub struct Save {
 }
 
 impl Save {
-    pub fn new<T: Into<PathBuf>>(path: T) -> Result<Save, SaveError> {
+    pub fn new<T: Into<PathBuf>>(path: T) -> Result<Save, Error> {
         let path: PathBuf = path.into();
 
         let mut save_path = path.clone();
@@ -89,12 +89,12 @@ impl Save {
         })
     }
 
-    pub fn add_course(&mut self, mut index: u8, course: Course2) -> Result<(), SaveError> {
+    pub fn add_course(&mut self, mut index: u8, course: Course2) -> Result<(), Error> {
         let courses = match index {
             i if i < 60 => &mut self.own_courses,
             i if i >= 60 && i < 120 => &mut self.unknown_courses,
             i if i >= 120 && i < 180 => &mut self.downloaded_courses,
-            _ => return Err(SaveError::CourseIndexOutOfBounds(index)),
+            _ => return Err(SaveError::CourseIndexOutOfBounds(index).into()),
         };
         let offset = SAVE_COURSE_OFFSET as usize + 0x10 + index as usize * 8;
         self.save_file[offset + 1] = 1;
@@ -109,12 +109,12 @@ impl Save {
         Ok(())
     }
 
-    pub fn remove_course(&mut self, mut index: u8) -> Result<(), SaveError> {
+    pub fn remove_course(&mut self, mut index: u8) -> Result<(), Error> {
         let courses = match index {
             i if i < 60 => &mut self.own_courses,
             i if i >= 60 && i < 120 => &mut self.unknown_courses,
             i if i >= 120 && i < 180 => &mut self.downloaded_courses,
-            _ => return Err(SaveError::CourseIndexOutOfBounds(index)),
+            _ => return Err(SaveError::CourseIndexOutOfBounds(index).into()),
         };
         let offset = SAVE_COURSE_OFFSET as usize + 0x10 + index as usize * 8;
         self.save_file[offset + 1] = 0;
@@ -127,7 +127,7 @@ impl Save {
         Ok(())
     }
 
-    pub fn save(&mut self) -> Result<(), SaveError> {
+    pub fn save(&mut self) -> Result<(), Error> {
         let mut update_save = true;
         for i in 0..180 {
             if let Some(op) = self.pending_fs_operations[i].take() {
@@ -189,7 +189,7 @@ impl PendingFsOperation {
         own_courses: &Courses,
         unknown_courses: &Courses,
         downloaded_courses: &Courses,
-    ) -> Result<(), SaveError> {
+    ) -> Result<(), Error> {
         match self {
             Self::AddOrReplaceCourse(index) => {
                 let course = match index {
@@ -198,7 +198,7 @@ impl PendingFsOperation {
                     i if i >= 120 && i < 180 => {
                         downloaded_courses[index as usize].as_ref().unwrap()
                     }
-                    _ => return Err(SaveError::CourseIndexOutOfBounds(index)),
+                    _ => return Err(SaveError::CourseIndexOutOfBounds(index).into()),
                 };
 
                 let mut course_path = path.clone();
@@ -208,7 +208,7 @@ impl PendingFsOperation {
                 Course2::encrypt(&mut course_data);
                 course_file.write_all(&course_data)?;
 
-                let thumb_data = course.course.get_course_thumb().ok_or_else(|| {
+                let thumb_data = course.course.get_course_thumb().ok_or_else(|| -> Error {
                     SaveError::ThumbnailRequired(
                         course
                             .course
@@ -217,6 +217,7 @@ impl PendingFsOperation {
                             .get_title()
                             .to_string(),
                     )
+                    .into()
                 })?;
                 let mut thumb_path = path.clone();
                 thumb_path.push(format!("course_thumb_{:0>3}.btl", index));
@@ -245,7 +246,7 @@ mod test {
     use fs_extra::dir::{copy, CopyOptions};
 
     #[test_case]
-    fn test_save() -> Result<(), SaveError> {
+    fn test_save() -> Result<(), Error> {
         let mut options = CopyOptions::new();
         options.copy_inside = true;
         options.overwrite = true;

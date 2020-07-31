@@ -1,6 +1,6 @@
 extern crate smmdb;
 
-use smmdb::course2::*;
+use smmdb::{course2::*, Error};
 use std::fs::{read, read_dir};
 use std::io;
 use std::process::Command;
@@ -84,7 +84,7 @@ fn course2_encrypt() {
 }
 
 #[test]
-fn course2_from_packed() -> Result<(), failure::Error> {
+fn course2_from_packed() -> Result<(), Error> {
     decrypt_test_assets().unwrap();
 
     use std::io::Write;

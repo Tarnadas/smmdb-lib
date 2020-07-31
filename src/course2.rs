@@ -8,8 +8,8 @@ use crate::proto::SMM2Course::{
     SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_GameStyle,
 };
 use crate::{
-    constants2::*, decrypt, encrypt, fix_crc32, key_tables::*, Course2ConvertError,
-    DecompressionError, Thumbnail2,
+    constants2::*, decrypt, encrypt, errors::Course2ConvertError, fix_crc32, key_tables::*, Error,
+    Thumbnail2,
 };
 
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
@@ -100,12 +100,7 @@ impl Course2 {
     #[cfg(feature = "wasm")]
     #[wasm_bindgen]
     pub fn from_packed_js(buffer: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
-        let courses: Vec<JsValue> = Course2::from_packed(buffer)
-            .map_err(|e| match e {
-                DecompressionError::Zip(err) => {
-                    JsValue::from(format!("[DecompressionError] {}", err))
-                }
-            })?
+        let courses: Vec<JsValue> = Course2::from_packed(buffer)?
             .iter()
             .map(|course| course.into_js())
             .collect();
@@ -141,17 +136,17 @@ impl Course2 {
 }
 
 impl Course2 {
-    pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course2>, DecompressionError> {
+    pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course2>, Error> {
         let mut res = vec![];
 
         let mime_guess: Type = Infer::new().get(buffer).unwrap();
 
         match mime_guess.mime.as_ref() {
             "application/zip" => {
-                Course2::decompress_zip(&mut res, buffer).map_err(DecompressionError::Zip)?;
+                Course2::decompress_zip(&mut res, buffer)?;
             }
-            _ => {
-                // unimplemented!();
+            mime => {
+                return Err(Error::MimeTypeUnsupported(mime.to_string()));
             }
         };
 
@@ -162,7 +157,7 @@ impl Course2 {
         mut data: Vec<u8>,
         thumb: Option<Vec<u8>>,
         is_encrypted: bool,
-    ) -> Result<Course2, Course2ConvertError> {
+    ) -> Result<Course2, Error> {
         if is_encrypted {
             Course2::decrypt(&mut data)
         };
@@ -245,9 +240,7 @@ impl Course2 {
         Ok(zip_file_data)
     }
 
-    fn get_course_header(
-        course_data: &[u8],
-    ) -> Result<SingularPtrField<SMM2CourseHeader>, Course2ConvertError> {
+    fn get_course_header(course_data: &[u8]) -> Result<SingularPtrField<SMM2CourseHeader>, Error> {
         let modified = Course2::get_modified(course_data);
         let title =
             Course2::get_utf16_string_from_slice(&course_data[TITLE_OFFSET..TITLE_OFFSET_END]);
@@ -353,7 +346,7 @@ impl Course2 {
     fn get_course_area(
         course_data: &[u8],
         const_index: usize,
-    ) -> Result<SingularPtrField<SMM2CourseArea>, Course2ConvertError> {
+    ) -> Result<SingularPtrField<SMM2CourseArea>, Error> {
         let course_theme = SMM2CourseArea_CourseTheme::from_i32(
             course_data[COURSE_THEME_OFFSET[const_index]] as i32,
         )
@@ -520,16 +513,14 @@ impl Course2 {
         String::from_utf16(&res).expect("[Course::get_utf16_string_from_slice] from_utf16 failed")
     }
 
-    fn get_game_style_from_str(
-        s: String,
-    ) -> Result<SMM2CourseHeader_GameStyle, Course2ConvertError> {
+    fn get_game_style_from_str(s: String) -> Result<SMM2CourseHeader_GameStyle, Error> {
         match s.as_ref() {
             "M1" => Ok(SMM2CourseHeader_GameStyle::M1),
             "M3" => Ok(SMM2CourseHeader_GameStyle::M3),
             "MW" => Ok(SMM2CourseHeader_GameStyle::MW),
             "WU" => Ok(SMM2CourseHeader_GameStyle::WU),
             "3W" => Ok(SMM2CourseHeader_GameStyle::W3),
-            _ => Err(Course2ConvertError::GameStyleParse),
+            _ => Err(Course2ConvertError::GameStyleParse.into()),
         }
     }
 }
