@@ -6,7 +6,10 @@
 //! This is particularly useful for emulation and the 3DS, which is unable to download specific course files from the Nintendo servers.
 //! Courses are serialized via Protocol Buffer.
 
+#![feature(async_closure)]
 #![feature(custom_test_frameworks)]
+#![feature(fn_traits)]
+#![feature(future_readiness_fns)]
 #![test_runner(test_runner)]
 
 extern crate aes_soft as aes;
@@ -78,17 +81,45 @@ pub fn run() -> Result<(), JsValue> {
 
 #[cfg(feature = "save")]
 #[cfg(test)]
-fn test_runner(test_cases: &[&dyn Fn() -> Result<(), Error>]) {
+pub struct Test {
+    name: &'static str,
+    test: &'static dyn Fn() -> std::pin::Pin<
+        Box<dyn std::future::Future<Output = Result<(), Error>>>,
+    >,
+}
+
+#[cfg(feature = "save")]
+#[cfg(test)]
+impl Test {
+    fn name(&self) -> &str {
+        self.name
+    }
+
+    fn run(&self) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), Error>>>> {
+        self.test.call(())
+    }
+}
+
+#[cfg(feature = "save")]
+#[cfg(test)]
+fn test_runner(test_cases: &[&Test]) {
+    use async_std::task;
+    use colored::*;
     use fs_extra::dir::remove;
 
-    println!("Custom Test Framework running {} tests: ", test_cases.len());
-    for test_case in test_cases {
-        if let Err(err) = test_case() {
-            remove("./tests/assets/saves/smm2/tmp").unwrap();
-            panic!("{:?}", err);
+    task::block_on(async {
+        println!("Custom Test Framework running {} tests", test_cases.len());
+        for test_case in test_cases {
+            print!("test {} ... ", test_case.name());
+            if let Err(err) = test_case.run().await {
+                remove("./tests/assets/saves/smm2/tmp").unwrap();
+                panic!("{:?}", err);
+                // TODO collect errors
+            }
+            println!("{}", "ok".green());
         }
-    }
-    remove("./tests/assets/saves/smm2/tmp").unwrap();
+        remove("./tests/assets/saves/smm2/tmp").unwrap();
+    });
 }
 
 #[cfg(not(feature = "save"))]

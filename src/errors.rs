@@ -1,6 +1,5 @@
 //! Module which contains error types.
 
-#[cfg(feature = "save")]
 use std::io;
 use thiserror::Error;
 #[cfg(feature = "wasm")]
@@ -14,7 +13,6 @@ pub enum SmmdbError {
     /// Failed to decompress zip file
     #[error(transparent)]
     Zip(#[from] ZipError),
-    #[cfg(feature = "save")]
     #[error(transparent)]
     IoError(#[from] io::Error),
     #[error(transparent)]
