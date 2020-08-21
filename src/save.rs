@@ -18,7 +18,7 @@ use typenum::{U180, U60};
 
 type Courses = GenericArray<Option<SavedCourse>, U60>;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Save {
     path: PathBuf,
     save_file: Vec<u8>,
@@ -155,6 +155,18 @@ impl Save {
         }
         Ok(())
     }
+
+    pub fn get_own_courses(&self) -> &Courses {
+        &self.own_courses
+    }
+
+    pub fn get_unknown_courses(&self) -> &Courses {
+        &self.unknown_courses
+    }
+
+    pub fn get_downloaded_courses(&self) -> &Courses {
+        &self.downloaded_courses
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -173,6 +185,10 @@ impl SavedCourse {
             buf,
             course,
         }
+    }
+
+    pub fn get_course(&self) -> &Course2 {
+        &self.course
     }
 }
 

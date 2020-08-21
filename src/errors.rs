@@ -24,8 +24,14 @@ pub enum SmmdbError {
     SaveError(#[from] SaveError),
 }
 
+impl Into<String> for SmmdbError {
+    fn into(self) -> String {
+        format!("{:?}", self)
+    }
+}
+
 /// Error which can occur during Super Mario Maker course file serialization.
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 pub enum CourseConvertError {
     #[error("CourseConvertError::GameStyleParse")]
     GameStyleParse,
@@ -38,7 +44,7 @@ pub enum CourseConvertError {
 }
 
 /// Error which can occur during Super Mario Maker 2 course file serialization.
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 pub enum Course2ConvertError {
     #[error("Course2ConvertError::GameStyleParse")]
     GameStyleParse,
@@ -63,7 +69,7 @@ pub enum Course2ConvertError {
 }
 
 #[cfg(feature = "save")]
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 pub enum SaveError {
     #[error("index must be between 0 and 180, but received {0}")]
     CourseIndexOutOfBounds(u8),
