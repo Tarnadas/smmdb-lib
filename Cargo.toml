@@ -31,7 +31,6 @@ cfg-if = "0.1"
 chrono = "0.4"
 cmac = "0.3"
 crc = "1.8"
-generic-array = {version = "0.14", optional = true }
 image = "0.23"
 infer = "0.2"
 itertools = "0.9"
@@ -88,7 +87,7 @@ wasm-bindgen-test = "0.3"
 default = ["with-serde"]
 wasm = ["console_error_panic_hook", "js-sys", "wasm-bindgen", "web-sys", "with-serde"]
 with-serde = []
-save = ["arr_macro", "async-std", "generic-array"]
+save = ["arr_macro", "async-std"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]

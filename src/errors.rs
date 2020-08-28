@@ -73,6 +73,8 @@ pub enum Course2ConvertError {
 pub enum SaveError {
     #[error("index must be between 0 and 180, but received {0}")]
     CourseIndexOutOfBounds(u8),
+    #[error("no course found at index {0}")]
+    CourseNotFound(u8),
     #[error("thumbnail is missing for course {0}")]
     ThumbnailRequired(String),
 }

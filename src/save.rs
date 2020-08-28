@@ -9,14 +9,12 @@ use crate::{
 
 use arr_macro::arr;
 use async_std::{
-    fs::{remove_file, File},
+    fs::{remove_file, rename, File},
     prelude::*,
 };
-use generic_array::GenericArray;
-use std::path::PathBuf;
-use typenum::{U180, U60};
+use std::{cell::Cell, path::PathBuf};
 
-type Courses = GenericArray<Option<SavedCourse>, U60>;
+type Courses = [Option<SavedCourse>; 60];
 
 #[derive(Clone, Debug)]
 pub struct Save {
@@ -25,7 +23,7 @@ pub struct Save {
     own_courses: Courses,
     unknown_courses: Courses,
     downloaded_courses: Courses,
-    pending_fs_operations: GenericArray<Option<PendingFsOperation>, U180>,
+    pending_fs_operations: [Option<PendingFsOperation>; 180],
 }
 
 impl Save {
@@ -40,9 +38,9 @@ impl Save {
         decrypt(&mut save_file[0x10..], &SAVE_KEY_TABLE);
         save_file = save_file[..save_file.len() - 0x30].to_vec();
 
-        let mut own_courses = GenericArray::clone_from_slice(&arr![None; 60]);
-        let mut unknown_courses = GenericArray::clone_from_slice(&arr![None; 60]);
-        let mut downloaded_courses = GenericArray::clone_from_slice(&arr![None; 60]);
+        let mut own_courses = arr![None; 60];
+        let mut unknown_courses = arr![None; 60];
+        let mut downloaded_courses = arr![None; 60];
         let mut index = 0;
         let offset = SAVE_COURSE_OFFSET as usize + 0x10;
         while index < 180 {
@@ -85,7 +83,7 @@ impl Save {
             own_courses,
             unknown_courses,
             downloaded_courses,
-            pending_fs_operations: GenericArray::clone_from_slice(&arr![None; 180]),
+            pending_fs_operations: arr![None; 180],
         })
     }
 
@@ -105,6 +103,50 @@ impl Save {
 
         index = index % 60;
         courses[index as usize] = Some(course);
+
+        Ok(())
+    }
+
+    pub fn swap_course(&mut self, first: u8, second: u8) -> Result<(), Error> {
+        let courses_as_cell = [
+            Cell::from_mut(&mut self.own_courses[..]).as_slice_of_cells(),
+            Cell::from_mut(&mut self.unknown_courses[..]).as_slice_of_cells(),
+            Cell::from_mut(&mut self.downloaded_courses[..]).as_slice_of_cells(),
+        ];
+
+        if first >= 180 {
+            return Err(SaveError::CourseIndexOutOfBounds(first).into());
+        }
+        let first_course = &courses_as_cell[first as usize / 60][first as usize % 60];
+
+        if second >= 180 {
+            return Err(SaveError::CourseIndexOutOfBounds(second).into());
+        }
+        let second_course = &courses_as_cell[second as usize / 60][second as usize % 60];
+
+        let first_offset = SAVE_COURSE_OFFSET as usize + 0x10 + first as usize * 8 + 1;
+        let second_offset = SAVE_COURSE_OFFSET as usize + 0x10 + second as usize * 8 + 1;
+        match (self.save_file[first_offset], second_offset) {
+            (1, 0) => {
+                self.pending_fs_operations[first as usize] =
+                    Some(PendingFsOperation::MoveCourse(first, second));
+                self.save_file[first_offset] = 0;
+                self.save_file[second_offset] = 1;
+            }
+            (0, 1) => {
+                self.pending_fs_operations[first as usize] =
+                    Some(PendingFsOperation::MoveCourse(second, first));
+                self.save_file[first_offset] = 1;
+                self.save_file[second_offset] = 0;
+            }
+            (1, 1) => {
+                self.pending_fs_operations[first as usize] =
+                    Some(PendingFsOperation::SwapCourse(first, second))
+            }
+            (_, _) => return Err(SaveError::CourseNotFound(first).into()),
+        }
+
+        first_course.swap(second_course);
 
         Ok(())
     }
@@ -195,6 +237,8 @@ impl SavedCourse {
 #[derive(Clone, Debug)]
 enum PendingFsOperation {
     AddOrReplaceCourse(u8),
+    SwapCourse(u8, u8),
+    MoveCourse(u8, u8),
     RemoveCourse(u8),
 }
 
@@ -239,6 +283,44 @@ impl PendingFsOperation {
                 thumb_path.push(format!("course_thumb_{:0>3}.btl", index));
                 let mut thumb_file = File::create(thumb_path).await?;
                 thumb_file.write_all(thumb_data.get_encrypted()).await?;
+            }
+            Self::SwapCourse(first, second) => {
+                // TODO only works for immediate swap
+                let mut first_course_path = path.clone();
+                let mut swap_course_path = first_course_path.clone();
+                first_course_path.push(format!("course_data_{:0>3}.bcd", first));
+                swap_course_path.push("swap.bcd");
+                rename(first_course_path.clone(), swap_course_path.clone()).await?;
+
+                let mut first_thumb_path = path.clone();
+                let mut swap_thumb_path = first_thumb_path.clone();
+                first_thumb_path.push(format!("course_thumb_{:0>3}.btl", first));
+                swap_thumb_path.push("swap.btl");
+                rename(first_thumb_path.clone(), swap_thumb_path.clone()).await?;
+
+                let mut second_course_path = path.clone();
+                second_course_path.push(format!("course_data_{:0>3}.bcd", second));
+                rename(second_course_path.clone(), first_course_path).await?;
+
+                let mut second_thumb_path = path.clone();
+                second_thumb_path.push(format!("course_thumb_{:0>3}.btl", second));
+                rename(second_thumb_path.clone(), first_thumb_path).await?;
+
+                rename(swap_course_path, second_course_path).await?;
+                rename(swap_thumb_path, second_thumb_path).await?;
+            }
+            Self::MoveCourse(start, end) => {
+                let mut start_course_path = path.clone();
+                let mut end_course_path = start_course_path.clone();
+                start_course_path.push(format!("course_data_{:0>3}.bcd", start));
+                end_course_path.push(format!("course_data_{:0>3}.bcd", end));
+                rename(start_course_path, end_course_path).await?;
+
+                let mut start_thumb_path = path.clone();
+                let mut end_thumb_path = start_thumb_path.clone();
+                start_thumb_path.push(format!("course_thumb_{:0>3}.btl", start));
+                end_thumb_path.push(format!("course_thumb_{:0>3}.btl", end));
+                rename(start_thumb_path, end_thumb_path).await?;
             }
             Self::RemoveCourse(index) => {
                 let mut course_path = path.clone();
