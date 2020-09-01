@@ -126,7 +126,7 @@ impl Save {
 
         let first_offset = SAVE_COURSE_OFFSET as usize + 0x10 + first as usize * 8 + 1;
         let second_offset = SAVE_COURSE_OFFSET as usize + 0x10 + second as usize * 8 + 1;
-        match (self.save_file[first_offset], second_offset) {
+        match (self.save_file[first_offset], self.save_file[second_offset]) {
             (1, 0) => {
                 self.pending_fs_operations[first as usize] =
                     Some(PendingFsOperation::MoveCourse(first, second));
