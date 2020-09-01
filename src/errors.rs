@@ -66,6 +66,8 @@ pub enum Course2ConvertError {
     DayTimeParse,
     #[error("Course2ConvertError::SoundTypeConvert")]
     SoundTypeConvert,
+    #[error("Course2ConvertError::ConvertFromBuffer")]
+    ConvertFromBuffer,
 }
 
 #[cfg(feature = "save")]

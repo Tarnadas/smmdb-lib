@@ -17,7 +17,10 @@ use infer::{Infer, Type};
 use itertools::Itertools;
 use protobuf::{parse_from_bytes, Message, ProtobufEnum, SingularPtrField};
 use regex::Regex;
-use std::io::{Cursor, Read};
+use std::{
+    convert::TryFrom,
+    io::{Cursor, Read},
+};
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 use zip::{result::ZipError, ZipArchive};
@@ -522,5 +525,15 @@ impl Course2 {
             "3W" => Ok(SMM2CourseHeader_GameStyle::W3),
             _ => Err(Course2ConvertError::GameStyleParse.into()),
         }
+    }
+}
+
+impl TryFrom<Vec<u8>> for Course2 {
+    type Error = Error;
+
+    fn try_from(data: Vec<u8>) -> Result<Course2, Self::Error> {
+        Course2::from_packed(&data[..])?
+            .pop()
+            .ok_or_else(|| Error::Course2ConvertError(Course2ConvertError::ConvertFromBuffer))
     }
 }
