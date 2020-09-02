@@ -148,6 +148,9 @@ impl Course2 {
             "application/zip" => {
                 Course2::decompress_zip(&mut res, buffer)?;
             }
+            "application/x-tar" => {
+                Course2::decompress_x_tar(&mut res, buffer)?;
+            }
             mime => {
                 return Err(Error::MimeTypeUnsupported(mime.to_string()));
             }
@@ -186,11 +189,11 @@ impl Course2 {
         let reader = Cursor::new(buffer);
         let mut zip = ZipArchive::new(reader)?;
 
-        let courses = Course2::get_course_files_from_archive(&mut zip);
+        let courses = Course2::get_course_files_from_zip_archive(&mut zip);
 
         for (course, thumb) in courses {
-            let course_data = Course2::read_file_from_archive(&mut zip, course)?;
-            let course_thumb = Course2::read_file_from_archive(&mut zip, thumb)?;
+            let course_data = Course2::read_file_from_zip_archive(&mut zip, course)?;
+            let course_thumb = Course2::read_file_from_zip_archive(&mut zip, thumb)?;
             if let Ok(course) = Course2::from_switch_files(course_data, Some(course_thumb), true) {
                 res.push(course);
             };
@@ -199,7 +202,9 @@ impl Course2 {
         Ok(())
     }
 
-    fn get_course_files_from_archive(zip: &mut ZipArchive<Cursor<&[u8]>>) -> Vec<(String, String)> {
+    fn get_course_files_from_zip_archive(
+        zip: &mut ZipArchive<Cursor<&[u8]>>,
+    ) -> Vec<(String, String)> {
         let mut files: Vec<(String, String)> = vec![];
         for i in 0..zip.len() {
             if let Ok(file_name) = zip.by_index(i).map(|file| file.name().to_owned()) {
@@ -211,7 +216,7 @@ impl Course2 {
                         let re_thumb: Regex =
                             Regex::new(&format!(r".*course_thumb_{}\.btl$", index.as_str()))
                                 .unwrap();
-                        if let Some(thumb) = Course2::find_file_by_regex(zip, re_thumb) {
+                        if let Some(thumb) = Course2::find_zip_file_by_regex(zip, re_thumb) {
                             files.push((file_name, thumb));
                         }
                     }
@@ -221,7 +226,7 @@ impl Course2 {
         files
     }
 
-    fn find_file_by_regex(zip: &mut ZipArchive<Cursor<&[u8]>>, re: Regex) -> Option<String> {
+    fn find_zip_file_by_regex(zip: &mut ZipArchive<Cursor<&[u8]>>, re: Regex) -> Option<String> {
         for i in 0..zip.len() {
             if let Ok(file) = zip.by_index(i) {
                 if re.is_match(file.name()) {
@@ -232,7 +237,7 @@ impl Course2 {
         None
     }
 
-    fn read_file_from_archive(
+    fn read_file_from_zip_archive(
         zip: &mut ZipArchive<Cursor<&[u8]>>,
         name: String,
     ) -> Result<Vec<u8>, ZipError> {
@@ -241,6 +246,71 @@ impl Course2 {
         zip_file.read_exact(&mut zip_file_data)?;
 
         Ok(zip_file_data)
+    }
+
+    fn decompress_x_tar(res: &mut Vec<Course2>, buffer: &[u8]) -> Result<(), ZipError> {
+        let reader = Cursor::new(buffer);
+        let tar = tar::Archive::new(reader);
+
+        let courses = Course2::get_course_files_from_tar_archive(tar);
+
+        for (course, thumb) in courses {
+            if let Ok(course) = Course2::from_switch_files(course, Some(thumb), true) {
+                res.push(course);
+            };
+        }
+
+        Ok(())
+    }
+
+    fn get_course_files_from_tar_archive(
+        mut tar: tar::Archive<Cursor<&[u8]>>,
+    ) -> Vec<(Vec<u8>, Vec<u8>)> {
+        let mut courses = vec![];
+        for file in tar.entries().unwrap() {
+            let mut file = file.unwrap();
+            if let Ok(Some(file_name)) =
+                file.path().map(|file| file.to_str().map(|f| f.to_string()))
+            {
+                let re_data: Regex = Regex::new(r".*course_data_(\d{3})\.bcd$").unwrap();
+                if re_data.is_match(&file_name) {
+                    let captures = re_data.captures(&file_name).unwrap();
+                    let index = captures.get(1);
+                    if let Some(index) = index {
+                        let mut data = vec![];
+                        file.read_to_end(&mut data).unwrap();
+                        courses.push((data, index.as_str().to_string()));
+                    }
+                }
+            };
+        }
+        let mut files = vec![];
+        for (data, index) in courses {
+            let mut cursor = tar.into_inner();
+            cursor.set_position(0);
+            tar = tar::Archive::new(cursor);
+            let re_thumb: Regex = Regex::new(&format!(r".*course_thumb_{}\.btl$", index)).unwrap();
+            if let Some(thumb) = Course2::find_tar_file_by_regex(&mut tar, re_thumb) {
+                files.push((data, thumb));
+            }
+        }
+        files
+    }
+
+    fn find_tar_file_by_regex(tar: &mut tar::Archive<Cursor<&[u8]>>, re: Regex) -> Option<Vec<u8>> {
+        for file in tar.entries().unwrap() {
+            let mut file = file.unwrap();
+            if let Ok(Some(file_name)) =
+                file.path().map(|file| file.to_str().map(|f| f.to_string()))
+            {
+                if re.is_match(&file_name) {
+                    let mut res = vec![];
+                    file.read_to_end(&mut res).unwrap();
+                    return Some(res);
+                }
+            };
+        }
+        None
     }
 
     fn get_course_header(course_data: &[u8]) -> Result<SingularPtrField<SMM2CourseHeader>, Error> {
