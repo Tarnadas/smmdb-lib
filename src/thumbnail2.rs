@@ -2,7 +2,7 @@
 
 use crate::{decrypt, encrypt, key_tables::*};
 
-use image::{jpeg::JPEGEncoder, load_from_memory, DynamicImage, ImageError};
+use image::{jpeg::JpegEncoder, load_from_memory, DynamicImage, ImageError};
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
@@ -79,7 +79,7 @@ impl Thumbnail2 {
             DynamicImage::ImageRgb8(buffer) => {
                 let (width, height) = buffer.dimensions();
                 let mut opt = vec![];
-                let mut encoder = JPEGEncoder::new_with_quality(&mut opt, 80);
+                let mut encoder = JpegEncoder::new_with_quality(&mut opt, 80);
                 encoder
                     .encode(&buffer.into_raw()[..], width, height, color)
                     .map_err(ImageError::from)?;
