@@ -1,9 +1,12 @@
 extern crate smmdb;
 
 use smmdb::{course2::*, Error};
-use std::fs::{read, read_dir};
-use std::io;
-use std::process::Command;
+use std::{
+    collections::HashSet,
+    fs::{read, read_dir},
+    io,
+    process::Command,
+};
 
 fn decrypt_test_assets() -> io::Result<()> {
     let save_folders = vec![
@@ -164,4 +167,25 @@ fn course2_from_packed_2() {
             );
         }
     }
+}
+
+#[test]
+fn course2_from_packed_tar() {
+    let zip_save = read("tests/assets/saves/smm2/save1.zip").unwrap();
+    let zip_courses = Course2::from_packed(&zip_save).unwrap();
+
+    let tar_save = read("tests/assets/saves/smm2/save1.tar").unwrap();
+    let tar_courses = Course2::from_packed(&tar_save).unwrap();
+
+    assert_eq!(tar_courses.len(), 60);
+    assert_eq!(
+        zip_courses
+            .into_iter()
+            .map(|course| course.get_course().get_header().get_title().to_string())
+            .collect::<HashSet<_>>(),
+        tar_courses
+            .into_iter()
+            .map(|course| course.get_course().get_header().get_title().to_string())
+            .collect::<HashSet<_>>()
+    );
 }
