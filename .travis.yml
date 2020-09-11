@@ -39,6 +39,8 @@ stages:
 
 jobs:
   include:
+    - stage: install
+      script: rustup target add wasm32-unknown-unknown
     - stage: check
       script: cargo check
     - script: cargo check --target wasm32-unknown-unknown
