@@ -28,7 +28,8 @@ impl Thumbnail2 {
 
     pub fn from_decrypted(bytes: Vec<u8>) -> Thumbnail2 {
         let mut encrypted = bytes.clone();
-        encrypt(&mut encrypted, &THUMBNAIL_KEY_TABLE, false);
+        encrypted.resize(0x1c000 - 0x30, 0);
+        Thumbnail2::encrypt(&mut encrypted);
         Thumbnail2 {
             encrypted,
             jpeg: bytes,

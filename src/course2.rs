@@ -181,7 +181,11 @@ impl Course2 {
                 ..SMM2Course::default()
             },
             data,
-            thumb: thumb.map(Thumbnail2::new),
+            thumb: thumb.map(if is_encrypted {
+                Thumbnail2::new
+            } else {
+                Thumbnail2::from_decrypted
+            }),
         })
     }
 
