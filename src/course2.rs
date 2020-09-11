@@ -12,6 +12,7 @@ use crate::{
     Thumbnail2,
 };
 
+use brotli2::read::BrotliDecoder;
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
 use infer::{Infer, Type};
 use itertools::Itertools;
@@ -209,7 +210,7 @@ impl Course2 {
     fn get_course_files_from_zip_archive(
         zip: &mut ZipArchive<Cursor<&[u8]>>,
     ) -> Vec<(String, String)> {
-        let mut files: Vec<(String, String)> = vec![];
+        let mut course_files: Vec<(String, String)> = vec![];
         for i in 0..zip.len() {
             if let Ok(file_name) = zip.by_index(i).map(|file| file.name().to_owned()) {
                 let re_data: Regex = Regex::new(r".*course_data_(\d{3})\.bcd$").unwrap();
@@ -221,13 +222,13 @@ impl Course2 {
                             Regex::new(&format!(r".*course_thumb_{}\.btl$", index.as_str()))
                                 .unwrap();
                         if let Some(thumb) = Course2::find_zip_file_by_regex(zip, re_thumb) {
-                            files.push((file_name, thumb));
+                            course_files.push((file_name, thumb));
                         }
                     }
                 }
             };
         }
-        files
+        course_files
     }
 
     fn find_zip_file_by_regex(zip: &mut ZipArchive<Cursor<&[u8]>>, re: Regex) -> Option<String> {
@@ -270,7 +271,7 @@ impl Course2 {
     fn get_course_files_from_tar_archive(
         mut tar: tar::Archive<Cursor<&[u8]>>,
     ) -> Vec<(Vec<u8>, Vec<u8>)> {
-        let mut courses = vec![];
+        let mut course_files = vec![];
         for file in tar.entries().unwrap() {
             let mut file = file.unwrap();
             if let Ok(Some(file_name)) =
@@ -283,13 +284,28 @@ impl Course2 {
                     if let Some(index) = index {
                         let mut data = vec![];
                         file.read_to_end(&mut data).unwrap();
-                        courses.push((data, index.as_str().to_string()));
+                        course_files.push((data, index.as_str().to_string()));
+                    }
+                    break;
+                }
+                let re_br_data: Regex = Regex::new(r".*course_data_(\d{3})\.br$").unwrap();
+                if re_br_data.is_match(&file_name) {
+                    let captures = re_br_data.captures(&file_name).unwrap();
+                    let index = captures.get(1);
+                    if let Some(index) = index {
+                        let mut data = vec![];
+                        file.read_to_end(&mut data).unwrap();
+                        let mut course = vec![];
+                        let mut decoder = BrotliDecoder::new(Cursor::new(data));
+                        decoder.read_to_end(&mut course).unwrap();
+                        Course2::encrypt(&mut course);
+                        course_files.push((course, index.as_str().to_string()));
                     }
                 }
             };
         }
         let mut files = vec![];
-        for (data, index) in courses {
+        for (data, index) in course_files {
             let mut cursor = tar.into_inner();
             cursor.set_position(0);
             tar = tar::Archive::new(cursor);
