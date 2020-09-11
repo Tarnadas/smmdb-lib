@@ -21,6 +21,7 @@ install:
   - curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
   - source ~/.nvm/nvm.sh
   - nvm install 14
+  - rustup target add wasm32-unknown-unknown
   - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh || true
   - cargo install cargo-whatfeatures --no-default-features --features "rustls"
   - export LIB_VERSION=$(cat Cargo.toml | grep version | head -1 | sed 's/[",(version = )]//g')
@@ -39,8 +40,6 @@ stages:
 
 jobs:
   include:
-    - stage: install
-      script: rustup target add wasm32-unknown-unknown
     - stage: check
       script: cargo check
     - script: cargo check --target wasm32-unknown-unknown
