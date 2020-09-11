@@ -41,13 +41,13 @@ jobs:
   include:
     - stage: check
       script: cargo check
-    - script: cargo check --features wasm
+    - script: cargo check --target wasm32-unknown-unknown
     - script: cargo check --features save
-    - script: cargo check --features save,wasm
+    - script: cargo check --target wasm32-unknown-unknown --features save
     - script: cargo check --no-default-features
-    - script: cargo check --no-default-features --features wasm
+    - script: cargo check --target wasm32-unknown-unknown --no-default-features
     - script: cargo check --no-default-features --features save
-    - script: cargo check --no-default-features --features save,wasm
+    - script: cargo check --target wasm32-unknown-unknown --no-default-features --features save
     - stage: test
       script: yarn test
       name: Test WASM

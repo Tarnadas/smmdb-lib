@@ -2,7 +2,7 @@
 
 use std::io;
 use thiserror::Error;
-#[cfg(feature = "wasm")]
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::JsValue;
 use zip::result::ZipError;
 
@@ -81,7 +81,7 @@ pub enum SaveError {
     ThumbnailRequired(String),
 }
 
-#[cfg(feature = "wasm")]
+#[cfg(target_arch = "wasm32")]
 impl From<SmmdbError> for JsValue {
     fn from(err: SmmdbError) -> JsValue {
         JsValue::from(format!("{}", err))

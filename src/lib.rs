@@ -20,10 +20,10 @@ extern crate arrayref;
 #[macro_use]
 extern crate cfg_if;
 
-#[macro_use]
+#[cfg_attr(feature = "with-serde", macro_use)]
 extern crate serde_derive;
 
-#[cfg(feature = "wasm")]
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
 pub mod constants;
@@ -47,7 +47,7 @@ pub use save::*;
 pub use thumbnail2::*;
 
 cfg_if! {
-    if #[cfg(feature = "wasm")] {
+    if #[cfg(target_arch = "wasm32")] {
         extern crate console_error_panic_hook;
         use console_error_panic_hook::set_once as set_panic_hook;
     }
@@ -61,7 +61,7 @@ cfg_if! {
     }
 }
 
-#[cfg(feature = "wasm")]
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn run() -> Result<(), JsValue> {
     set_panic_hook();

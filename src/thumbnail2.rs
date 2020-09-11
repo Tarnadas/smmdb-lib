@@ -3,10 +3,10 @@
 use crate::{decrypt, encrypt, key_tables::*};
 
 use image::{jpeg::JpegEncoder, load_from_memory, DynamicImage, ImageError};
-#[cfg(feature = "wasm")]
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
-#[cfg_attr(feature = "wasm", wasm_bindgen)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Thumbnail2 {
     encrypted: Vec<u8>,

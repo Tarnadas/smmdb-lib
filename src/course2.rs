@@ -12,6 +12,7 @@ use crate::{
     Thumbnail2,
 };
 
+#[cfg(not(target_arch = "wasm32"))]
 use brotli2::read::BrotliDecoder;
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
 use infer::{Infer, Type};
@@ -22,11 +23,11 @@ use std::{
     convert::TryFrom,
     io::{Cursor, Read},
 };
-#[cfg(feature = "wasm")]
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 use zip::{result::ZipError, ZipArchive};
 
-#[cfg_attr(feature = "wasm", wasm_bindgen)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Course2 {
     course: SMM2Course,
@@ -68,9 +69,9 @@ impl Course2 {
     }
 }
 
-#[cfg_attr(feature = "wasm", wasm_bindgen)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 impl Course2 {
-    #[cfg_attr(feature = "wasm", wasm_bindgen)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn from_proto(buffer: &[u8], thumb: Option<Box<[u8]>>) -> Course2 {
         let course: SMM2Course = parse_from_bytes(buffer).unwrap();
         Course2 {
@@ -80,7 +81,7 @@ impl Course2 {
         }
     }
 
-    #[cfg_attr(feature = "wasm", wasm_bindgen)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn from_boxed_proto(buffer: Box<[u8]>, thumb: Option<Box<[u8]>>) -> Course2 {
         let course: SMM2Course = parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
         Course2 {
@@ -90,7 +91,7 @@ impl Course2 {
         }
     }
 
-    #[cfg(feature = "wasm")]
+    #[cfg(target_arch = "wasm32")]
     #[wasm_bindgen]
     pub fn from_js(course: JsValue, thumb: Option<Box<[u8]>>) -> Course2 {
         let course: SMM2Course = course.into_serde().expect("Course serialization failed");
@@ -101,7 +102,7 @@ impl Course2 {
         }
     }
 
-    #[cfg(feature = "wasm")]
+    #[cfg(target_arch = "wasm32")]
     #[wasm_bindgen]
     pub fn from_packed_js(buffer: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
         let courses: Vec<JsValue> = Course2::from_packed(buffer)?
@@ -111,7 +112,7 @@ impl Course2 {
         Ok(courses.into_boxed_slice())
     }
 
-    #[cfg_attr(feature = "wasm", wasm_bindgen)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn into_proto(&self) -> Box<[u8]> {
         let mut out: Vec<u8> = vec![];
         self.course
@@ -120,18 +121,18 @@ impl Course2 {
         out.into_boxed_slice()
     }
 
-    #[cfg(feature = "wasm")]
+    #[cfg(target_arch = "wasm32")]
     #[wasm_bindgen]
     pub fn into_js(&self) -> JsValue {
         JsValue::from_serde(&self.course).unwrap()
     }
 
-    #[cfg_attr(feature = "wasm", wasm_bindgen)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn decrypt(course: &mut [u8]) {
         decrypt(&mut course[0x10..], &COURSE_KEY_TABLE);
     }
 
-    #[cfg_attr(feature = "wasm", wasm_bindgen)]
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn encrypt(course: &mut [u8]) {
         let len = course.len() - 0x30;
         fix_crc32(&mut course[..len]);
@@ -286,20 +287,24 @@ impl Course2 {
                         file.read_to_end(&mut data).unwrap();
                         course_files.push((data, index.as_str().to_string()));
                     }
+                    #[cfg(not(target_arch = "wasm32"))]
                     break;
                 }
-                let re_br_data: Regex = Regex::new(r".*course_data_(\d{3})\.br$").unwrap();
-                if re_br_data.is_match(&file_name) {
-                    let captures = re_br_data.captures(&file_name).unwrap();
-                    let index = captures.get(1);
-                    if let Some(index) = index {
-                        let mut data = vec![];
-                        file.read_to_end(&mut data).unwrap();
-                        let mut course = vec![];
-                        let mut decoder = BrotliDecoder::new(Cursor::new(data));
-                        decoder.read_to_end(&mut course).unwrap();
-                        Course2::encrypt(&mut course);
-                        course_files.push((course, index.as_str().to_string()));
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    let re_br_data: Regex = Regex::new(r".*course_data_(\d{3})\.br$").unwrap();
+                    if re_br_data.is_match(&file_name) {
+                        let captures = re_br_data.captures(&file_name).unwrap();
+                        let index = captures.get(1);
+                        if let Some(index) = index {
+                            let mut data = vec![];
+                            file.read_to_end(&mut data).unwrap();
+                            let mut course = vec![];
+                            let mut decoder = BrotliDecoder::new(Cursor::new(data));
+                            decoder.read_to_end(&mut course).unwrap();
+                            Course2::encrypt(&mut course);
+                            course_files.push((course, index.as_str().to_string()));
+                        }
                     }
                 }
             };
