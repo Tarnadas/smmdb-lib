@@ -8,8 +8,8 @@
   "scripts": {
     "clean": "rimraf ./dist && rimraf ./pkg",
     "test": "yarn test:node && yarn test:web",
-    "test:node": "wasm-pack test --node -- --features wasm",
-    "test:web": "wasm-pack test --headless --chrome --firefox -- --features wasm"
+    "test:node": "wasm-pack test --node",
+    "test:web": "wasm-pack test --headless --chrome --firefox"
   },
   "devDependencies": {
     "rimraf": "^3"

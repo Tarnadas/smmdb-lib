@@ -1,4 +1,4 @@
 {
   "editor.formatOnSave": true,
-  "rust-analyzer.cargo.features": ["save", "wasm"]
+  "rust-analyzer.cargo.features": ["save"]
 }

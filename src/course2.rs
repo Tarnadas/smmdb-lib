@@ -291,7 +291,7 @@ impl Course2 {
                         course_files.push((data, index.as_str().to_string()));
                     }
                     #[cfg(not(target_arch = "wasm32"))]
-                    break;
+                    continue;
                 }
                 #[cfg(not(target_arch = "wasm32"))]
                 {
