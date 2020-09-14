@@ -15,6 +15,6 @@ touch ~/.npmrc
 echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
 
 # NPM build and publish
-wasm-pack build -- --features wasm
+wasm-pack build
 wasm-pack pack
 wasm-pack publish
