@@ -92,6 +92,7 @@ impl Course2 {
     }
 
     #[cfg(target_arch = "wasm32")]
+    #[cfg(feature = "with-serde")]
     #[wasm_bindgen]
     pub fn from_js(course: JsValue, thumb: Option<Box<[u8]>>) -> Course2 {
         let course: SMM2Course = course.into_serde().expect("Course serialization failed");
@@ -103,6 +104,7 @@ impl Course2 {
     }
 
     #[cfg(target_arch = "wasm32")]
+    #[cfg(feature = "with-serde")]
     #[wasm_bindgen]
     pub fn from_packed_js(buffer: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
         let courses: Vec<JsValue> = Course2::from_packed(buffer)?
@@ -122,6 +124,7 @@ impl Course2 {
     }
 
     #[cfg(target_arch = "wasm32")]
+    #[cfg(feature = "with-serde")]
     #[wasm_bindgen]
     pub fn into_js(&self) -> JsValue {
         JsValue::from_serde(&self.course).unwrap()
