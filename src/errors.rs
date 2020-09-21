@@ -6,6 +6,8 @@ use thiserror::Error;
 use wasm_bindgen::JsValue;
 use zip::result::ZipError;
 
+pub type SmmdbResult<T> = Result<T, SmmdbError>;
+
 #[derive(Debug, Error)]
 pub enum SmmdbError {
     #[error("Mime type {0} not supported")]
@@ -16,9 +18,9 @@ pub enum SmmdbError {
     #[error(transparent)]
     IoError(#[from] io::Error),
     #[error(transparent)]
-    CourseConvertError(#[from] CourseConvertError),
+    CourseError(#[from] CourseError),
     #[error(transparent)]
-    Course2ConvertError(#[from] Course2ConvertError),
+    Course2Error(#[from] Course2Error),
     #[cfg(feature = "save")]
     #[error(transparent)]
     SaveError(#[from] SaveError),
@@ -32,7 +34,7 @@ impl Into<String> for SmmdbError {
 
 /// Error which can occur during Super Mario Maker course file serialization.
 #[derive(Clone, Debug, Error)]
-pub enum CourseConvertError {
+pub enum CourseError {
     #[error("CourseConvertError::GameStyleParse")]
     GameStyleParse,
     #[error("CourseConvertError::CourseThemeParse")]
@@ -45,7 +47,7 @@ pub enum CourseConvertError {
 
 /// Error which can occur during Super Mario Maker 2 course file serialization.
 #[derive(Clone, Debug, Error)]
-pub enum Course2ConvertError {
+pub enum Course2Error {
     #[error("Course2ConvertError::GameStyleParse")]
     GameStyleParse,
     #[error("Course2ConvertError::ClearConditionTypeParse")]
@@ -68,6 +70,8 @@ pub enum Course2ConvertError {
     SoundTypeConvert,
     #[error("Course2ConvertError::ConvertFromBuffer")]
     ConvertFromBuffer,
+    #[error("String too long. Expected max length <= 75. Receiced: {0}")]
+    StringTooLong(usize),
 }
 
 #[cfg(feature = "save")]

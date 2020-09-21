@@ -1,15 +1,22 @@
 //! Super Mario Maker 2 file manipulation.
 
 #![allow(clippy::cast_lossless)]
-use crate::proto::SMM2Course::{
-    SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
-    SMM2CourseArea_DayTime, SMM2CourseArea_LiquidMode, SMM2CourseArea_LiquidSpeed,
-    SMM2CourseArea_Orientation, SMM2CourseArea_ScreenBoundary, SMM2CourseHeader,
-    SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_GameStyle,
-};
+
+#[cfg(target_arch = "wasm32")]
+use crate::JsResult;
 use crate::{
-    constants2::*, decrypt, encrypt, errors::Course2ConvertError, fix_crc32, key_tables::*, Error,
-    Thumbnail2,
+    constants2::*,
+    decrypt, encrypt,
+    errors::Course2Error,
+    fix_crc32,
+    key_tables::*,
+    proto::SMM2Course::{
+        SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
+        SMM2CourseArea_DayTime, SMM2CourseArea_LiquidMode, SMM2CourseArea_LiquidSpeed,
+        SMM2CourseArea_Orientation, SMM2CourseArea_ScreenBoundary, SMM2CourseHeader,
+        SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_GameStyle,
+    },
+    Error, Result, Thumbnail2,
 };
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -25,7 +32,7 @@ use std::{
 };
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
-use zip::{result::ZipError, ZipArchive};
+use zip::ZipArchive;
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 #[derive(Clone, Debug, PartialEq)]
@@ -106,7 +113,7 @@ impl Course2 {
     #[cfg(target_arch = "wasm32")]
     #[cfg(feature = "with-serde")]
     #[wasm_bindgen]
-    pub fn from_packed_js(buffer: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
+    pub fn from_packed_js(buffer: &[u8]) -> JsResult<Box<[JsValue]>> {
         let courses: Vec<JsValue> = Course2::from_packed(buffer)?
             .iter()
             .map(|course| course.into_js())
@@ -144,7 +151,36 @@ impl Course2 {
 }
 
 impl Course2 {
-    pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course2>, Error> {
+    /// Set the description of this course.
+    ///
+    /// This might fail, if the given description is longer than 75 characters.
+    pub fn set_description(&mut self, description: String) -> Result<()> {
+        if description.len() > 75 {
+            return Err(Error::Course2Error(Course2Error::StringTooLong(
+                description.len(),
+            )));
+        }
+        let mut course_header = self.get_course().get_header().clone();
+        course_header.set_description(description.clone());
+        let mut description: Vec<u8> = description
+            .encode_utf16()
+            .map(|byte| byte.to_le_bytes())
+            .fold(vec![], |mut acc, cur| {
+                for byte in cur.iter() {
+                    acc.push(*byte);
+                }
+                acc
+            });
+        (description.len()..150).for_each(|_| description.push(0));
+        self.data.splice(
+            DESCRIPTION_OFFSET..DESCRIPTION_OFFSET + description.len(),
+            description,
+        );
+        self.get_course_mut().set_header(course_header);
+        Ok(())
+    }
+
+    pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course2>> {
         let mut res = vec![];
 
         let mime_guess: Type = Infer::new().get(buffer).unwrap();
@@ -168,7 +204,7 @@ impl Course2 {
         mut data: Vec<u8>,
         thumb: Option<Vec<u8>>,
         is_encrypted: bool,
-    ) -> Result<Course2, Error> {
+    ) -> Result<Course2> {
         if is_encrypted {
             Course2::decrypt(&mut data)
         };
@@ -194,7 +230,7 @@ impl Course2 {
         })
     }
 
-    fn decompress_zip(res: &mut Vec<Course2>, buffer: &[u8]) -> Result<(), ZipError> {
+    fn decompress_zip(res: &mut Vec<Course2>, buffer: &[u8]) -> Result<()> {
         let reader = Cursor::new(buffer);
         let mut zip = ZipArchive::new(reader)?;
 
@@ -249,7 +285,7 @@ impl Course2 {
     fn read_file_from_zip_archive(
         zip: &mut ZipArchive<Cursor<&[u8]>>,
         name: String,
-    ) -> Result<Vec<u8>, ZipError> {
+    ) -> Result<Vec<u8>> {
         let mut zip_file = zip.by_name(&name)?;
         let mut zip_file_data = vec![0; zip_file.size() as usize];
         zip_file.read_exact(&mut zip_file_data)?;
@@ -257,7 +293,7 @@ impl Course2 {
         Ok(zip_file_data)
     }
 
-    fn decompress_x_tar(res: &mut Vec<Course2>, buffer: &[u8]) -> Result<(), ZipError> {
+    fn decompress_x_tar(res: &mut Vec<Course2>, buffer: &[u8]) -> Result<()> {
         let reader = Cursor::new(buffer);
         let tar = tar::Archive::new(reader);
 
@@ -341,7 +377,7 @@ impl Course2 {
         None
     }
 
-    fn get_course_header(course_data: &[u8]) -> Result<SingularPtrField<SMM2CourseHeader>, Error> {
+    fn get_course_header(course_data: &[u8]) -> Result<SingularPtrField<SMM2CourseHeader>> {
         let modified = Course2::get_modified(course_data);
         let title =
             Course2::get_utf16_string_from_slice(&course_data[TITLE_OFFSET..TITLE_OFFSET_END]);
@@ -350,7 +386,7 @@ impl Course2 {
         );
         let game_style = Course2::get_game_style_from_str(
             String::from_utf8(course_data[GAME_STYLE_OFFSET..GAME_STYLE_OFFSET_END].to_vec())
-                .map_err(|_| Course2ConvertError::GameStyleParse)?,
+                .map_err(|_| Course2Error::GameStyleParse)?,
         )?;
         let start_y = course_data[START_Y_OFFSET] as u32;
         let finish_y = course_data[FINISH_Y_OFFSET] as u32;
@@ -363,7 +399,7 @@ impl Course2 {
         let clear_condition_type = SMM2CourseHeader_ClearConditionType::from_i32(
             course_data[CLEAR_CONDITION_TYPE_OFFSET] as i32,
         )
-        .ok_or(Course2ConvertError::ClearConditionTypeParse)?;
+        .ok_or(Course2Error::ClearConditionTypeParse)?;
         let clear_condition = u32::from_le_bytes([
             course_data[CLEAR_CONDITION_OFFSET],
             course_data[CLEAR_CONDITION_OFFSET + 1],
@@ -447,32 +483,32 @@ impl Course2 {
     fn get_course_area(
         course_data: &[u8],
         const_index: usize,
-    ) -> Result<SingularPtrField<SMM2CourseArea>, Error> {
+    ) -> Result<SingularPtrField<SMM2CourseArea>> {
         let course_theme = SMM2CourseArea_CourseTheme::from_i32(
             course_data[COURSE_THEME_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2ConvertError::CourseThemeParse)?;
+        .ok_or(Course2Error::CourseThemeParse)?;
         let auto_scroll = SMM2CourseArea_AutoScroll::from_i32(
             course_data[AUTO_SCROLL_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2ConvertError::AutoScrollParse)?;
+        .ok_or(Course2Error::AutoScrollParse)?;
         let screen_boundary = SMM2CourseArea_ScreenBoundary::from_i32(
             course_data[SCREEN_BOUNDARY_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2ConvertError::ScreenBoundaryParse)?;
+        .ok_or(Course2Error::ScreenBoundaryParse)?;
         let orientation = SMM2CourseArea_Orientation::from_i32(
             course_data[ORIENTATION_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2ConvertError::OrientationParse)?;
+        .ok_or(Course2Error::OrientationParse)?;
         let liquid_max = course_data[LIQUID_MAX_OFFSET[const_index]] as u32;
         let liquid_mode = SMM2CourseArea_LiquidMode::from_i32(
             course_data[LIQUID_MODE_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2ConvertError::WaterModeParse)?;
+        .ok_or(Course2Error::WaterModeParse)?;
         let liquid_speed = SMM2CourseArea_LiquidSpeed::from_i32(
             course_data[LIQUID_SPEED_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2ConvertError::WaterSpeedParse)?;
+        .ok_or(Course2Error::WaterSpeedParse)?;
         let liquid_min = course_data[LIQUID_MIN_OFFSET[const_index]] as u32;
         let right_boundary = u32::from_le_bytes([
             course_data[RIGHT_BOUNDARY_OFFSET[const_index]],
@@ -500,7 +536,7 @@ impl Course2 {
         ]);
         let day_time =
             SMM2CourseArea_DayTime::from_i32(course_data[DAY_TIME_OFFSET[const_index]] as i32)
-                .ok_or(Course2ConvertError::DayTimeParse)?;
+                .ok_or(Course2Error::DayTimeParse)?;
         let object_count = u32::from_le_bytes([
             course_data[OBJECT_COUNT_OFFSET[const_index]],
             course_data[OBJECT_COUNT_OFFSET[const_index] + 1],
@@ -614,14 +650,14 @@ impl Course2 {
         String::from_utf16(&res).expect("[Course::get_utf16_string_from_slice] from_utf16 failed")
     }
 
-    fn get_game_style_from_str(s: String) -> Result<SMM2CourseHeader_GameStyle, Error> {
+    fn get_game_style_from_str(s: String) -> Result<SMM2CourseHeader_GameStyle> {
         match s.as_ref() {
             "M1" => Ok(SMM2CourseHeader_GameStyle::M1),
             "M3" => Ok(SMM2CourseHeader_GameStyle::M3),
             "MW" => Ok(SMM2CourseHeader_GameStyle::MW),
             "WU" => Ok(SMM2CourseHeader_GameStyle::WU),
             "3W" => Ok(SMM2CourseHeader_GameStyle::W3),
-            _ => Err(Course2ConvertError::GameStyleParse.into()),
+            _ => Err(Course2Error::GameStyleParse.into()),
         }
     }
 }
@@ -629,9 +665,9 @@ impl Course2 {
 impl TryFrom<Vec<u8>> for Course2 {
     type Error = Error;
 
-    fn try_from(data: Vec<u8>) -> Result<Course2, Self::Error> {
+    fn try_from(data: Vec<u8>) -> Result<Course2> {
         Course2::from_packed(&data[..])?
             .pop()
-            .ok_or_else(|| Error::Course2ConvertError(Course2ConvertError::ConvertFromBuffer))
+            .ok_or_else(|| Error::Course2Error(Course2Error::ConvertFromBuffer))
     }
 }

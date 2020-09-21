@@ -1,6 +1,6 @@
 extern crate smmdb;
 
-use smmdb::{course2::*, Error};
+use smmdb::{course2::*, errors::Course2Error, Error};
 use std::{
     collections::HashSet,
     fs::{read, read_dir},
@@ -189,3 +189,62 @@ fn course2_from_packed_tar() {
             .collect::<HashSet<_>>()
     );
 }
+
+#[test]
+fn course2_set_description() {
+    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
+
+    let description = "Hey there!".to_string();
+    course.set_description(description.clone()).unwrap();
+
+    let course_res =
+        Course2::from_switch_files(course.get_course_data().clone(), None, false).unwrap();
+
+    assert_eq!(
+        course_res.get_course().get_header().get_description(),
+        description
+    );
+}
+
+#[test]
+fn course2_set_description_fail() {
+    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
+
+    let description =
+        "This description is larger than seventy-five characters and results in an error!"
+            .to_string();
+    assert_eq!(
+        format!(
+            "{}",
+            course.set_description(description.clone()).unwrap_err()
+        ),
+        format!(
+            "{}",
+            Error::Course2Error(Course2Error::StringTooLong(description.len()))
+        )
+    );
+}
+
+// #[test]
+// fn course2_set_smmdb_id() {
+//     // TODO
+//     use std::{env, fs};
+
+//     let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+//     let course_thumb = read("tests/assets/saves/smm2/save1/course_thumb_120.btl").unwrap();
+//     let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
+
+//     // let description = "Hey there!".to_string();
+//     // course.set_description(description.clone()).unwrap();
+
+//     let mut encrypted_data = course.get_course_data().clone();
+//     Course2::encrypt(&mut encrypted_data);
+
+//     fs::write(
+//         format!("{}/.local/share/yuzu/nand/user/save/0000000000000000/FDD588AE7826C7A9A70AE93C12A4E9CE/01009B90006DC000/course_data_000.bcd",
+//         env::var("HOME").unwrap()),
+//         encrypted_data
+//     ).unwrap();
+// }

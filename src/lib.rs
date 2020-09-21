@@ -41,10 +41,13 @@ pub mod thumbnail2;
 pub use course::*;
 pub use course2::*;
 pub(crate) use encryption::{decrypt, encrypt, fix_crc32};
-pub use errors::SmmdbError as Error;
+pub use errors::{SmmdbError as Error, SmmdbResult as Result};
 #[cfg(feature = "save")]
 pub use save::*;
 pub use thumbnail2::*;
+
+#[cfg(target_arch = "wasm32")]
+pub type JsResult<T> = core::result::Result<T, JsValue>;
 
 cfg_if! {
     if #[cfg(target_arch = "wasm32")] {
@@ -63,7 +66,7 @@ cfg_if! {
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
-pub fn run() -> Result<(), JsValue> {
+pub fn run() -> JsResult<()> {
     set_panic_hook();
 
     let window = web_sys::window().expect("should have a Window");
@@ -83,9 +86,7 @@ pub fn run() -> Result<(), JsValue> {
 #[cfg(test)]
 pub struct Test {
     name: &'static str,
-    test: &'static dyn Fn() -> std::pin::Pin<
-        Box<dyn std::future::Future<Output = Result<(), Error>>>,
-    >,
+    test: &'static dyn Fn() -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<()>>>>,
 }
 
 #[cfg(feature = "save")]
@@ -95,7 +96,7 @@ impl Test {
         self.name
     }
 
-    fn run(&self) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), Error>>>> {
+    fn run(&self) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<()>>>> {
         self.test.call(())
     }
 }

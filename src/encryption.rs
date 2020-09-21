@@ -1,5 +1,4 @@
-use aes::block_cipher::generic_array::GenericArray;
-use aes::Aes128;
+use aes::{block_cipher::generic_array::GenericArray, Aes128};
 use block_modes::{block_padding::*, BlockMode, Cbc};
 use cmac::{Cmac, Mac, NewMac};
 use crc::crc32;

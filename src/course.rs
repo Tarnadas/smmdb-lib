@@ -1,12 +1,19 @@
 //! Super Mario Maker file manipulation.
 
 #![allow(clippy::cast_lossless)]
-use crate::proto::SMMCourse::{
-    SMMCourse, SMMCourse_AutoScroll, SMMCourse_CourseTheme, SMMCourse_GameStyle,
+
+#[cfg(target_arch = "wasm32")]
+use crate::JsResult;
+use crate::{
+    constants::*,
+    errors::CourseError,
+    proto::{
+        SMMCourse::{SMMCourse, SMMCourse_AutoScroll, SMMCourse_CourseTheme, SMMCourse_GameStyle},
+        Sound::Sound,
+        Tile::Tile,
+    },
+    Error, Result,
 };
-use crate::proto::Sound::Sound;
-use crate::proto::Tile::Tile;
-use crate::{constants::*, errors::CourseConvertError, Error};
 
 use bytes::Bytes;
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
@@ -17,7 +24,7 @@ use regex::Regex;
 use std::io::{Cursor, Read};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
-use zip::{result::ZipError, ZipArchive};
+use zip::ZipArchive;
 
 /// Super Mario Maker course file.
 ///
@@ -54,7 +61,7 @@ impl Course {
     #[cfg(target_arch = "wasm32")]
     #[cfg(feature = "with-serde")]
     #[wasm_bindgen]
-    pub fn from_packed_js(buffer: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
+    pub fn from_packed_js(buffer: &[u8]) -> JsResult<Box<[JsValue]>> {
         let courses: Vec<JsValue> = Course::from_packed(buffer)?
             .iter()
             .map(|course| course.into_js())
@@ -116,7 +123,7 @@ impl Course {
         self.course.set_thumbnail_preview(thumbnail);
     }
 
-    pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course>, Error> {
+    pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course>> {
         let mut res = vec![];
 
         let mime_guess: Type = Infer::new().get(buffer).unwrap();
@@ -138,7 +145,7 @@ impl Course {
         course_data_sub: &[u8],
         thumbnail: &[u8],
         thumbnail_preview: &[u8],
-    ) -> Result<Course, Error> {
+    ) -> Result<Course> {
         let modified = Course::get_modified(course_data);
         let title =
             Course::get_utf16_string_from_slice(&course_data[TITLE_OFFSET..TITLE_OFFSET_END]);
@@ -146,20 +153,20 @@ impl Course {
             Course::get_utf16_string_from_slice(&course_data[MAKER_OFFSET..MAKER_OFFSET_END]);
         let game_style = Course::get_game_style_from_str(
             String::from_utf8(course_data[GAME_STYLE_OFFSET..GAME_STYLE_OFFSET_END].to_vec())
-                .map_err(|_| CourseConvertError::GameStyleParse)?,
+                .map_err(|_| CourseError::GameStyleParse)?,
         )?;
         let course_theme = SMMCourse_CourseTheme::from_i32(course_data[COURSE_THEME_OFFSET] as i32)
-            .ok_or(CourseConvertError::CourseThemeParse)?;
+            .ok_or(CourseError::CourseThemeParse)?;
         let course_theme_sub =
             SMMCourse_CourseTheme::from_i32(course_data_sub[COURSE_THEME_OFFSET] as i32)
-                .ok_or(CourseConvertError::CourseThemeParse)?;
+                .ok_or(CourseError::CourseThemeParse)?;
         let time =
             u16::from_be_bytes([course_data[TIME_OFFSET], course_data[TIME_OFFSET + 1]]) as u32;
         let auto_scroll = SMMCourse_AutoScroll::from_i32(course_data[AUTO_SCROLL_OFFSET] as i32)
-            .ok_or(CourseConvertError::AutoScrollParse)?;
+            .ok_or(CourseError::AutoScrollParse)?;
         let auto_scroll_sub =
             SMMCourse_AutoScroll::from_i32(course_data_sub[AUTO_SCROLL_OFFSET] as i32)
-                .ok_or(CourseConvertError::AutoScrollParse)?;
+                .ok_or(CourseError::AutoScrollParse)?;
         let width =
             u16::from_be_bytes([course_data[WIDTH_OFFSET], course_data[WIDTH_OFFSET + 1]]) as u32;
         let width_sub = u16::from_be_bytes([
@@ -220,13 +227,13 @@ impl Course {
         String::from_utf16(&res).expect("[Course::get_utf16_string_from_slice] from_utf16 failed")
     }
 
-    fn get_game_style_from_str(s: String) -> Result<SMMCourse_GameStyle, CourseConvertError> {
+    fn get_game_style_from_str(s: String) -> Result<SMMCourse_GameStyle> {
         match s.as_ref() {
             "M1" => Ok(SMMCourse_GameStyle::M1),
             "M3" => Ok(SMMCourse_GameStyle::M3),
             "MW" => Ok(SMMCourse_GameStyle::MW),
             "WU" => Ok(SMMCourse_GameStyle::WU),
-            _ => Err(CourseConvertError::GameStyleParse),
+            _ => Err(CourseError::GameStyleParse.into()),
         }
     }
 
@@ -243,7 +250,7 @@ impl Course {
         RepeatedField::from_vec(tiles)
     }
 
-    fn get_sounds(slice: &[u8]) -> Result<RepeatedField<Sound>, CourseConvertError> {
+    fn get_sounds(slice: &[u8]) -> Result<RepeatedField<Sound>> {
         let mut sounds: Vec<Sound> = vec![];
         for offset in (SOUND_OFFSET..SOUND_OFFSET_END).step_by(SOUND_SIZE) {
             let sound_data = &slice[offset..offset + SOUND_SIZE];
@@ -271,7 +278,7 @@ impl Course {
         Bytes::copy_from_slice(&slice[8..8 + length])
     }
 
-    fn decompress_zip(res: &mut Vec<Course>, buffer: &[u8]) -> Result<(), ZipError> {
+    fn decompress_zip(res: &mut Vec<Course>, buffer: &[u8]) -> Result<()> {
         let reader = Cursor::new(buffer);
         let mut zip = zip::ZipArchive::new(reader)?;
 
@@ -302,7 +309,7 @@ impl Course {
     fn get_course_assets(
         zip: &mut ZipArchive<Cursor<&[u8]>>,
         course: String,
-    ) -> Result<CourseAssets, ZipError> {
+    ) -> Result<CourseAssets> {
         let mut course_data_file = zip.by_name(&format!("{}{}", course, COURSE_DATA_NAME))?;
         let mut course_data = vec![0; course_data_file.size() as usize];
         course_data_file.read_exact(&mut course_data)?;

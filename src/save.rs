@@ -4,7 +4,7 @@ use crate::{
     errors::SaveError,
     fix_crc32,
     key_tables::*,
-    Course2, Error,
+    Course2, Error, Result,
 };
 
 use arr_macro::arr;
@@ -27,7 +27,7 @@ pub struct Save {
 }
 
 impl Save {
-    pub async fn new<T: Into<PathBuf>>(path: T) -> Result<Save, Error> {
+    pub async fn new<T: Into<PathBuf>>(path: T) -> Result<Save> {
         let path: PathBuf = path.into();
 
         let mut save_path = path.clone();
@@ -87,7 +87,7 @@ impl Save {
         })
     }
 
-    pub fn add_course(&mut self, mut index: u8, course: Course2) -> Result<(), Error> {
+    pub fn add_course(&mut self, mut index: u8, course: Course2) -> Result<()> {
         let courses = match index {
             i if i < 60 => &mut self.own_courses,
             i if i >= 60 && i < 120 => &mut self.unknown_courses,
@@ -107,7 +107,7 @@ impl Save {
         Ok(())
     }
 
-    pub fn swap_course(&mut self, first: u8, second: u8) -> Result<(), Error> {
+    pub fn swap_course(&mut self, first: u8, second: u8) -> Result<()> {
         let courses_as_cell = [
             Cell::from_mut(&mut self.own_courses[..]).as_slice_of_cells(),
             Cell::from_mut(&mut self.unknown_courses[..]).as_slice_of_cells(),
@@ -151,7 +151,7 @@ impl Save {
         Ok(())
     }
 
-    pub fn remove_course(&mut self, mut index: u8) -> Result<(), Error> {
+    pub fn remove_course(&mut self, mut index: u8) -> Result<()> {
         let courses = match index {
             i if i < 60 => &mut self.own_courses,
             i if i >= 60 && i < 120 => &mut self.unknown_courses,
@@ -169,7 +169,7 @@ impl Save {
         Ok(())
     }
 
-    pub async fn save(&mut self) -> Result<(), Error> {
+    pub async fn save(&mut self) -> Result<()> {
         let mut update_save = true;
         for i in 0..180 {
             if let Some(op) = self.pending_fs_operations[i].take() {
@@ -249,7 +249,7 @@ impl PendingFsOperation {
         own_courses: &Courses,
         unknown_courses: &Courses,
         downloaded_courses: &Courses,
-    ) -> Result<(), Error> {
+    ) -> Result<()> {
         match self {
             Self::AddOrReplaceCourse(index) => {
                 let course = match index {
@@ -351,9 +351,9 @@ mod test {
         test: &test_save,
     };
 
-    pub fn test_save() -> Pin<Box<dyn Future<Output = Result<(), Error>>>> {
+    pub fn test_save() -> Pin<Box<dyn Future<Output = Result<()>>>> {
         let res = task::block_on(async {
-            let f = async || -> Result<(), Error> {
+            let f = async || -> Result<()> {
                 let mut options = CopyOptions::new();
                 options.copy_inside = true;
                 options.overwrite = true;
