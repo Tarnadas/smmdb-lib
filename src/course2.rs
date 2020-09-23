@@ -138,15 +138,23 @@ impl Course2 {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn decrypt(course: &mut [u8]) {
+    pub fn decrypt(course: &mut Vec<u8>) {
         decrypt(&mut course[0x10..], &COURSE_KEY_TABLE);
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn encrypt(course: &mut [u8]) {
-        let len = course.len() - 0x30;
+    pub fn encrypt(course: &mut Vec<u8>) {
+        let preserved_aes = course.len() == 0x5c000;
+        let len = 0x5bfd0;
         fix_crc32(&mut course[..len]);
-        encrypt(&mut course[0x10..], &COURSE_KEY_TABLE, true);
+        let aes_info = encrypt(&mut course[0x10..len], &COURSE_KEY_TABLE);
+        if preserved_aes {
+            for (index, byte) in aes_info.iter().enumerate() {
+                course[len + index] = *byte;
+            }
+        } else {
+            course.extend_from_slice(&aes_info);
+        }
     }
 }
 
@@ -172,12 +180,30 @@ impl Course2 {
                 acc
             });
         (description.len()..150).for_each(|_| description.push(0));
-        self.data.splice(
-            DESCRIPTION_OFFSET..DESCRIPTION_OFFSET + description.len(),
-            description,
-        );
+        self.data
+            .splice(DESCRIPTION_OFFSET..DESCRIPTION_OFFSET_END, description);
         self.get_course_mut().set_header(course_header);
         Ok(())
+    }
+
+    /// Set SMMDB ID of this course.
+    ///
+    /// This must be a 12 byte hex string from MongoDB.
+    pub fn set_smmdb_id(&mut self, smmdb_id: String) -> Result<()> {
+        let smmdb_id = hex::decode(smmdb_id)?;
+        self.data.splice(SMMDB_OFFSET..SMMDB_OFFSET_END, smmdb_id);
+        Ok(())
+    }
+
+    /// Get SMMDB ID of this course.
+    /// If ID could not be found, this returns a `None`
+    pub fn get_smmdb_id(&self) -> Option<String> {
+        let smmdb_id = hex::encode(self.data[SMMDB_OFFSET..SMMDB_OFFSET_END].to_vec());
+        if smmdb_id == "000000000000000000000000" {
+            None
+        } else {
+            Some(smmdb_id)
+        }
     }
 
     pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course2>> {

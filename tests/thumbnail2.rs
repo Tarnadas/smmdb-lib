@@ -44,11 +44,6 @@ fn thumbnail_decrypt() {
 }
 
 #[test]
-fn thumbnail_decrypt_all() {
-    decrypt_test_assets().unwrap();
-}
-
-#[test]
 fn thumbnail_encrypt() {
     for (_, encrypted_ext, decrypted) in get_test_assets().into_iter() {
         let mut encrypted = decrypted.clone();
@@ -88,6 +83,7 @@ fn thumbnail_optimize_jpeg() {
 }
 
 fn get_test_assets() -> Vec<(PathBuf, Vec<u8>, Vec<u8>)> {
+    decrypt_test_assets().unwrap();
     let mut thumbnails = vec![];
     let save_folders = vec![
         "tests/assets/saves/smm2/save1",

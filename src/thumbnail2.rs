@@ -38,7 +38,7 @@ impl Thumbnail2 {
     }
 
     pub fn encrypt(bytes: &mut Vec<u8>) {
-        let aes_info = encrypt(bytes, &THUMBNAIL_KEY_TABLE, false).unwrap();
+        let aes_info = encrypt(bytes, &THUMBNAIL_KEY_TABLE);
         bytes.extend_from_slice(&aes_info);
     }
 

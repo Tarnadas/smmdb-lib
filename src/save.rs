@@ -187,7 +187,7 @@ impl Save {
             let offset = SAVE_COURSE_OFFSET as usize;
             fix_crc32(&mut self.save_file[offset..]);
             let mut save_data = self.save_file.clone();
-            let aes_info = encrypt(&mut save_data[0x10..], &SAVE_KEY_TABLE, false).unwrap();
+            let aes_info = encrypt(&mut save_data[0x10..], &SAVE_KEY_TABLE);
             save_data.extend_from_slice(&aes_info);
 
             let mut save_path = self.path.clone();

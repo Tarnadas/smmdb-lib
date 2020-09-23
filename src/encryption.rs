@@ -27,49 +27,34 @@ pub fn decrypt(bytes: &mut [u8], key_table: &[u32]) {
     let cmac_calculated = cmac.finalize().into_bytes();
     let cmac = array_ref!(bytes, end_index + 0x20, 0x10);
     if cmac != cmac_calculated.as_slice() {
-        panic!("CMAC WRONG");
+        panic!(
+            "CMAC WRONG.\nExpected: {:?}\nReceived: {:?}",
+            cmac,
+            cmac_calculated.as_slice()
+        );
     }
 }
 
-pub fn encrypt(bytes: &mut [u8], key_table: &[u32], preserved_aes: bool) -> Option<Vec<u8>> {
-    let end_index = if preserved_aes {
-        bytes.len() - 0x30
-    } else {
-        bytes.len()
-    };
-    let (iv, rand_seed) = if preserved_aes {
-        let aes_info = &bytes[end_index..];
-        let iv = GenericArray::clone_from_slice(&aes_info[0..0x10]);
+pub fn encrypt(bytes: &mut [u8], key_table: &[u32]) -> Vec<u8> {
+    let end_index = bytes.len();
+    let mut rng = rand::thread_rng();
 
-        let rand_seed = array_ref!(aes_info, 0x10, 0x10);
-
-        (iv, rand_seed.clone())
-    } else {
-        let mut rng = rand::thread_rng();
-
-        let iv_rng = rng.gen::<[u8; 16]>();
-        let iv = GenericArray::clone_from_slice(&iv_rng);
-        let rand_seed: [u8; 0x10] = rng.gen();
-
-        (iv, rand_seed)
-    };
+    let iv_rng = rng.gen::<[u8; 16]>();
+    let iv = GenericArray::clone_from_slice(&iv_rng);
+    let rand_seed: [u8; 0x10] = rng.gen();
 
     let mut rand_state = [0; 4];
     rand_init(&mut rand_state, &rand_seed);
 
     let key = gen_key(&mut rand_state, key_table);
 
-    let aes_info = if preserved_aes {
-        None
-    } else {
-        let cmac_key = gen_key(&mut rand_state, key_table);
+    let cmac_key = gen_key(&mut rand_state, key_table);
 
-        let mut cmac = Cmac::<Aes128>::new(&cmac_key);
-        cmac.update(&bytes[..end_index]);
-        let cmac = cmac.finalize().into_bytes();
+    let mut cmac = Cmac::<Aes128>::new(&cmac_key);
+    cmac.update(&bytes[..end_index]);
+    let cmac = cmac.finalize().into_bytes();
 
-        Some([iv.as_slice(), &rand_seed, cmac.as_slice()].concat())
-    };
+    let aes_info = [iv.as_slice(), &rand_seed, cmac.as_slice()].concat();
 
     type Aes128Cbc = Cbc<Aes128, ZeroPadding>;
     let cipher = Aes128Cbc::new_fix(&key, &iv);

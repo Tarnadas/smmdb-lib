@@ -32,57 +32,55 @@ fn decrypt_test_assets() -> io::Result<()> {
 }
 
 #[test]
-fn course2_decrypt() {
+fn course2_encryption() {
+    use rayon::prelude::*;
+
     decrypt_test_assets().unwrap();
     let save_folders = vec![
         "tests/assets/saves/smm2/save1",
         "tests/assets/saves/smm2/save2",
     ];
     for folder in save_folders {
-        for entry in read_dir(folder).unwrap() {
-            let entry = entry.unwrap();
-            let file_name = entry.file_name();
+        let entries: Vec<_> = read_dir(folder)
+            .unwrap()
+            .into_iter()
+            .map(|entry| {
+                let entry = entry.unwrap();
+                (entry.file_name(), entry.path())
+            })
+            .collect();
+
+        entries.par_iter().for_each(|(file_name, path)| {
             let file_name = file_name.to_str().unwrap();
             if file_name.starts_with("course_data_") && file_name.ends_with(".bcd") {
-                let path = entry.path();
+                let expected = read(&path).unwrap();
+                let expected_course =
+                    Course2::from_switch_files(expected.clone(), None, true).unwrap();
+
                 let out_path: Vec<&str> = path.to_str().unwrap().split('.').collect();
                 let out_path = out_path[0].to_owned() + ".decrypted";
-                let expected = read(out_path).unwrap();
+                let expected_decrypted = read(out_path).unwrap();
 
                 let mut decrypted = read(path).unwrap();
                 Course2::decrypt(&mut decrypted);
+                assert_eq!(
+                    decrypted[0x10..decrypted.len() - 0x30],
+                    expected_decrypted[..]
+                );
 
-                // @simontime's implementation truncates non relevant bytes, which we won't do
-                assert_eq!(decrypted[0x10..decrypted.len() - 0x30], expected[..]);
-            }
-        }
-    }
-}
-
-#[test]
-fn course2_encrypt() {
-    let save_folders = vec![
-        "tests/assets/saves/smm2/save1",
-        "tests/assets/saves/smm2/save2",
-    ];
-    for folder in save_folders {
-        for entry in read_dir(folder).unwrap() {
-            let entry = entry.unwrap();
-            let file_name = entry.file_name();
-            let file_name = file_name.to_str().unwrap();
-            if file_name.starts_with("course_data_") && file_name.ends_with(".bcd") {
-                let path = entry.path();
-                let expected = read(&path).unwrap();
-
-                let mut decrypted = read(path).unwrap();
-                Course2::decrypt(&mut decrypted);
                 let mut encrypted = decrypted.clone();
                 Course2::encrypt(&mut encrypted);
 
                 assert_eq!(encrypted.len(), expected.len());
-                assert_eq!(encrypted[..0x100], expected[..0x100]);
+
+                let course = Course2::from_switch_files(encrypted, None, true).unwrap();
+                assert_eq!(course.get_course(), expected_course.get_course());
+                assert_eq!(
+                    course.get_course_data()[..100],
+                    expected_course.get_course_data()[..100]
+                );
             }
-        }
+        });
     }
 }
 
@@ -227,24 +225,35 @@ fn course2_set_description_fail() {
     );
 }
 
-// #[test]
-// fn course2_set_smmdb_id() {
-//     // TODO
-//     use std::{env, fs};
+#[test]
+fn course2_set_smmdb_id() {
+    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
 
-//     let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
-//     let course_thumb = read("tests/assets/saves/smm2/save1/course_thumb_120.btl").unwrap();
-//     let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
+    let smmdb_id = "5f6850b100284286006b7c68".to_string();
+    course.set_smmdb_id(smmdb_id.clone()).unwrap();
 
-//     // let description = "Hey there!".to_string();
-//     // course.set_description(description.clone()).unwrap();
+    let course_res =
+        Course2::from_switch_files(course.get_course_data().clone(), None, false).unwrap();
 
-//     let mut encrypted_data = course.get_course_data().clone();
-//     Course2::encrypt(&mut encrypted_data);
+    assert_eq!(course_res.get_smmdb_id(), Some(smmdb_id));
+}
 
-//     fs::write(
-//         format!("{}/.local/share/yuzu/nand/user/save/0000000000000000/FDD588AE7826C7A9A70AE93C12A4E9CE/01009B90006DC000/course_data_000.bcd",
-//         env::var("HOME").unwrap()),
-//         encrypted_data
-//     ).unwrap();
-// }
+#[test]
+fn course2_set_smmdb_id_no_hex() {
+    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
+
+    let smmdb_id = "xf6850b100284286006b7c68".to_string();
+    let res = course.set_smmdb_id(smmdb_id.clone());
+
+    assert!(res.is_err());
+}
+
+#[test]
+fn course2_get_smmdb_id_return_none_when_unset() {
+    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let course = Course2::from_switch_files(course_data, None, true).unwrap();
+
+    assert_eq!(course.get_smmdb_id(), None);
+}

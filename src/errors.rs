@@ -24,6 +24,8 @@ pub enum SmmdbError {
     #[cfg(feature = "save")]
     #[error(transparent)]
     SaveError(#[from] SaveError),
+    #[error(transparent)]
+    FromHex(#[from] hex::FromHexError),
 }
 
 impl Into<String> for SmmdbError {
