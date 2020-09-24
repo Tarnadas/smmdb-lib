@@ -59,10 +59,12 @@ impl Course2 {
         self.course
     }
 
+    /// Returns decrypted course data.
     pub fn get_course_data(&self) -> &Vec<u8> {
         &self.data
     }
 
+    /// Returns mutable decrypted course data.
     pub fn get_course_data_mut(&mut self) -> &mut Vec<u8> {
         &mut self.data
     }
