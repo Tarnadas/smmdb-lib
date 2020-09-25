@@ -140,12 +140,24 @@ impl Course2 {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn decrypt(course: &mut Vec<u8>) {
+    pub fn decrypt(course: &mut [u8]) {
         decrypt(&mut course[0x10..], &COURSE_KEY_TABLE);
     }
 
-    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    #[cfg(target_arch = "wasm32")]
+    #[wasm_bindgen]
+    pub fn encrypt(course: &[u8]) -> Box<[u8]> {
+        let mut course = course.to_vec();
+        Course2::encrypt_vec(&mut course);
+        course.into_boxed_slice()
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn encrypt(course: &mut Vec<u8>) {
+        Course2::encrypt_vec(course);
+    }
+
+    fn encrypt_vec(course: &mut Vec<u8>) {
         let preserved_aes = course.len() == 0x5c000;
         let len = 0x5bfd0;
         fix_crc32(&mut course[..len]);
