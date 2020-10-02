@@ -257,3 +257,27 @@ fn course2_get_smmdb_id_return_none_when_unset() {
 
     assert_eq!(course.get_smmdb_id(), None);
 }
+
+#[test]
+fn course2_reset_clear_check() {
+    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
+
+    course.reset_clear_check();
+    let new_course =
+        Course2::from_switch_files(course.get_course_data().clone(), None, false).unwrap();
+
+    assert_eq!(
+        course.get_course().get_header().get_management_flags() & 0b10,
+        0
+    );
+    assert_eq!(course.get_course().get_header().get_clear_check_tries(), 0);
+    assert_eq!(
+        course.get_course().get_header().get_clear_check_time(),
+        0xffffffff
+    );
+    assert_eq!(
+        course.get_course().get_header(),
+        new_course.get_course().get_header()
+    );
+}

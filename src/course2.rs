@@ -220,6 +220,33 @@ impl Course2 {
         }
     }
 
+    /// Reset everything related to clear checks that the game saved.
+    /// Afterwards the course can no longer be uploaded.
+    pub fn reset_clear_check(&mut self) {
+        let management_flags_lower_byte: u8 = {
+            let header = self.get_course_mut().mut_header();
+
+            let mut management_flags = header.get_management_flags();
+            management_flags -= 2;
+            header.set_management_flags(management_flags);
+
+            header.set_clear_check_tries(0);
+            header.set_clear_check_time(4294967295);
+
+            (management_flags & 0xff) as u8
+        };
+
+        self.data[MANAGEMENT_FLAGS_OFFSET] = management_flags_lower_byte;
+        self.data.splice(
+            CLEAR_CHECK_TRIES_OFFSET..CLEAR_CHECK_TRIES_OFFSET + 4,
+            vec![0, 0, 0, 0],
+        );
+        self.data.splice(
+            CLEAR_CHECK_TIME_OFFSET..CLEAR_CHECK_TIME_OFFSET + 4,
+            vec![0xff, 0xff, 0xff, 0xff],
+        );
+    }
+
     pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course2>> {
         let mut res = vec![];
 
