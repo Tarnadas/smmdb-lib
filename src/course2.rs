@@ -712,7 +712,7 @@ impl Course2 {
             .cloned()
             .tuples()
             .map(|(hi, lo)| u16::from_le_bytes([hi, lo]))
-            .filter(|e| *e != 0)
+            .take_while(|e| *e != 0)
             .collect();
         String::from_utf16(&res).expect("[Course::get_utf16_string_from_slice] from_utf16 failed")
     }
