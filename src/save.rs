@@ -14,7 +14,7 @@ use async_std::{
 };
 use std::{cell::Cell, path::PathBuf};
 
-type Courses = [Option<SavedCourse>; 60];
+type Courses = [Option<Box<SavedCourse>>; 60];
 
 #[derive(Clone, Debug)]
 pub struct Save {
@@ -69,10 +69,10 @@ impl Save {
                 i if i >= 120 && i < 180 => courses = &mut downloaded_courses,
                 _ => panic!(),
             }
-            courses[index % 60] = Some(SavedCourse::new(
+            courses[index % 60] = Some(Box::new(SavedCourse::new(
                 array_ref!(&save_file[..], offset, 8).clone(),
                 Course2::from_switch_files(course_data, Some(thumb_data), true)?,
-            ));
+            )));
 
             index += 1;
         }
@@ -102,7 +102,7 @@ impl Save {
             Some(PendingFsOperation::AddOrReplaceCourse(index));
 
         index = index % 60;
-        courses[index as usize] = Some(course);
+        courses[index as usize] = Some(Box::new(course));
 
         Ok(())
     }
