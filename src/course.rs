@@ -2,7 +2,7 @@
 
 #![allow(clippy::cast_lossless)]
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "with-serde"))]
 use crate::JsResult;
 use crate::{
     constants::*,

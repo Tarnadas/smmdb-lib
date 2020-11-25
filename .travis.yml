@@ -51,9 +51,12 @@ jobs:
     - script: cargo check --no-default-features --features save
     #- script: cargo check --target wasm32-unknown-unknown --no-default-features --features save
     - stage: test
-      script: yarn test
+      script: cargo test --target=wasm32-unknown-unknown --all-features
       name: Test WASM
-    - script: cargo test
+    - stage: test
+      script: yarn test
+      name: Test WASM Node
+    - script: cargo test --all-features
       name: Test Rust
     - stage: deploy
       script: echo "deploying to NPM..."

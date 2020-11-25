@@ -7,6 +7,9 @@ use std::{
     io,
     process::Command,
 };
+use wasm_bindgen::JsValue;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen_test::*;
 
 fn decrypt_test_assets() -> io::Result<()> {
     let save_folders = vec![
@@ -44,6 +47,7 @@ fn course2_encryption() {
         let entries: Vec<_> = read_dir(folder)
             .unwrap()
             .into_iter()
+            .par_bridge()
             .map(|entry| {
                 let entry = entry.unwrap();
                 (entry.file_name(), entry.path())
@@ -84,10 +88,23 @@ fn course2_encryption() {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 #[test]
 fn course2_from_packed() -> Result<(), Error> {
     decrypt_test_assets().unwrap();
 
+    _course2_from_packed()
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen_test]
+fn course2_from_packed() {
+    _course2_from_packed()
+        .map_err(|err| -> JsValue { err.into() })
+        .unwrap();
+}
+
+fn _course2_from_packed() -> Result<(), Error> {
     use std::io::Write;
     use zip::ZipWriter;
 
