@@ -53,9 +53,9 @@ fn course2_encryption() {
         entries.par_iter().for_each(|(file_name, path)| {
             let file_name = file_name.to_str().unwrap();
             if file_name.starts_with("course_data_") && file_name.ends_with(".bcd") {
-                let expected = read(&path).unwrap();
+                let mut expected = read(&path).unwrap();
                 let expected_course =
-                    Course2::from_switch_files(expected.clone(), None, true).unwrap();
+                    Course2::from_switch_files(&mut expected, None, true).unwrap();
 
                 let out_path: Vec<&str> = path.to_str().unwrap().split('.').collect();
                 let out_path = out_path[0].to_owned() + ".decrypted";
@@ -73,7 +73,7 @@ fn course2_encryption() {
 
                 assert_eq!(encrypted.len(), expected.len());
 
-                let course = Course2::from_switch_files(encrypted, None, true).unwrap();
+                let course = Course2::from_switch_files(&mut encrypted, None, true).unwrap();
                 assert_eq!(course.get_course(), expected_course.get_course());
                 assert_eq!(
                     course.get_course_data()[..100],
@@ -124,6 +124,7 @@ fn course2_from_packed() -> Result<(), Error> {
             .unwrap()
             .get_course_thumb()
             .unwrap()
+            .clone()
             .get_encrypted()[..],
         &course_thumb_120[..]
     );
@@ -136,6 +137,7 @@ fn course2_from_packed() -> Result<(), Error> {
             .unwrap()
             .get_course_thumb()
             .unwrap()
+            .clone()
             .get_encrypted()[..],
         &course_thumb_121[..]
     );
@@ -190,14 +192,13 @@ fn course2_from_packed_tar() {
 
 #[test]
 fn course2_set_description() {
-    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
-    let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
+    let mut course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let mut course = Course2::from_switch_files(&mut course_data, None, true).unwrap();
 
     let description = "Hey there!".to_string();
     course.set_description(description.clone()).unwrap();
 
-    let course_res =
-        Course2::from_switch_files(course.get_course_data().clone(), None, false).unwrap();
+    let course_res = Course2::from_switch_files(course.get_course_data_mut(), None, false).unwrap();
 
     assert_eq!(
         course_res.get_course().get_header().get_description(),
@@ -207,8 +208,8 @@ fn course2_set_description() {
 
 #[test]
 fn course2_set_description_fail() {
-    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
-    let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
+    let mut course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let mut course = Course2::from_switch_files(&mut course_data, None, true).unwrap();
 
     let description =
         "This description is larger than seventy-five characters and results in an error!"
@@ -227,22 +228,21 @@ fn course2_set_description_fail() {
 
 #[test]
 fn course2_set_smmdb_id() {
-    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
-    let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
+    let mut course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let mut course = Course2::from_switch_files(&mut course_data, None, true).unwrap();
 
     let smmdb_id = "5f6850b100284286006b7c68".to_string();
     course.set_smmdb_id(smmdb_id.clone()).unwrap();
 
-    let course_res =
-        Course2::from_switch_files(course.get_course_data().clone(), None, false).unwrap();
+    let course_res = Course2::from_switch_files(course.get_course_data_mut(), None, false).unwrap();
 
     assert_eq!(course_res.get_smmdb_id(), Some(smmdb_id));
 }
 
 #[test]
 fn course2_set_smmdb_id_no_hex() {
-    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
-    let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
+    let mut course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let mut course = Course2::from_switch_files(&mut course_data, None, true).unwrap();
 
     let smmdb_id = "xf6850b100284286006b7c68".to_string();
     let res = course.set_smmdb_id(smmdb_id.clone());
@@ -252,20 +252,19 @@ fn course2_set_smmdb_id_no_hex() {
 
 #[test]
 fn course2_get_smmdb_id_return_none_when_unset() {
-    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
-    let course = Course2::from_switch_files(course_data, None, true).unwrap();
+    let mut course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let course = Course2::from_switch_files(&mut course_data, None, true).unwrap();
 
     assert_eq!(course.get_smmdb_id(), None);
 }
 
 #[test]
 fn course2_reset_clear_check() {
-    let course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
-    let mut course = Course2::from_switch_files(course_data, None, true).unwrap();
+    let mut course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    let mut course = Course2::from_switch_files(&mut course_data, None, true).unwrap();
 
     course.reset_clear_check();
-    let new_course =
-        Course2::from_switch_files(course.get_course_data().clone(), None, false).unwrap();
+    let new_course = Course2::from_switch_files(course.get_course_data_mut(), None, false).unwrap();
 
     assert_eq!(
         course.get_course().get_header().get_management_flags() & 0b10,

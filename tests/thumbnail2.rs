@@ -50,9 +50,15 @@ fn thumbnail_encrypt() {
         Thumbnail2::encrypt(&mut encrypted);
         assert_eq!(encrypted_ext.len(), encrypted.len());
 
+        #[cfg(target_arch = "wasm32")]
+        let thumbnail = Thumbnail2::new(&encrypted);
+        #[cfg(not(target_arch = "wasm32"))]
         let thumbnail = Thumbnail2::new(encrypted);
 
         assert_eq!(decrypted.len(), thumbnail.get_jpeg_no_opt().len());
+        #[cfg(target_arch = "wasm32")]
+        assert_eq!(decrypted, &thumbnail.get_jpeg_no_opt()[..]);
+        #[cfg(not(target_arch = "wasm32"))]
         assert_eq!(decrypted, thumbnail.get_jpeg_no_opt());
     }
 }
@@ -60,8 +66,14 @@ fn thumbnail_encrypt() {
 #[test]
 fn thumbnail_get_jpeg() {
     for (_, thumbnail, expected) in get_test_assets().into_iter() {
+        #[cfg(target_arch = "wasm32")]
+        let thumbnail = Thumbnail2::new(&thumbnail);
+        #[cfg(not(target_arch = "wasm32"))]
         let thumbnail = Thumbnail2::new(thumbnail);
 
+        #[cfg(target_arch = "wasm32")]
+        assert_eq!(&thumbnail.get_jpeg_no_opt()[..], &expected[..]);
+        #[cfg(not(target_arch = "wasm32"))]
         assert_eq!(thumbnail.get_jpeg_no_opt(), &expected[..]);
     }
 }
@@ -69,6 +81,9 @@ fn thumbnail_get_jpeg() {
 #[test]
 fn thumbnail_optimize_jpeg() {
     for (path, thumbnail, decrypted) in get_test_assets().into_iter() {
+        #[cfg(target_arch = "wasm32")]
+        let mut thumbnail = Thumbnail2::new(&thumbnail);
+        #[cfg(not(target_arch = "wasm32"))]
         let mut thumbnail = Thumbnail2::new(thumbnail);
 
         thumbnail.optimize_jpeg().unwrap();
@@ -76,6 +91,9 @@ fn thumbnail_optimize_jpeg() {
         let out_path: Vec<&str> = path.to_str().unwrap().split('.').collect();
         let out_path = out_path[0].to_owned() + ".opt";
         let mut file = File::create(out_path).unwrap();
+        #[cfg(target_arch = "wasm32")]
+        file.write_all(&thumbnail.get_jpeg()).unwrap();
+        #[cfg(not(target_arch = "wasm32"))]
         file.write_all(thumbnail.get_jpeg()).unwrap();
 
         assert!(thumbnail.get_jpeg().len() <= decrypted.len());

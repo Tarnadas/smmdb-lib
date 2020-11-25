@@ -33,7 +33,7 @@ mod encryption;
 pub mod errors;
 pub(crate) mod key_tables;
 pub mod proto;
-#[cfg(feature = "save")]
+#[cfg(all(feature = "save", not(target_arch = "wasm32")))]
 pub mod save;
 pub mod thumbnail2;
 
@@ -41,7 +41,7 @@ pub use course::*;
 pub use course2::*;
 pub(crate) use encryption::{decrypt, encrypt, fix_crc32};
 pub use errors::{SmmdbError as Error, SmmdbResult as Result};
-#[cfg(feature = "save")]
+#[cfg(all(feature = "save", not(target_arch = "wasm32")))]
 pub use save::*;
 pub use thumbnail2::*;
 
@@ -81,14 +81,14 @@ pub fn run() -> JsResult<()> {
     Ok(())
 }
 
-#[cfg(feature = "save")]
+#[cfg(all(feature = "save", not(target_arch = "wasm32")))]
 #[cfg(test)]
 pub struct Test {
     name: &'static str,
     test: &'static dyn Fn() -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<()>>>>,
 }
 
-#[cfg(feature = "save")]
+#[cfg(all(feature = "save", not(target_arch = "wasm32")))]
 #[cfg(test)]
 impl Test {
     fn name(&self) -> &str {
@@ -100,7 +100,7 @@ impl Test {
     }
 }
 
-#[cfg(feature = "save")]
+#[cfg(all(feature = "save", not(target_arch = "wasm32")))]
 #[cfg(test)]
 fn test_runner(test_cases: &[&Test]) {
     use async_std::task;
@@ -122,6 +122,6 @@ fn test_runner(test_cases: &[&Test]) {
     });
 }
 
-#[cfg(not(feature = "save"))]
+#[cfg(any(not(feature = "save"), target_arch = "wasm32"))]
 #[cfg(test)]
 fn test_runner(_: &[&dyn Fn()]) {}

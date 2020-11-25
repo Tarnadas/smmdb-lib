@@ -71,7 +71,7 @@ impl Save {
             }
             courses[index % 60] = Some(Box::new(SavedCourse::new(
                 array_ref!(&save_file[..], offset, 8).clone(),
-                Course2::from_switch_files(course_data, Some(thumb_data), true)?,
+                Course2::from_switch_files(&mut course_data, Some(thumb_data), true)?,
             )));
 
             index += 1;

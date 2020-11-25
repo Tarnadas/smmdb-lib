@@ -1,5 +1,6 @@
 //! Module which contains error types.
 
+use image::ImageError;
 use std::io;
 use thiserror::Error;
 #[cfg(target_arch = "wasm32")]
@@ -21,6 +22,8 @@ pub enum SmmdbError {
     CourseError(#[from] CourseError),
     #[error(transparent)]
     Course2Error(#[from] Course2Error),
+    #[error(transparent)]
+    ImageError(#[from] ImageError),
     #[cfg(feature = "save")]
     #[error(transparent)]
     SaveError(#[from] SaveError),

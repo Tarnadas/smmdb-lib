@@ -42,7 +42,6 @@ pub struct Course2 {
     thumb: Option<Thumbnail2>,
 }
 
-/// Functions which aren't compatible with WebAssembly.
 impl Course2 {
     /// Get a reference to the inner course struct.
     pub fn get_course(&self) -> &SMM2Course {
@@ -76,103 +75,7 @@ impl Course2 {
     pub fn get_course_thumb_mut(&mut self) -> Option<&mut Thumbnail2> {
         self.thumb.as_mut()
     }
-}
 
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-impl Course2 {
-    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn from_proto(buffer: &[u8], thumb: Option<Box<[u8]>>) -> Course2 {
-        let course: SMM2Course = parse_from_bytes(buffer).unwrap();
-        Course2 {
-            course,
-            data: vec![], // TODO
-            thumb: thumb.map(|thumb| Thumbnail2::new(thumb.to_vec())),
-        }
-    }
-
-    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn from_boxed_proto(buffer: Box<[u8]>, thumb: Option<Box<[u8]>>) -> Course2 {
-        let course: SMM2Course = parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
-        Course2 {
-            course,
-            data: vec![], // TODO
-            thumb: thumb.map(|thumb| Thumbnail2::new(thumb.to_vec())),
-        }
-    }
-
-    #[cfg(target_arch = "wasm32")]
-    #[cfg(feature = "with-serde")]
-    #[wasm_bindgen]
-    pub fn from_js(course: JsValue, thumb: Option<Box<[u8]>>) -> Course2 {
-        let course: SMM2Course = course.into_serde().expect("Course serialization failed");
-        Course2 {
-            course,
-            data: vec![], // TODO
-            thumb: thumb.map(|thumb| Thumbnail2::new(thumb.to_vec())),
-        }
-    }
-
-    #[cfg(target_arch = "wasm32")]
-    #[cfg(feature = "with-serde")]
-    #[wasm_bindgen]
-    pub fn from_packed_js(buffer: &[u8]) -> JsResult<Box<[JsValue]>> {
-        let courses: Vec<JsValue> = Course2::from_packed(buffer)?
-            .iter()
-            .map(|course| course.into_js())
-            .collect();
-        Ok(courses.into_boxed_slice())
-    }
-
-    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn into_proto(&self) -> Box<[u8]> {
-        let mut out: Vec<u8> = vec![];
-        self.course
-            .write_to_vec(&mut out)
-            .expect("Writing to Vector failed");
-        out.into_boxed_slice()
-    }
-
-    #[cfg(target_arch = "wasm32")]
-    #[cfg(feature = "with-serde")]
-    #[wasm_bindgen]
-    pub fn into_js(&self) -> JsValue {
-        JsValue::from_serde(&self.course).unwrap()
-    }
-
-    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn decrypt(course: &mut [u8]) {
-        decrypt(&mut course[0x10..], &COURSE_KEY_TABLE);
-    }
-
-    #[cfg(target_arch = "wasm32")]
-    #[wasm_bindgen]
-    pub fn encrypt(course: &[u8]) -> Box<[u8]> {
-        let mut course = course.to_vec();
-        Course2::encrypt_vec(&mut course);
-        course.into_boxed_slice()
-    }
-
-    #[cfg(not(target_arch = "wasm32"))]
-    pub fn encrypt(course: &mut Vec<u8>) {
-        Course2::encrypt_vec(course);
-    }
-
-    fn encrypt_vec(course: &mut Vec<u8>) {
-        let preserved_aes = course.len() == 0x5c000;
-        let len = 0x5bfd0;
-        fix_crc32(&mut course[..len]);
-        let aes_info = encrypt(&mut course[0x10..len], &COURSE_KEY_TABLE);
-        if preserved_aes {
-            for (index, byte) in aes_info.iter().enumerate() {
-                course[len + index] = *byte;
-            }
-        } else {
-            course.extend_from_slice(&aes_info);
-        }
-    }
-}
-
-impl Course2 {
     /// Set the description of this course.
     ///
     /// This might fail, if the given description is longer than 75 characters.
@@ -247,6 +150,44 @@ impl Course2 {
         );
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn encrypt(course: &mut Vec<u8>) {
+        Course2::encrypt_vec(course);
+    }
+
+    fn encrypt_vec(course: &mut Vec<u8>) {
+        let preserved_aes = course.len() == 0x5c000;
+        let len = 0x5bfd0;
+        fix_crc32(&mut course[..len]);
+        let aes_info = encrypt(&mut course[0x10..len], &COURSE_KEY_TABLE);
+        if preserved_aes {
+            for (index, byte) in aes_info.iter().enumerate() {
+                course[len + index] = *byte;
+            }
+        } else {
+            course.extend_from_slice(&aes_info);
+        }
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn from_proto(buffer: &[u8], thumb: Option<Vec<u8>>) -> Course2 {
+        let course: SMM2Course = parse_from_bytes(buffer).unwrap();
+        Course2 {
+            course,
+            data: vec![], // TODO
+            thumb: thumb.map(|thumb| Thumbnail2::new(thumb)),
+        }
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn from_boxed_proto(buffer: Box<[u8]>, thumb: Option<Box<[u8]>>) -> Course2 {
+        let course: SMM2Course = parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
+        Course2 {
+            course,
+            data: vec![], // TODO
+            thumb: thumb.map(|thumb| Thumbnail2::new(thumb.to_vec())),
+        }
+    }
+
     pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course2>> {
         let mut res = vec![];
 
@@ -267,36 +208,94 @@ impl Course2 {
         Ok(res)
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn from_switch_files(
-        mut data: Vec<u8>,
+        data: &mut [u8],
         thumb: Option<Vec<u8>>,
         is_encrypted: bool,
     ) -> Result<Course2> {
-        if is_encrypted {
-            Course2::decrypt(&mut data)
-        };
+        Self::_from_switch_files(data, thumb, is_encrypted)
+    }
+}
 
-        let header = Course2::get_course_header(&data)?;
-        let course_area = Course2::get_course_area(&data, 0)?;
-        let course_sub_area = Course2::get_course_area(&data, 1)?;
-
-        Ok(Course2 {
-            course: SMM2Course {
-                version: VERSION,
-                header,
-                course_area,
-                course_sub_area,
-                ..SMM2Course::default()
-            },
-            data,
-            thumb: thumb.map(if is_encrypted {
-                Thumbnail2::new
-            } else {
-                Thumbnail2::from_decrypted
-            }),
-        })
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+impl Course2 {
+    #[cfg(target_arch = "wasm32")]
+    #[wasm_bindgen(js_name = fromProto)]
+    pub fn from_proto(buffer: &[u8], thumb: Option<Box<[u8]>>) -> Course2 {
+        let course: SMM2Course = parse_from_bytes(buffer).unwrap();
+        Course2 {
+            course,
+            data: vec![], // TODO
+            thumb: thumb.map(|thumb| Thumbnail2::new(&thumb)),
+        }
     }
 
+    #[cfg(target_arch = "wasm32")]
+    #[cfg(feature = "with-serde")]
+    #[wasm_bindgen(js_name = fromObject)]
+    pub fn from_js_object(course: JsValue, thumb: Option<Box<[u8]>>) -> Course2 {
+        let course: SMM2Course = course.into_serde().expect("Course serialization failed");
+        Course2 {
+            course,
+            data: vec![], // TODO
+            thumb: thumb.map(|thumb| Thumbnail2::new(&thumb)),
+        }
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    #[cfg(feature = "with-serde")]
+    #[wasm_bindgen(js_name = fromBytes)]
+    pub fn from_packed_js(buffer: &[u8]) -> JsResult<Box<[JsValue]>> {
+        let courses: Vec<JsValue> = Course2::from_packed(buffer)?
+            .iter()
+            .map(|course| course.get_js_object())
+            .collect();
+        Ok(courses.into_boxed_slice())
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen(js_name = getProto))]
+    pub fn get_proto(&self) -> Box<[u8]> {
+        let mut out: Vec<u8> = vec![];
+        self.course
+            .write_to_vec(&mut out)
+            .expect("Writing to Vector failed");
+        out.into_boxed_slice()
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    #[cfg(feature = "with-serde")]
+    #[wasm_bindgen(js_name = getObject)]
+    pub fn get_js_object(&self) -> JsValue {
+        JsValue::from_serde(&self.course).unwrap()
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn decrypt(course: &mut [u8]) {
+        decrypt(&mut course[0x10..], &COURSE_KEY_TABLE);
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    #[wasm_bindgen]
+    pub fn encrypt(course: &[u8]) -> Box<[u8]> {
+        let mut course = course.to_vec();
+        Course2::encrypt_vec(&mut course);
+        course.into_boxed_slice()
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    #[wasm_bindgen]
+    pub fn from_switch_files(
+        data: &mut [u8],
+        thumb: Option<Box<[u8]>>,
+        is_encrypted: bool,
+    ) -> JsResult<Course2> {
+        Self::_from_switch_files(data, thumb.map(|t| t.to_vec()), is_encrypted)
+            .map_err(|err| err.into())
+    }
+}
+
+impl Course2 {
     fn decompress_zip(res: &mut Vec<Course2>, buffer: &[u8]) -> Result<()> {
         let reader = Cursor::new(buffer);
         let mut zip = ZipArchive::new(reader)?;
@@ -304,9 +303,12 @@ impl Course2 {
         let courses = Course2::get_course_files_from_zip_archive(&mut zip);
 
         for (course, thumb) in courses {
-            let course_data = Course2::read_file_from_zip_archive(&mut zip, course)?;
+            let mut course_data = Course2::read_file_from_zip_archive(&mut zip, course)?;
             let course_thumb = Course2::read_file_from_zip_archive(&mut zip, thumb)?;
-            if let Ok(course) = Course2::from_switch_files(course_data, Some(course_thumb), true) {
+
+            if let Ok(course) =
+                Course2::_from_switch_files(&mut course_data, Some(course_thumb), true)
+            {
                 res.push(course);
             };
         }
@@ -366,8 +368,8 @@ impl Course2 {
 
         let courses = Course2::get_course_files_from_tar_archive(tar);
 
-        for (course, thumb) in courses {
-            if let Ok(course) = Course2::from_switch_files(course, Some(thumb), true) {
+        for (mut course, thumb) in courses {
+            if let Ok(course) = Course2::_from_switch_files(&mut course, Some(thumb), true) {
                 res.push(course);
             };
         }
@@ -442,6 +444,43 @@ impl Course2 {
             };
         }
         None
+    }
+
+    fn _from_switch_files(
+        data: &mut [u8],
+        thumb: Option<Vec<u8>>,
+        is_encrypted: bool,
+    ) -> Result<Course2> {
+        if is_encrypted {
+            Course2::decrypt(data)
+        };
+
+        let header = Course2::get_course_header(&data)?;
+        let course_area = Course2::get_course_area(&data, 0)?;
+        let course_sub_area = Course2::get_course_area(&data, 1)?;
+
+        Ok(Course2 {
+            course: SMM2Course {
+                version: VERSION,
+                header,
+                course_area,
+                course_sub_area,
+                ..SMM2Course::default()
+            },
+            data: data.to_vec(),
+            #[cfg(target_arch = "wasm32")]
+            thumb: thumb.as_deref().map(if is_encrypted {
+                Thumbnail2::new
+            } else {
+                Thumbnail2::from_decrypted
+            }),
+            #[cfg(not(target_arch = "wasm32"))]
+            thumb: thumb.map(if is_encrypted {
+                Thumbnail2::new
+            } else {
+                Thumbnail2::from_decrypted
+            }),
+        })
     }
 
     fn get_course_header(course_data: &[u8]) -> Result<SingularPtrField<SMM2CourseHeader>> {
