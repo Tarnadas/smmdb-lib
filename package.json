@@ -6,12 +6,16 @@
   "repository": "https://github.com/Tarnadas/smmdb-lib",
   "license": "MIT",
   "scripts": {
+    "build": "yarn clean && yarn build:web && yarn build:node",
+    "build:web": "wasm-pack build --release --target=browser --out-name=smmdb",
+    "build:node": "wasm-pack build --release --target=nodejs --out-name=smmdb-node",
     "clean": "rimraf ./dist && rimraf ./pkg",
     "test": "yarn test:node && yarn test:web",
     "test:node": "wasm-pack test --node",
     "test:web": "wasm-pack test --headless --chrome --firefox"
   },
   "devDependencies": {
+    "parcel": "^1.12.4",
     "rimraf": "^3"
   }
 }

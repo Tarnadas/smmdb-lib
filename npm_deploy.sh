@@ -15,6 +15,7 @@ touch ~/.npmrc
 echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
 
 # NPM build and publish
-wasm-pack build
+wasm-pack build --release --target=browser --out-name=smmdb
+wasm-pack build --release --target=nodejs --out-name=smmdb-node
 wasm-pack pack
 wasm-pack publish

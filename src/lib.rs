@@ -9,7 +9,6 @@
 #![feature(async_closure)]
 #![feature(custom_test_frameworks)]
 #![feature(fn_traits)]
-#![feature(future_readiness_fns)]
 #![test_runner(test_runner)]
 
 extern crate aes_soft as aes;

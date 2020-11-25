@@ -1,7 +1,7 @@
 language: rust
 
 rust:
-  - nightly-2020-08-13
+  - nightly-2020-10-23
 
 git:
   depth: 5

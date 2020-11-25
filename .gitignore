@@ -8,3 +8,4 @@ bundle-report.html
 smmdb-*.tgz
 Cargo.lock
 *.opt
+.cache
