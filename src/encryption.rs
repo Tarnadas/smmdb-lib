@@ -1,5 +1,5 @@
-use aes::{block_cipher::generic_array::GenericArray, Aes128};
-use block_modes::{block_padding::*, BlockMode, Cbc};
+use aes::{cipher::generic_array::GenericArray, Aes128};
+use block_modes::{block_padding::ZeroPadding, BlockMode, Cbc};
 use cmac::{Cmac, Mac, NewMac};
 use crc::crc32;
 use rand::Rng;

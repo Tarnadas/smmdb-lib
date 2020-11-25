@@ -21,20 +21,20 @@ include = [
 protobuf-codegen-pure = "2"
 
 [dependencies]
-aes-soft= "0.5"
+aes-soft= "0.6"
 arr_macro = { version = "0.1", optional = true }
 arrayref = "0.3"
 async-std = { version = "1", optional = true }
-block-modes = "0.6"
+block-modes = "0.7"
 byteorder = "1"
 bytes = { version = "0.5", features = ["serde"] }
-cfg-if = "0.1"
+cfg-if = "1"
 chrono = "0.4"
-cmac = "0.4"
+cmac = "0.5"
 crc = "1"
 hex = "0.4"
 image = "0.23"
-infer = "0.2"
+infer = "0.3"
 itertools = "0.9"
 protobuf = { version = "2", features = ["with-bytes", "with-serde"] }
 rand = "0.7"
@@ -72,14 +72,10 @@ crate-type = ["cdylib", "rlib"]
 name = "smmdb"
 path = "src/lib.rs"
 
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = false
-
 [profile]
 [profile.dev]
 opt-level = 1
 
 [profile.release]
-debug = false
 lto = true
 codegen-units = 1

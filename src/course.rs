@@ -128,7 +128,7 @@ impl Course {
 
         let mime_guess: Type = Infer::new().get(buffer).unwrap();
 
-        match mime_guess.mime.as_ref() {
+        match mime_guess.mime_type() {
             "application/zip" => {
                 Course::decompress_zip(&mut res, buffer)?;
             }
