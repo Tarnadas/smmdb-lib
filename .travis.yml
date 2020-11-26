@@ -44,18 +44,14 @@ jobs:
       script: cargo check
     - script: cargo check --target wasm32-unknown-unknown
     - script: cargo check --features save
-    # TODO: fix save feature on wasm
-    #- script: cargo check --target wasm32-unknown-unknown --features save
+    - script: cargo check --target wasm32-unknown-unknown --features save
     - script: cargo check --no-default-features
     - script: cargo check --target wasm32-unknown-unknown --no-default-features
     - script: cargo check --no-default-features --features save
-    #- script: cargo check --target wasm32-unknown-unknown --no-default-features --features save
-    - stage: test
-      script: cargo test --target=wasm32-unknown-unknown --all-features
-      name: Test WASM
+    - script: cargo check --target wasm32-unknown-unknown --no-default-features --features save
     - stage: test
       script: yarn test
-      name: Test WASM Node
+      name: Test WASM
     - script: cargo test --all-features
       name: Test Rust
     - stage: deploy
