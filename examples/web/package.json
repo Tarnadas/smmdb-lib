@@ -11,6 +11,7 @@
     "build": "yarn clean && yarn build:wasm && webpack --env=prod",
     "build:wasm": "yarn --cwd ../.. build:web",
     "watch": "yarn --cwd ../.. watch",
+    "publish": "gh-pages --dist dist",
     "clean": "rimraf ./dist && rimraf ../../pkg"
   },
   "devDependencies": {
@@ -21,6 +22,7 @@
     "@babel/preset-env": "^7",
     "babel-loader": "^8",
     "core-js": "3",
+    "gh-pages": "^3",
     "html-webpack-plugin": "^4",
     "npm-run-all": "^4",
     "prettier": "^2",
