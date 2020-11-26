@@ -50,8 +50,12 @@ pub type JsResult<T> = core::result::Result<T, JsValue>;
 
 cfg_if! {
     if #[cfg(target_arch = "wasm32")] {
-        extern crate console_error_panic_hook;
-        use console_error_panic_hook::set_once as set_panic_hook;
+        /// Setup panic hook for WebAssembly calls.
+        /// This will forward Rust panics to console.error
+        #[wasm_bindgen(js_name = setupPanicHook)]
+        pub fn setup_panic_hook() {
+            console_error_panic_hook::set_once();
+        }
     }
 }
 
@@ -61,24 +65,6 @@ cfg_if! {
         #[global_allocator]
         static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
     }
-}
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen]
-pub fn run() -> JsResult<()> {
-    set_panic_hook();
-
-    let window = web_sys::window().expect("should have a Window");
-    let document = window.document().expect("should have a Document");
-
-    let p: web_sys::Node = document.create_element("p")?.into();
-    p.set_text_content(Some("Hello from Rust, WebAssembly, and Webpack!"));
-
-    let body = document.body().expect("should have a body");
-    let body: &web_sys::Node = body.as_ref();
-    body.append_child(&p)?;
-
-    Ok(())
 }
 
 #[cfg(all(feature = "save", not(target_arch = "wasm32")))]

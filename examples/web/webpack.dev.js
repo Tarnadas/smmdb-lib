@@ -1,13 +1,12 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
-const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
 const webpack = require('webpack');
 
 const dist = path.resolve(__dirname, 'dist');
 
 module.exports = {
   mode: 'development',
-  entry: './index.ts',
+  entry: './src/index.ts',
   output: {
     path: dist,
     filename: 'bundle.js'
@@ -18,13 +17,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'index.html'
-    }),
-    new WasmPackPlugin({
-      crateDirectory: '../..',
-      outName: 'smmdb',
-      extraArgs: '-- --features wasm',
-      watchDirectories: [path.resolve(__dirname, '../../src')]
+      template: 'src/index.html'
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development'
@@ -33,7 +26,11 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.wasm']
   },
+  experiments: {
+    syncWebAssembly: true
+  },
   watchOptions: {
+    aggregateTimeout: 200,
     ignored: ['../../target/**']
   },
   module: {
@@ -44,7 +41,7 @@ module.exports = {
         use: [
           {
             loader: 'babel-loader',
-            query: {
+            options: {
               babelrc: false,
               presets: [
                 [
@@ -65,13 +62,7 @@ module.exports = {
                 ]
               ],
               plugins: [
-                [
-                  '@babel/plugin-transform-typescript',
-                  {
-                    isTSX: true,
-                    jsxPragma: 'h'
-                  }
-                ],
+                '@babel/plugin-transform-typescript',
                 '@babel/plugin-syntax-dynamic-import'
               ]
             }

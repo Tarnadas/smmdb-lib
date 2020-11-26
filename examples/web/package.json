@@ -6,8 +6,11 @@
   "repository": "https://github.com/Tarnadas/smmdb-lib",
   "license": "MIT",
   "scripts": {
-    "start": "yarn clean && webpack-dev-server -d --env=dev",
-    "build": "yarn clean && webpack --env=prod",
+    "start": "yarn clean && yarn --cwd ../.. build:web-dev && run-p serve watch",
+    "serve": "webpack-dev-server -d --env=dev",
+    "build": "yarn clean && yarn build:wasm && webpack --env=prod",
+    "build:wasm": "yarn --cwd ../.. build:web",
+    "watch": "yarn --cwd ../.. watch",
     "clean": "rimraf ./dist && rimraf ../../pkg"
   },
   "devDependencies": {
@@ -16,14 +19,15 @@
     "@babel/plugin-transform-typescript": "^7",
     "@babel/polyfill": "^7",
     "@babel/preset-env": "^7",
-    "@wasm-tool/wasm-pack-plugin": "^1",
     "babel-loader": "^8",
     "core-js": "3",
     "html-webpack-plugin": "^4",
+    "npm-run-all": "^4",
     "prettier": "^2",
-    "typescript": "3.9",
-    "webpack": "^4",
-    "webpack-bundle-analyzer": "^3",
+    "ts-node": "^9",
+    "typescript": "4.1",
+    "webpack": "^5",
+    "webpack-bundle-analyzer": "^4",
     "webpack-cli": "^3",
     "webpack-dev-server": "^3"
   }
