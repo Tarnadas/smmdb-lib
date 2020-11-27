@@ -1,21 +1,11 @@
-import('../../../pkg/smmdb').then(module => {
-  const { Course2, setupPanicHook } = module;
+import { SMMDB } from '.';
 
-  setupPanicHook();
-
-  const input = document.createElement('input');
-  input.addEventListener('change', async event => {
-    const target = event.target as HTMLInputElement;
-    for (const file of (target.files as unknown) as File[]) {
-      const buffer = await readFile(file);
-      console.log('Processing file...');
-      const courses = Course2.fromBytes(new Uint8Array(buffer));
-      console.log(courses);
-    }
-  });
-  input.type = 'file';
-  document.body.appendChild(input);
-});
+export async function parseFile(file: File): Promise<typeof SMMDB.Course2[]> {
+  const buffer = await readFile(file);
+  console.log('Processing file...');
+  const courses = SMMDB.Course2.fromBytes(new Uint8Array(buffer));
+  return courses;
+}
 
 async function readFile(file: File): Promise<ArrayBuffer> {
   return new Promise(resolve => {

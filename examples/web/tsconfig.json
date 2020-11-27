@@ -9,7 +9,8 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "allowSyntheticDefaultImports": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "typeRoots": ["node_modules/@types", "src/types"]
   },
   "include": ["src/**/*"],
   "ordered-imports": [
