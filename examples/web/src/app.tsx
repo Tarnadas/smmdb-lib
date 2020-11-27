@@ -1,7 +1,7 @@
 import React, { FC, useState } from 'react';
 import ReactJson from 'react-json-view';
 
-import { Button, Card, Page, Spacer, Text } from '@geist-ui/react';
+import { Button, Card, Link, Page, Spacer, Text } from '@geist-ui/react';
 
 import { parseFile } from './smmdb';
 import { SMMDB } from '.';
@@ -16,7 +16,6 @@ export const App: FC = () => {
     if (!event.target.files) return;
     const file = event.target.files[0];
     if (!file) return;
-    console.log(file);
     setLoading(true);
     try {
       const courses = await parseFile(file);
@@ -39,6 +38,29 @@ export const App: FC = () => {
         <Text>
           Please select a container file which includes Super Mario Maker 2
           levels to analyze.
+        </Text>
+        <Text>
+          You can for example test this with courses from{' '}
+          <Link
+            href="https://smmdb.net"
+            icon
+            color
+            target="_blank"
+            rel="noopener"
+          >
+            SMMDB
+          </Link>{' '}
+          or this{' '}
+          <Link
+            href="https://drive.google.com/drive/u/0/folders/1bJRwrlA49kJfacyFLOpZa1h4RmH8Fpsk"
+            icon
+            color
+            target="_blank"
+            rel="noopener"
+          >
+            GDrive
+          </Link>
+          .
         </Text>
         <Button
           type="success-light"
