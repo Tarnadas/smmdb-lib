@@ -9,7 +9,7 @@ import('../../../pkg/smmdb').then(module => {
     for (const file of (target.files as unknown) as File[]) {
       const buffer = await readFile(file);
       console.log('Processing file...');
-      let courses = Course2.fromBytes(new Uint8Array(buffer));
+      const courses = Course2.fromBytes(new Uint8Array(buffer));
       console.log(courses);
     }
   });

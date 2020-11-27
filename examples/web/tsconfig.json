@@ -2,15 +2,16 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "classic",
+    "moduleResolution": "node",
     "sourceMap": true,
     "strict": true,
     "lib": ["esnext", "dom"],
     "noImplicitAny": true,
     "noImplicitThis": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "jsx": "preserve"
   },
-  "include": ["src/**/*.ts", "src/index.js"],
+  "include": ["src/**/*"],
   "ordered-imports": [
     true,
     {

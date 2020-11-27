@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
@@ -9,7 +11,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 
 module.exports = {
   mode: 'production',
-  entry: './src/index.ts',
+  entry: './src/index.tsx',
   output: {
     path: dist,
     filename: 'bundle.js'
@@ -41,36 +43,7 @@ module.exports = {
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: {
-              babelrc: false,
-              presets: [
-                [
-                  '@babel/env',
-                  {
-                    targets: {
-                      browsers: [
-                        'edge >= 17',
-                        'ff >= 61',
-                        'chrome >= 63',
-                        'safari >= 11.1'
-                      ]
-                    },
-                    useBuiltIns: 'usage',
-                    modules: false,
-                    corejs: 3
-                  }
-                ]
-              ],
-              plugins: [
-                '@babel/plugin-transform-typescript',
-                '@babel/plugin-syntax-dynamic-import'
-              ]
-            }
-          }
-        ]
+        use: ['babel-loader']
       }
     ]
   }
