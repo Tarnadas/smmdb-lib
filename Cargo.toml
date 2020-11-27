@@ -1,3 +1,5 @@
+cargo-features = ["strip"]
+
 [package]
 authors = ["Mario Reder <mreder1289@gmail.com>"]
 categories = ["wasm", "emulators"]
@@ -41,7 +43,6 @@ rand = "0.7"
 regex = "1"
 serde = "1"
 serde_derive = "1"
-wee_alloc = { version = "0.4", optional = true }
 tar = "0.4"
 thiserror = "1"
 typenum = "1"
@@ -54,6 +55,7 @@ brotli2 = "0.3"
 console_error_panic_hook = "0.1"
 js-sys = "0.3"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+wee_alloc = "0.4"
 
 [dev-dependencies]
 colored = "2"
@@ -81,3 +83,4 @@ opt-level = 1
 [profile.release]
 lto = true
 codegen-units = 1
+strip = "symbols"

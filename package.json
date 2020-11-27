@@ -7,9 +7,9 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn clean && yarn build:web && yarn build:node",
-    "build:web": "wasm-pack build --release --target=browser --out-name=smmdb",
+    "build:web": "CARGO_PROFILE_RELEASE_OPT_LEVEL=z wasm-pack build --release --target=browser --out-name=smmdb",
     "build:web-dev": "wasm-pack build --dev --target=browser --out-name=smmdb",
-    "build:node": "wasm-pack build --release --target=nodejs --out-name=smmdb-node",
+    "build:node": "CARGO_PROFILE_RELEASE_OPT_LEVEL=z wasm-pack build --release --target=nodejs --out-name=smmdb-node",
     "clean": "rimraf ./dist && rimraf ./pkg",
     "test": "yarn test:node && yarn test:web",
     "test:node": "wasm-pack test --node",
