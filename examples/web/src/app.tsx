@@ -1,11 +1,11 @@
 import React, { FC, useState } from 'react';
 import ReactJson from 'react-json-view';
 
-import { Button, Display, Image, Page, Spacer, Text } from '@geist-ui/react';
+import { Button, Page, Spacer, Text } from '@geist-ui/react';
 
-import icon from './images/icon.png';
 import { parseFile } from './smmdb';
 import { SMMDB } from '.';
+import { Header } from './header';
 
 export const App: FC = () => {
   const [courses, setCourses] = useState<typeof SMMDB.Course2[] | null>(null);
@@ -30,17 +30,13 @@ export const App: FC = () => {
   return (
     <>
       <Page>
-        <Display
-          shadow
-          caption="A showcase of SMMDB library, compiled to WebAssembly. Everything runs locally in your browser."
-        >
-          <Image src={icon}></Image>
-        </Display>
+        <Header />
         <Text>
           Please select a container file which includes Super Mario Maker 2
           levels to analyze.
         </Text>
         <Button
+          type="success-light"
           onClick={() => {
             if (upload) {
               upload.click();

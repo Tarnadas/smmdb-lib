@@ -11,7 +11,7 @@
     "build": "yarn clean && yarn build:wasm && webpack --env=prod",
     "build:wasm": "yarn --cwd ../.. build:web",
     "watch": "yarn --cwd ../.. watch",
-    "publish": "gh-pages --dist dist",
+    "deploy": "gh-pages --dist dist",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "clean": "rimraf ./dist && rimraf ../../pkg"
   },
