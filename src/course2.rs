@@ -35,7 +35,7 @@ use wasm_bindgen::prelude::*;
 use zip::ZipArchive;
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct Course2 {
     course: SMM2Course,
     data: Vec<u8>,
@@ -263,11 +263,11 @@ impl Course2 {
         out.into_boxed_slice()
     }
 
+    // TODO remove this once the protobuf library has support for wasm-bindgen
     #[cfg(target_arch = "wasm32")]
     #[cfg(feature = "with-serde")]
-    #[wasm_bindgen(js_name = getObject)]
-    pub fn get_js_object(&self) -> JsValue {
-        JsValue::from_serde(&self.course).unwrap()
+    fn get_js_object(&self) -> JsValue {
+        JsValue::from_serde(&self).unwrap()
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]

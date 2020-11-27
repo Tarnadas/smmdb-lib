@@ -1,7 +1,7 @@
 import React, { FC, useState } from 'react';
 import ReactJson from 'react-json-view';
 
-import { Button, Page, Spacer, Text } from '@geist-ui/react';
+import { Button, Card, Page, Spacer, Text } from '@geist-ui/react';
 
 import { parseFile } from './smmdb';
 import { SMMDB } from '.';
@@ -25,6 +25,11 @@ export const App: FC = () => {
       console.error(err);
     }
     setLoading(false);
+  };
+
+  const getImageFromBinary = (data: number[]) => {
+    const blob = new Blob([new Uint8Array(data)], { type: 'image/jpeg' });
+    return URL.createObjectURL(blob);
   };
 
   return (
@@ -55,7 +60,19 @@ export const App: FC = () => {
           onChange={handleSelect}
         />
         <Spacer y={2} />
-        {courses && <ReactJson src={courses} collapsed={2} />}
+        {courses &&
+          courses.map((course: any) => (
+            <Card key={course.course.header.creation_id} hoverable shadow>
+              <Text h3>{course.course.header.title}</Text>
+              {course.thumb && (
+                <img
+                  style={{ maxWidth: '640px', maxHeight: '360px' }}
+                  src={getImageFromBinary(course.thumb.jpeg)}
+                />
+              )}
+              <ReactJson src={course.course} collapsed={1} />
+            </Card>
+          ))}
       </Page>
     </>
   );

@@ -9,7 +9,7 @@ use image::{jpeg::JpegEncoder, load_from_memory, DynamicImage, ImageError};
 use wasm_bindgen::prelude::*;
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct Thumbnail2 {
     encrypted: Vec<u8>,
     jpeg: Vec<u8>,
