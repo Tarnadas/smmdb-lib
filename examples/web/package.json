@@ -6,9 +6,10 @@
   "repository": "https://github.com/Tarnadas/smmdb-lib",
   "license": "MIT",
   "scripts": {
+    "cp": "cp -r ../../pkg ./dist/pkg",
     "start": "yarn clean && yarn --cwd ../.. build:web-dev && run-p serve watch",
     "serve": "webpack-dev-server -d --env=dev",
-    "build": "yarn clean && yarn build:wasm && webpack --env=prod",
+    "build": "yarn clean && yarn build:wasm && webpack --env=prod && yarn cp",
     "build:wasm": "yarn --cwd ../.. build:web",
     "watch": "yarn --cwd ../.. watch",
     "deploy": "gh-pages --dist dist",

@@ -6,15 +6,15 @@
   "repository": "https://github.com/Tarnadas/smmdb-lib",
   "license": "MIT",
   "scripts": {
-    "build": "yarn clean && yarn build:web && yarn build:node",
-    "build:web": "CARGO_PROFILE_RELEASE_OPT_LEVEL=z wasm-pack build --release --target=browser --out-name=smmdb",
-    "build:web-dev": "wasm-pack build --dev --target=browser --out-name=smmdb",
+    "build": "yarn clean && yarn build:web && yarn build:node && yarn cp",
+    "build:web": "CARGO_PROFILE_RELEASE_OPT_LEVEL=z RUSTFLAGS='-C target-feature=+atomics,+bulk-memory' wasm-pack build --release --target=no-modules --out-name=smmdb -- -Zbuild-std=std,panic_abort",
+    "build:web-dev": "RUSTFLAGS='-C target-feature=+atomics,+bulk-memory' wasm-pack build --dev --target=no-modules --out-name=smmdb -- -Zbuild-std=std,panic_abort",
     "build:node": "CARGO_PROFILE_RELEASE_OPT_LEVEL=z wasm-pack build --release --target=nodejs --out-name=smmdb-node",
     "clean": "rimraf ./dist && rimraf ./pkg",
     "test": "yarn test:node && yarn test:web",
     "test:node": "wasm-pack test --node",
     "test:web": "wasm-pack test --headless --chrome --firefox",
-    "watch": "cargo watch -w src -i src/proto -s 'wasm-pack build --dev --target=browser --out-name=smmdb'"
+    "watch": "RUSTFLAGS='-C target-feature=+atomics,+bulk-memory' cargo watch -w src -i src/proto -s 'wasm-pack build --dev --target=no-modules --out-name=smmdb -- -Zbuild-std=std,panic_abort'"
   },
   "devDependencies": {
     "rimraf": "^3"

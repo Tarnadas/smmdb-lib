@@ -5,6 +5,14 @@
     <title>SMMDB lib examples</title>
   </head>
   <body>
+    <script src="pkg/smmdb.js"></script>
+    <script type="text/javascript">
+      console.log('index', wasm_bindgen);
+      wasm_bindgen('./pkg/smmdb_bg.wasm').then(wasm => {
+        console.log('WASM', wasm);
+        window.SMMDB = wasm_bindgen;
+      });
+    </script>
     <div id="root"></div>
   </body>
 </html>

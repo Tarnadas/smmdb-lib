@@ -55,6 +55,7 @@ brotli2 = "0.3"
 console_error_panic_hook = "0.1"
 js-sys = "0.3"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+wasm_thread = "0.1"
 wee_alloc = "0.4"
 
 [dev-dependencies]

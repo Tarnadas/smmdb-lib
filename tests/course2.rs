@@ -1,3 +1,5 @@
+wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
+
 extern crate smmdb;
 
 use smmdb::{course2::*, errors::Course2Error, Error};
@@ -193,7 +195,9 @@ fn course2_from_packed_tar() {
     let zip_courses = Course2::from_packed(&zip_save).unwrap();
 
     let tar_save = read("tests/assets/saves/smm2/save1.tar").unwrap();
+    dbg!("start");
     let tar_courses = Course2::from_packed(&tar_save).unwrap();
+    dbg!("finish");
 
     assert_eq!(tar_courses.len(), 60);
     assert_eq!(

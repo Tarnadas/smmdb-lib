@@ -3,5 +3,6 @@
     "source.fixAll.eslint": true
   },
   "editor.formatOnSave": true,
-  "rust-analyzer.cargo.features": ["save"]
+  "rust-analyzer.cargo.features": ["save"],
+  "rust-analyzer.checkOnSave.target": "wasm32-unknown-unknown"
 }

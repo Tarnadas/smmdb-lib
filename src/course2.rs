@@ -29,7 +29,9 @@ use regex::Regex;
 use std::{
     convert::TryFrom,
     io::{Cursor, Read},
+    sync::{Arc, RwLock},
 };
+
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 use zip::ZipArchive;
@@ -189,23 +191,13 @@ impl Course2 {
     }
 
     pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course2>> {
-        let mut res = vec![];
-
         let mime_guess: Type = Infer::new().get(buffer).unwrap();
 
         match mime_guess.mime_type() {
-            "application/zip" => {
-                Course2::decompress_zip(&mut res, buffer)?;
-            }
-            "application/x-tar" => {
-                Course2::decompress_x_tar(&mut res, buffer)?;
-            }
-            mime => {
-                return Err(Error::MimeTypeUnsupported(mime.to_string()));
-            }
-        };
-
-        Ok(res)
+            "application/zip" => Ok(Course2::decompress_zip(buffer)?),
+            "application/x-tar" => Ok(Course2::decompress_x_tar(buffer)?),
+            mime => Err(Error::MimeTypeUnsupported(mime.to_string())),
+        }
     }
 
     #[cfg(not(target_arch = "wasm32"))]
@@ -296,11 +288,12 @@ impl Course2 {
 }
 
 impl Course2 {
-    fn decompress_zip(res: &mut Vec<Course2>, buffer: &[u8]) -> Result<()> {
+    fn decompress_zip(buffer: &[u8]) -> Result<Vec<Course2>> {
         let reader = Cursor::new(buffer);
         let mut zip = ZipArchive::new(reader)?;
 
         let courses = Course2::get_course_files_from_zip_archive(&mut zip);
+        let mut res = Vec::with_capacity(courses.len());
 
         for (course, thumb) in courses {
             let mut course_data = Course2::read_file_from_zip_archive(&mut zip, course)?;
@@ -313,7 +306,7 @@ impl Course2 {
             };
         }
 
-        Ok(())
+        Ok(res)
     }
 
     fn get_course_files_from_zip_archive(
@@ -362,19 +355,48 @@ impl Course2 {
         Ok(zip_file_data)
     }
 
-    fn decompress_x_tar(res: &mut Vec<Course2>, buffer: &[u8]) -> Result<()> {
+    fn decompress_x_tar(buffer: &[u8]) -> Result<Vec<Course2>> {
         let reader = Cursor::new(buffer);
         let tar = tar::Archive::new(reader);
 
         let courses = Course2::get_course_files_from_tar_archive(tar);
+        let res = Arc::new(RwLock::new(Vec::with_capacity(courses.len())));
 
-        for (mut course, thumb) in courses {
-            if let Ok(course) = Course2::_from_switch_files(&mut course, Some(thumb), true) {
-                res.push(course);
-            };
+        #[cfg(not(target_arch = "wasm32"))]
+        use std::thread;
+        #[cfg(target_arch = "wasm32")]
+        use wasm_thread as thread;
+
+        let mut handles: Vec<_> = vec![];
+        let num_threads = 12;
+        let chunk_size = courses.len() / num_threads + 1;
+        let mut courses = courses.into_iter().peekable();
+
+        let mut i = 0;
+        while courses.peek().is_some() {
+            let courses: Vec<_> = courses.by_ref().take(chunk_size).collect();
+            let res = res.clone();
+            handles.push(thread::spawn(move || {
+                for (mut course, thumb) in courses {
+                    if let Ok(course) = Course2::_from_switch_files(&mut course, Some(thumb), true)
+                    {
+                        println!(
+                            "thread {}: push {}",
+                            i,
+                            course.get_course().get_header().get_title()
+                        );
+                        res.write().unwrap().push(course);
+                    };
+                }
+            }));
+            i += 1;
         }
 
-        Ok(())
+        for handle in handles {
+            handle.join().unwrap();
+        }
+
+        Ok(Arc::try_unwrap(res).unwrap().into_inner().unwrap())
     }
 
     fn get_course_files_from_tar_archive(
