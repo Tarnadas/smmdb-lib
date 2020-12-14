@@ -1,6 +1,6 @@
 extern crate smmdb;
 
-use smmdb::{course2::*, errors::Course2Error, Error};
+use smmdb::{constants2::*, course2::*, errors::Course2Error, Error};
 use std::{
     collections::HashSet,
     fs::{read, read_dir},
@@ -206,6 +206,18 @@ fn course2_from_packed_tar() {
             .map(|course| course.get_course().get_header().get_title().to_string())
             .collect::<HashSet<_>>()
     );
+}
+
+#[test]
+fn course2_bad_modified() {
+    let mut course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
+    Course2::decrypt(&mut course_data);
+    course_data[DAY_OFFSET] = 69;
+    Course2::encrypt(&mut course_data);
+
+    let course = Course2::from_switch_files(&mut course_data, None, true);
+
+    assert!(course.is_err());
 }
 
 #[test]

@@ -1,7 +1,7 @@
 use crate::{
     constants2::*,
     encryption::{decrypt, encrypt},
-    errors::SaveError,
+    errors::{Course2Error, Course2Result, Course2ResultRef, SaveError},
     fix_crc32,
     key_tables::*,
     Course2, Error, Result,
@@ -14,7 +14,7 @@ use async_std::{
 };
 use std::{cell::Cell, path::PathBuf};
 
-type Courses = [Option<Box<SavedCourse>>; 60];
+type Courses = [Option<Box<CourseEntry>>; 60];
 
 #[derive(Clone, Debug)]
 pub struct Save {
@@ -69,10 +69,17 @@ impl Save {
                 i if i >= 120 && i < 180 => courses = &mut downloaded_courses,
                 _ => panic!(),
             }
-            courses[index % 60] = Some(Box::new(SavedCourse::new(
-                array_ref!(&save_file[..], offset, 8).clone(),
-                Course2::from_switch_files(&mut course_data, Some(thumb_data), true)?,
-            )));
+            let course = Course2::from_switch_files(&mut course_data, Some(thumb_data), true);
+            match course {
+                Ok(course) => {
+                    courses[index % 60] = Some(Box::new(CourseEntry::SavedCourse(
+                        SavedCourse::new(array_ref!(&save_file[..], offset, 8).clone(), course),
+                    )));
+                }
+                Err(err) => {
+                    courses[index % 60] = Some(Box::new(CourseEntry::CorruptedCourse(err)));
+                }
+            }
 
             index += 1;
         }
@@ -102,7 +109,7 @@ impl Save {
             Some(PendingFsOperation::AddOrReplaceCourse(index));
 
         index = index % 60;
-        courses[index as usize] = Some(Box::new(course));
+        courses[index as usize] = Some(Box::new(CourseEntry::SavedCourse(course)));
 
         Ok(())
     }
@@ -212,11 +219,17 @@ impl Save {
 }
 
 #[derive(Clone, Debug)]
+pub enum CourseEntry {
+    SavedCourse(SavedCourse),
+    CorruptedCourse(Course2Error),
+}
+
+#[derive(Clone, Debug)]
 pub struct SavedCourse {
     index: u8,
     exists: u8,
     buf: [u8; 8],
-    course: Course2,
+    course: Course2Result<Course2>,
 }
 
 impl SavedCourse {
@@ -225,12 +238,12 @@ impl SavedCourse {
             index: buf[0],
             exists: buf[1],
             buf,
-            course,
+            course: Ok(course),
         }
     }
 
-    pub fn get_course(&self) -> &Course2 {
-        &self.course
+    pub fn get_course(&self) -> Course2ResultRef<Course2> {
+        self.course.as_ref()
     }
 }
 
@@ -264,25 +277,28 @@ impl PendingFsOperation {
                 let mut course_path = path.clone();
                 course_path.push(format!("course_data_{:0>3}.bcd", index));
                 let mut course_file = File::create(course_path).await?;
-                let mut course_data = course.course.get_course_data().clone();
-                Course2::encrypt(&mut course_data);
-                course_file.write_all(&course_data).await?;
+                match &**course {
+                    CourseEntry::SavedCourse(course) => {
+                        let course = course.course.as_ref().map_err(|err| err.clone())?;
+                        let mut course_data = course.get_course_data().clone();
+                        Course2::encrypt(&mut course_data);
+                        course_file.write_all(&course_data).await?;
 
-                let thumb_data = course.course.get_course_thumb().ok_or_else(|| -> Error {
-                    SaveError::ThumbnailRequired(
-                        course
-                            .course
-                            .get_course()
-                            .get_header()
-                            .get_title()
-                            .to_string(),
-                    )
-                    .into()
-                })?;
-                let mut thumb_path = path.clone();
-                thumb_path.push(format!("course_thumb_{:0>3}.btl", index));
-                let mut thumb_file = File::create(thumb_path).await?;
-                thumb_file.write_all(thumb_data.get_encrypted()).await?;
+                        let thumb_data = course.get_course_thumb().ok_or_else(|| -> Error {
+                            SaveError::ThumbnailRequired(
+                                course.get_course().get_header().get_title().to_string(),
+                            )
+                            .into()
+                        })?;
+                        let mut thumb_path = path.clone();
+                        thumb_path.push(format!("course_thumb_{:0>3}.btl", index));
+                        let mut thumb_file = File::create(thumb_path).await?;
+                        thumb_file.write_all(thumb_data.get_encrypted()).await?;
+                    }
+                    CourseEntry::CorruptedCourse(err) => {
+                        return Err(SaveError::CorruptedCourse(err.clone()).into())
+                    }
+                }
             }
             Self::SwapCourse(first, second) => {
                 // TODO only works for immediate swap

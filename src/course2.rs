@@ -7,7 +7,7 @@ use crate::JsResult;
 use crate::{
     constants2::*,
     decrypt, encrypt,
-    errors::Course2Error,
+    errors::{Course2Error, Course2Result},
     fix_crc32,
     key_tables::*,
     proto::SMM2Course::{
@@ -213,7 +213,7 @@ impl Course2 {
         data: &mut [u8],
         thumb: Option<Vec<u8>>,
         is_encrypted: bool,
-    ) -> Result<Course2> {
+    ) -> Course2Result<Course2> {
         Self::_from_switch_files(data, thumb, is_encrypted)
     }
 }
@@ -450,7 +450,7 @@ impl Course2 {
         data: &mut [u8],
         thumb: Option<Vec<u8>>,
         is_encrypted: bool,
-    ) -> Result<Course2> {
+    ) -> Course2Result<Course2> {
         if is_encrypted {
             Course2::decrypt(data)
         };
@@ -483,8 +483,8 @@ impl Course2 {
         })
     }
 
-    fn get_course_header(course_data: &[u8]) -> Result<SingularPtrField<SMM2CourseHeader>> {
-        let modified = Course2::get_modified(course_data);
+    fn get_course_header(course_data: &[u8]) -> Course2Result<SingularPtrField<SMM2CourseHeader>> {
+        let modified = Course2::get_modified(course_data)?;
         let title =
             Course2::get_utf16_string_from_slice(&course_data[TITLE_OFFSET..TITLE_OFFSET_END]);
         let description = Course2::get_utf16_string_from_slice(
@@ -589,7 +589,7 @@ impl Course2 {
     fn get_course_area(
         course_data: &[u8],
         const_index: usize,
-    ) -> Result<SingularPtrField<SMM2CourseArea>> {
+    ) -> Course2Result<SingularPtrField<SMM2CourseArea>> {
         let course_theme = SMM2CourseArea_CourseTheme::from_i32(
             course_data[COURSE_THEME_OFFSET[const_index]] as i32,
         )
@@ -732,17 +732,33 @@ impl Course2 {
         }))
     }
 
-    fn get_modified(course_data: &[u8]) -> u64 {
+    fn get_modified(course_data: &[u8]) -> Course2Result<u64> {
         let year = u16::from_le_bytes([course_data[YEAR_OFFSET], course_data[YEAR_OFFSET + 1]]);
         let month = course_data[MONTH_OFFSET];
         let day = course_data[DAY_OFFSET];
         let hour = course_data[HOUR_OFFSET];
         let minute = course_data[MINUTE_OFFSET];
         let time = NaiveDateTime::new(
-            NaiveDate::from_ymd(year as i32, month as u32, day as u32),
-            NaiveTime::from_hms(hour as u32, minute as u32, 0),
+            NaiveDate::from_ymd_opt(year as i32, month as u32, day as u32).ok_or_else(|| {
+                Course2Error::InvalidDate {
+                    year,
+                    month,
+                    day,
+                    hour,
+                    minute,
+                }
+            })?,
+            NaiveTime::from_hms_opt(hour as u32, minute as u32, 0).ok_or_else(|| {
+                Course2Error::InvalidDate {
+                    year,
+                    month,
+                    day,
+                    hour,
+                    minute,
+                }
+            })?,
         );
-        time.timestamp() as u64
+        Ok(time.timestamp() as u64)
     }
 
     fn get_utf16_string_from_slice(bytes: &[u8]) -> String {
@@ -756,7 +772,7 @@ impl Course2 {
         String::from_utf16(&res).expect("[Course::get_utf16_string_from_slice] from_utf16 failed")
     }
 
-    fn get_game_style_from_str(s: String) -> Result<SMM2CourseHeader_GameStyle> {
+    fn get_game_style_from_str(s: String) -> Course2Result<SMM2CourseHeader_GameStyle> {
         match s.as_ref() {
             "M1" => Ok(SMM2CourseHeader_GameStyle::M1),
             "M3" => Ok(SMM2CourseHeader_GameStyle::M3),

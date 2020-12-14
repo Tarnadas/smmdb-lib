@@ -8,6 +8,9 @@ use wasm_bindgen::JsValue;
 use zip::result::ZipError;
 
 pub type SmmdbResult<T> = Result<T, SmmdbError>;
+pub(crate) type Course2Result<T> = Result<T, Course2Error>;
+#[cfg(feature = "save")]
+pub(crate) type Course2ResultRef<'a, T> = Result<&'a T, &'a Course2Error>;
 
 #[derive(Debug, Error)]
 pub enum SmmdbError {
@@ -53,6 +56,14 @@ pub enum CourseError {
 /// Error which can occur during Super Mario Maker 2 course file serialization.
 #[derive(Clone, Debug, Error)]
 pub enum Course2Error {
+    #[error("Course2ConvertError::InvalidDate")]
+    InvalidDate {
+        year: u16,
+        month: u8,
+        day: u8,
+        hour: u8,
+        minute: u8,
+    },
     #[error("Course2ConvertError::GameStyleParse")]
     GameStyleParse,
     #[error("Course2ConvertError::ClearConditionTypeParse")]
@@ -88,6 +99,8 @@ pub enum SaveError {
     CourseNotFound(u8),
     #[error("thumbnail is missing for course {0}")]
     ThumbnailRequired(String),
+    #[error("cannot add corrupted course {0}")]
+    CorruptedCourse(Course2Error),
 }
 
 #[cfg(target_arch = "wasm32")]
