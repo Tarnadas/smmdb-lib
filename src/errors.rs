@@ -109,3 +109,10 @@ impl From<SmmdbError> for JsValue {
         JsValue::from(format!("{}", err))
     }
 }
+
+#[cfg(target_arch = "wasm32")]
+impl From<Course2Error> for JsValue {
+    fn from(err: Course2Error) -> JsValue {
+        JsValue::from(format!("{}", err))
+    }
+}
