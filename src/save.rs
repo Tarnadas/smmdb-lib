@@ -285,10 +285,8 @@ impl PendingFsOperation {
                         course_file.write_all(&course_data).await?;
 
                         let thumb_data = course.get_course_thumb().ok_or_else(|| -> Error {
-                            SaveError::ThumbnailRequired(
-                                course.get_course().get_header().get_title().to_string(),
-                            )
-                            .into()
+                            let header = course.get_course().header.0.as_ref().unwrap();
+                            SaveError::ThumbnailRequired(header.title.to_string()).into()
                         })?;
                         let mut thumb_path = path.clone();
                         thumb_path.push(format!("course_thumb_{:0>3}.btl", index));

@@ -8,7 +8,10 @@ use crate::{
     constants::*,
     errors::CourseError,
     proto::{
-        SMMCourse::{SMMCourse, SMMCourse_AutoScroll, SMMCourse_CourseTheme, SMMCourse_GameStyle},
+        SMMCourse::{
+            smmcourse::{AutoScroll, CourseTheme, GameStyle},
+            SMMCourse,
+        },
         Sound::Sound,
         Tile::Tile,
     },
@@ -19,7 +22,7 @@ use bytes::Bytes;
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
 use infer::{Infer, Type};
 use itertools::Itertools;
-use protobuf::{parse_from_bytes, Message, ProtobufEnum, RepeatedField};
+use protobuf::{Message, ProtobufEnum, ProtobufEnumOrUnknown};
 use regex::Regex;
 use std::io::{Cursor, Read};
 #[cfg(target_arch = "wasm32")]
@@ -40,13 +43,13 @@ pub struct Course {
 impl Course {
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn from_proto(buffer: &[u8]) -> Course {
-        let course: SMMCourse = parse_from_bytes(buffer).unwrap();
+        let course: SMMCourse = Message::parse_from_bytes(buffer).unwrap();
         Course { course }
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn from_boxed_proto(buffer: Box<[u8]>) -> Course {
-        let course: SMMCourse = parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
+        let course: SMMCourse = Message::parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
         Course { course }
     }
 
@@ -105,7 +108,7 @@ impl Course {
 
     /// Sets the "last modified" timestamp as Unix timestamp.
     pub fn set_modified(&mut self, modified: u64) {
-        self.course.set_modified(modified);
+        self.course.modified = modified;
     }
 
     /// Set tiles.
@@ -115,12 +118,12 @@ impl Course {
 
     /// Set thumbnail.
     pub fn set_thumbnail(&mut self, thumbnail: Bytes) {
-        self.course.set_thumbnail(thumbnail);
+        self.course.thumbnail = thumbnail;
     }
 
     /// Set thumbnail preview image.
     pub fn set_thumbnail_preview(&mut self, thumbnail: Bytes) {
-        self.course.set_thumbnail_preview(thumbnail);
+        self.course.thumbnail_preview = thumbnail;
     }
 
     pub fn from_packed(buffer: &[u8]) -> Result<Vec<Course>> {
@@ -151,22 +154,28 @@ impl Course {
             Course::get_utf16_string_from_slice(&course_data[TITLE_OFFSET..TITLE_OFFSET_END]);
         let maker =
             Course::get_utf16_string_from_slice(&course_data[MAKER_OFFSET..MAKER_OFFSET_END]);
-        let game_style = Course::get_game_style_from_str(
+        let game_style = ProtobufEnumOrUnknown::from(Course::get_game_style_from_str(
             String::from_utf8(course_data[GAME_STYLE_OFFSET..GAME_STYLE_OFFSET_END].to_vec())
                 .map_err(|_| CourseError::GameStyleParse)?,
-        )?;
-        let course_theme = SMMCourse_CourseTheme::from_i32(course_data[COURSE_THEME_OFFSET] as i32)
-            .ok_or(CourseError::CourseThemeParse)?;
-        let course_theme_sub =
-            SMMCourse_CourseTheme::from_i32(course_data_sub[COURSE_THEME_OFFSET] as i32)
-                .ok_or(CourseError::CourseThemeParse)?;
+        )?);
+        let course_theme = ProtobufEnumOrUnknown::from(
+            CourseTheme::from_i32(course_data[COURSE_THEME_OFFSET] as i32)
+                .ok_or(CourseError::CourseThemeParse)?,
+        );
+        let course_theme_sub = ProtobufEnumOrUnknown::from(
+            CourseTheme::from_i32(course_data_sub[COURSE_THEME_OFFSET] as i32)
+                .ok_or(CourseError::CourseThemeParse)?,
+        );
         let time =
             u16::from_be_bytes([course_data[TIME_OFFSET], course_data[TIME_OFFSET + 1]]) as u32;
-        let auto_scroll = SMMCourse_AutoScroll::from_i32(course_data[AUTO_SCROLL_OFFSET] as i32)
-            .ok_or(CourseError::AutoScrollParse)?;
-        let auto_scroll_sub =
-            SMMCourse_AutoScroll::from_i32(course_data_sub[AUTO_SCROLL_OFFSET] as i32)
-                .ok_or(CourseError::AutoScrollParse)?;
+        let auto_scroll = ProtobufEnumOrUnknown::from(
+            AutoScroll::from_i32(course_data[AUTO_SCROLL_OFFSET] as i32)
+                .ok_or(CourseError::AutoScrollParse)?,
+        );
+        let auto_scroll_sub = ProtobufEnumOrUnknown::from(
+            AutoScroll::from_i32(course_data_sub[AUTO_SCROLL_OFFSET] as i32)
+                .ok_or(CourseError::AutoScrollParse)?,
+        );
         let width =
             u16::from_be_bytes([course_data[WIDTH_OFFSET], course_data[WIDTH_OFFSET + 1]]) as u32;
         let width_sub = u16::from_be_bytes([
@@ -227,17 +236,17 @@ impl Course {
         String::from_utf16(&res).expect("[Course::get_utf16_string_from_slice] from_utf16 failed")
     }
 
-    fn get_game_style_from_str(s: String) -> Result<SMMCourse_GameStyle> {
+    fn get_game_style_from_str(s: String) -> Result<GameStyle> {
         match s.as_ref() {
-            "M1" => Ok(SMMCourse_GameStyle::M1),
-            "M3" => Ok(SMMCourse_GameStyle::M3),
-            "MW" => Ok(SMMCourse_GameStyle::MW),
-            "WU" => Ok(SMMCourse_GameStyle::WU),
+            "M1" => Ok(GameStyle::M1),
+            "M3" => Ok(GameStyle::M3),
+            "MW" => Ok(GameStyle::MW),
+            "WU" => Ok(GameStyle::WU),
             _ => Err(CourseError::GameStyleParse.into()),
         }
     }
 
-    fn get_tiles(slice: &[u8]) -> RepeatedField<Tile> {
+    fn get_tiles(slice: &[u8]) -> Vec<Tile> {
         let mut tiles: Vec<Tile> = vec![];
         let tile_amount =
             u16::from_be_bytes([slice[TILE_AMOUNT_OFFSET], slice[TILE_AMOUNT_OFFSET + 1]]) as usize;
@@ -247,10 +256,10 @@ impl Course {
             tile.set_tile_data(Bytes::copy_from_slice(tile_data));
             tiles.push(tile);
         }
-        RepeatedField::from_vec(tiles)
+        tiles
     }
 
-    fn get_sounds(slice: &[u8]) -> Result<RepeatedField<Sound>> {
+    fn get_sounds(slice: &[u8]) -> Result<Vec<Sound>> {
         let mut sounds: Vec<Sound> = vec![];
         for offset in (SOUND_OFFSET..SOUND_OFFSET_END).step_by(SOUND_SIZE) {
             let sound_data = &slice[offset..offset + SOUND_SIZE];
@@ -270,7 +279,7 @@ impl Course {
             };
             sounds.push(sound);
         }
-        Ok(RepeatedField::from_vec(sounds))
+        Ok(sounds)
     }
 
     fn get_thumbnail(slice: &[u8]) -> Bytes {

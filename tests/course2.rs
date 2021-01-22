@@ -176,7 +176,7 @@ fn course2_from_packed_2() {
 
         assert_eq!(courses.len(), 60);
         for course in courses {
-            let header = course.get_course().get_header();
+            let header = course.get_course().header.0.as_ref().unwrap();
             assert!(
                 (header.game_version as f32).log2() as u32 <= header.completion_version,
                 "testing game version {} against completion version {}",
@@ -199,11 +199,25 @@ fn course2_from_packed_tar() {
     assert_eq!(
         zip_courses
             .into_iter()
-            .map(|course| course.get_course().get_header().get_title().to_string())
+            .map(|course| course
+                .get_course()
+                .header
+                .0
+                .as_ref()
+                .unwrap()
+                .title
+                .to_string())
             .collect::<HashSet<_>>(),
         tar_courses
             .into_iter()
-            .map(|course| course.get_course().get_header().get_title().to_string())
+            .map(|course| course
+                .get_course()
+                .header
+                .0
+                .as_ref()
+                .unwrap()
+                .title
+                .to_string())
             .collect::<HashSet<_>>()
     );
 }
@@ -231,7 +245,13 @@ fn course2_set_description() {
     let course_res = Course2::from_switch_files(course.get_course_data_mut(), None, false).unwrap();
 
     assert_eq!(
-        course_res.get_course().get_header().get_description(),
+        course_res
+            .get_course()
+            .header
+            .0
+            .as_ref()
+            .unwrap()
+            .description,
         description
     );
 }
@@ -296,17 +316,9 @@ fn course2_reset_clear_check() {
     course.reset_clear_check();
     let new_course = Course2::from_switch_files(course.get_course_data_mut(), None, false).unwrap();
 
-    assert_eq!(
-        course.get_course().get_header().get_management_flags() & 0b10,
-        0
-    );
-    assert_eq!(course.get_course().get_header().get_clear_check_tries(), 0);
-    assert_eq!(
-        course.get_course().get_header().get_clear_check_time(),
-        0xffffffff
-    );
-    assert_eq!(
-        course.get_course().get_header(),
-        new_course.get_course().get_header()
-    );
+    let header = course.get_course().header.0.as_ref().unwrap();
+    assert_eq!(header.management_flags & 0b10, 0);
+    assert_eq!(header.clear_check_tries, 0);
+    assert_eq!(header.clear_check_time, 0xffffffff);
+    assert_eq!(header, new_course.get_course().header.0.as_ref().unwrap());
 }

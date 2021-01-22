@@ -54,16 +54,16 @@ jobs:
       name: Test WASM
     - script: cargo test --all-features
       name: Test Rust
-    - stage: deploy
-      script: echo "deploying to NPM..."
-      name: Deploy to NPM
-      deploy:
-        - provider: script
-          skip_cleanup: true
-          script: bash npm_deploy.sh
-    - script: echo "deploying to crates.io..."
-      name: Deploy to Crates.io
-      deploy:
-        - provider: script
-          skip_cleanup: true
-          script: bash crate_deploy.sh
+    # - stage: deploy
+    #   script: echo "deploying to NPM..."
+    #   name: Deploy to NPM
+    #   deploy:
+    #     - provider: script
+    #       skip_cleanup: true
+    #       script: bash npm_deploy.sh
+    # - script: echo "deploying to crates.io..."
+    #   name: Deploy to Crates.io
+    #   deploy:
+    #     - provider: script
+    #       skip_cleanup: true
+    #       script: bash crate_deploy.sh

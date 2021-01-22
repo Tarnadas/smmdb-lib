@@ -11,10 +11,11 @@ use crate::{
     fix_crc32,
     key_tables::*,
     proto::SMM2Course::{
-        SMM2Course, SMM2CourseArea, SMM2CourseArea_AutoScroll, SMM2CourseArea_CourseTheme,
-        SMM2CourseArea_DayTime, SMM2CourseArea_LiquidMode, SMM2CourseArea_LiquidSpeed,
-        SMM2CourseArea_Orientation, SMM2CourseArea_ScreenBoundary, SMM2CourseHeader,
-        SMM2CourseHeader_ClearConditionType, SMM2CourseHeader_GameStyle,
+        smm2course_area::{
+            AutoScroll, CourseTheme, DayTime, LiquidMode, LiquidSpeed, Orientation, ScreenBoundary,
+        },
+        smm2course_header::{ClearConditionType, GameStyle},
+        SMM2Course, SMM2CourseArea, SMM2CourseHeader,
     },
     Error, Result, Thumbnail2,
 };
@@ -24,7 +25,7 @@ use brotli2::read::BrotliDecoder;
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
 use infer::{Infer, Type};
 use itertools::Itertools;
-use protobuf::{parse_from_bytes, Message, ProtobufEnum, SingularPtrField};
+use protobuf::{Message, MessageField, ProtobufEnum, ProtobufEnumOrUnknown};
 use regex::Regex;
 use std::{
     convert::TryFrom,
@@ -85,8 +86,8 @@ impl Course2 {
                 description.len(),
             )));
         }
-        let mut course_header = self.get_course().get_header().clone();
-        course_header.set_description(description.clone());
+        let course_header = self.get_course_mut().header.0.as_mut().unwrap();
+        course_header.description = description.clone();
         let mut description: Vec<u8> = description
             .encode_utf16()
             .map(|byte| byte.to_le_bytes())
@@ -99,7 +100,6 @@ impl Course2 {
         (description.len()..150).for_each(|_| description.push(0));
         self.data
             .splice(DESCRIPTION_OFFSET..DESCRIPTION_OFFSET_END, description);
-        self.get_course_mut().set_header(course_header);
         Ok(())
     }
 
@@ -127,16 +127,13 @@ impl Course2 {
     /// Afterwards the course can no longer be uploaded.
     pub fn reset_clear_check(&mut self) {
         let management_flags_lower_byte: u8 = {
-            let header = self.get_course_mut().mut_header();
+            let header = self.get_course_mut().header.0.as_mut().unwrap();
 
-            let mut management_flags = header.get_management_flags();
-            management_flags -= 2;
-            header.set_management_flags(management_flags);
+            header.management_flags -= 2;
+            header.clear_check_tries = 0;
+            header.clear_check_time = 4294967295;
 
-            header.set_clear_check_tries(0);
-            header.set_clear_check_time(4294967295);
-
-            (management_flags & 0xff) as u8
+            (header.management_flags & 0xff) as u8
         };
 
         self.data[MANAGEMENT_FLAGS_OFFSET] = management_flags_lower_byte;
@@ -170,7 +167,7 @@ impl Course2 {
     }
     #[cfg(not(target_arch = "wasm32"))]
     pub fn from_proto(buffer: &[u8], thumb: Option<Vec<u8>>) -> Course2 {
-        let course: SMM2Course = parse_from_bytes(buffer).unwrap();
+        let course: SMM2Course = Message::parse_from_bytes(buffer).unwrap();
         Course2 {
             course,
             data: vec![], // TODO
@@ -180,7 +177,7 @@ impl Course2 {
 
     #[cfg(not(target_arch = "wasm32"))]
     pub fn from_boxed_proto(buffer: Box<[u8]>, thumb: Option<Box<[u8]>>) -> Course2 {
-        let course: SMM2Course = parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
+        let course: SMM2Course = Message::parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
         Course2 {
             course,
             data: vec![], // TODO
@@ -483,17 +480,17 @@ impl Course2 {
         })
     }
 
-    fn get_course_header(course_data: &[u8]) -> Course2Result<SingularPtrField<SMM2CourseHeader>> {
+    fn get_course_header(course_data: &[u8]) -> Course2Result<MessageField<SMM2CourseHeader>> {
         let modified = Course2::get_modified(course_data)?;
         let title =
             Course2::get_utf16_string_from_slice(&course_data[TITLE_OFFSET..TITLE_OFFSET_END]);
         let description = Course2::get_utf16_string_from_slice(
             &course_data[DESCRIPTION_OFFSET..DESCRIPTION_OFFSET_END],
         );
-        let game_style = Course2::get_game_style_from_str(
+        let game_style = ProtobufEnumOrUnknown::from(Course2::get_game_style_from_str(
             String::from_utf8(course_data[GAME_STYLE_OFFSET..GAME_STYLE_OFFSET_END].to_vec())
                 .map_err(|_| Course2Error::GameStyleParse)?,
-        )?;
+        )?);
         let start_y = course_data[START_Y_OFFSET] as u32;
         let finish_y = course_data[FINISH_Y_OFFSET] as u32;
         let finish_x = u16::from_le_bytes([
@@ -502,10 +499,10 @@ impl Course2 {
         ]) as u32;
         let time =
             u16::from_le_bytes([course_data[TIME_OFFSET], course_data[TIME_OFFSET + 1]]) as u32;
-        let clear_condition_type = SMM2CourseHeader_ClearConditionType::from_i32(
-            course_data[CLEAR_CONDITION_TYPE_OFFSET] as i32,
-        )
-        .ok_or(Course2Error::ClearConditionTypeParse)?;
+        let clear_condition_type = ProtobufEnumOrUnknown::from(
+            ClearConditionType::from_i32(course_data[CLEAR_CONDITION_TYPE_OFFSET] as i32)
+                .ok_or(Course2Error::ClearConditionTypeParse)?,
+        );
         let clear_condition = u32::from_le_bytes([
             course_data[CLEAR_CONDITION_OFFSET],
             course_data[CLEAR_CONDITION_OFFSET + 1],
@@ -563,7 +560,7 @@ impl Course2 {
             course_data[COMPLETION_VERSION_OFFSET + 3],
         ]);
 
-        Ok(SingularPtrField::some(SMM2CourseHeader {
+        Ok(MessageField::some(SMM2CourseHeader {
             modified,
             title,
             description,
@@ -589,32 +586,32 @@ impl Course2 {
     fn get_course_area(
         course_data: &[u8],
         const_index: usize,
-    ) -> Course2Result<SingularPtrField<SMM2CourseArea>> {
-        let course_theme = SMM2CourseArea_CourseTheme::from_i32(
-            course_data[COURSE_THEME_OFFSET[const_index]] as i32,
-        )
-        .ok_or(Course2Error::CourseThemeParse)?;
-        let auto_scroll = SMM2CourseArea_AutoScroll::from_i32(
-            course_data[AUTO_SCROLL_OFFSET[const_index]] as i32,
-        )
-        .ok_or(Course2Error::AutoScrollParse)?;
-        let screen_boundary = SMM2CourseArea_ScreenBoundary::from_i32(
-            course_data[SCREEN_BOUNDARY_OFFSET[const_index]] as i32,
-        )
-        .ok_or(Course2Error::ScreenBoundaryParse)?;
-        let orientation = SMM2CourseArea_Orientation::from_i32(
-            course_data[ORIENTATION_OFFSET[const_index]] as i32,
-        )
-        .ok_or(Course2Error::OrientationParse)?;
+    ) -> Course2Result<MessageField<SMM2CourseArea>> {
+        let course_theme = ProtobufEnumOrUnknown::from(
+            CourseTheme::from_i32(course_data[COURSE_THEME_OFFSET[const_index]] as i32)
+                .ok_or(Course2Error::CourseThemeParse)?,
+        );
+        let auto_scroll = ProtobufEnumOrUnknown::from(
+            AutoScroll::from_i32(course_data[AUTO_SCROLL_OFFSET[const_index]] as i32)
+                .ok_or(Course2Error::AutoScrollParse)?,
+        );
+        let screen_boundary = ProtobufEnumOrUnknown::from(
+            ScreenBoundary::from_i32(course_data[SCREEN_BOUNDARY_OFFSET[const_index]] as i32)
+                .ok_or(Course2Error::ScreenBoundaryParse)?,
+        );
+        let orientation = ProtobufEnumOrUnknown::from(
+            Orientation::from_i32(course_data[ORIENTATION_OFFSET[const_index]] as i32)
+                .ok_or(Course2Error::OrientationParse)?,
+        );
         let liquid_max = course_data[LIQUID_MAX_OFFSET[const_index]] as u32;
-        let liquid_mode = SMM2CourseArea_LiquidMode::from_i32(
-            course_data[LIQUID_MODE_OFFSET[const_index]] as i32,
-        )
-        .ok_or(Course2Error::WaterModeParse)?;
-        let liquid_speed = SMM2CourseArea_LiquidSpeed::from_i32(
-            course_data[LIQUID_SPEED_OFFSET[const_index]] as i32,
-        )
-        .ok_or(Course2Error::WaterSpeedParse)?;
+        let liquid_mode = ProtobufEnumOrUnknown::from(
+            LiquidMode::from_i32(course_data[LIQUID_MODE_OFFSET[const_index]] as i32)
+                .ok_or(Course2Error::WaterModeParse)?,
+        );
+        let liquid_speed = ProtobufEnumOrUnknown::from(
+            LiquidSpeed::from_i32(course_data[LIQUID_SPEED_OFFSET[const_index]] as i32)
+                .ok_or(Course2Error::WaterSpeedParse)?,
+        );
         let liquid_min = course_data[LIQUID_MIN_OFFSET[const_index]] as u32;
         let right_boundary = u32::from_le_bytes([
             course_data[RIGHT_BOUNDARY_OFFSET[const_index]],
@@ -640,9 +637,10 @@ impl Course2 {
             course_data[BOTTOM_BOUNDARY_OFFSET[const_index] + 2],
             course_data[BOTTOM_BOUNDARY_OFFSET[const_index] + 3],
         ]);
-        let day_time =
-            SMM2CourseArea_DayTime::from_i32(course_data[DAY_TIME_OFFSET[const_index]] as i32)
-                .ok_or(Course2Error::DayTimeParse)?;
+        let day_time = ProtobufEnumOrUnknown::from(
+            DayTime::from_i32(course_data[DAY_TIME_OFFSET[const_index]] as i32)
+                .ok_or(Course2Error::DayTimeParse)?,
+        );
         let object_count = u32::from_le_bytes([
             course_data[OBJECT_COUNT_OFFSET[const_index]],
             course_data[OBJECT_COUNT_OFFSET[const_index] + 1],
@@ -704,7 +702,7 @@ impl Course2 {
             course_data[ICICLE_COUNT_OFFSET[const_index] + 3],
         ]);
 
-        Ok(SingularPtrField::some(SMM2CourseArea {
+        Ok(MessageField::some(SMM2CourseArea {
             course_theme,
             auto_scroll,
             screen_boundary,
@@ -772,13 +770,13 @@ impl Course2 {
         String::from_utf16(&res).expect("[Course::get_utf16_string_from_slice] from_utf16 failed")
     }
 
-    fn get_game_style_from_str(s: String) -> Course2Result<SMM2CourseHeader_GameStyle> {
+    fn get_game_style_from_str(s: String) -> Course2Result<GameStyle> {
         match s.as_ref() {
-            "M1" => Ok(SMM2CourseHeader_GameStyle::M1),
-            "M3" => Ok(SMM2CourseHeader_GameStyle::M3),
-            "MW" => Ok(SMM2CourseHeader_GameStyle::MW),
-            "WU" => Ok(SMM2CourseHeader_GameStyle::WU),
-            "3W" => Ok(SMM2CourseHeader_GameStyle::W3),
+            "M1" => Ok(GameStyle::M1),
+            "M3" => Ok(GameStyle::M3),
+            "MW" => Ok(GameStyle::MW),
+            "WU" => Ok(GameStyle::WU),
+            "3W" => Ok(GameStyle::W3),
             _ => Err(Course2Error::GameStyleParse.into()),
         }
     }
