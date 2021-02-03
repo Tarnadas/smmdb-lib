@@ -8,7 +8,7 @@ edition = "2018"
 license = "MIT"
 name = "smmdb"
 readme = "./README.md"
-repository = "https://github.com/Tarnadas/cemu-smm"
+repository = "https://github.com/Tarnadas/smmdb-lib"
 version = "2.0.0"
 include = [
     "/src/**/*.rs",
@@ -29,7 +29,7 @@ arrayref = "0.3"
 async-std = { version = "1", optional = true }
 block-modes = "0.7"
 byteorder = "1"
-bytes = { version = "0.6", features = ["serde"] }
+bytes = { version = "1", features = ["serde"] }
 cfg-if = "1"
 chrono = "0.4"
 cmac = "0.5"
@@ -38,7 +38,7 @@ hex = "0.4"
 image = "0.23"
 infer = "0.3"
 itertools = "0.10"
-protobuf = { version = "<=2.19", features = ["with-bytes", "with-serde"] }
+protobuf = { version = "2", features = ["with-bytes", "with-serde"] }
 rand = "0.8"
 regex = "1"
 serde = "1"
