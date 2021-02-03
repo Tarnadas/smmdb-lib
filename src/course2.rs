@@ -24,7 +24,7 @@ use brotli2::read::BrotliDecoder;
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
 use infer::{Infer, Type};
 use itertools::Itertools;
-use protobuf::{parse_from_bytes, Message, ProtobufEnum, SingularPtrField};
+use protobuf::{Message, ProtobufEnum, SingularPtrField};
 use regex::Regex;
 use std::{
     convert::TryFrom,
@@ -170,7 +170,7 @@ impl Course2 {
     }
     #[cfg(not(target_arch = "wasm32"))]
     pub fn from_proto(buffer: &[u8], thumb: Option<Vec<u8>>) -> Course2 {
-        let course: SMM2Course = parse_from_bytes(buffer).unwrap();
+        let course: SMM2Course = Message::parse_from_bytes(buffer).unwrap();
         Course2 {
             course,
             data: vec![], // TODO
@@ -180,7 +180,7 @@ impl Course2 {
 
     #[cfg(not(target_arch = "wasm32"))]
     pub fn from_boxed_proto(buffer: Box<[u8]>, thumb: Option<Box<[u8]>>) -> Course2 {
-        let course: SMM2Course = parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
+        let course: SMM2Course = Message::parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
         Course2 {
             course,
             data: vec![], // TODO

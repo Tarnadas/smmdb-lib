@@ -19,7 +19,7 @@ use bytes::Bytes;
 use chrono::naive::{NaiveDate, NaiveDateTime, NaiveTime};
 use infer::{Infer, Type};
 use itertools::Itertools;
-use protobuf::{parse_from_bytes, Message, ProtobufEnum, RepeatedField};
+use protobuf::{Message, ProtobufEnum, RepeatedField};
 use regex::Regex;
 use std::io::{Cursor, Read};
 #[cfg(target_arch = "wasm32")]
@@ -40,13 +40,13 @@ pub struct Course {
 impl Course {
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn from_proto(buffer: &[u8]) -> Course {
-        let course: SMMCourse = parse_from_bytes(buffer).unwrap();
+        let course: SMMCourse = Message::parse_from_bytes(buffer).unwrap();
         Course { course }
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn from_boxed_proto(buffer: Box<[u8]>) -> Course {
-        let course: SMMCourse = parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
+        let course: SMMCourse = Message::parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
         Course { course }
     }
 
