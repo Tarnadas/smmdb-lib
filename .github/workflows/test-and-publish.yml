@@ -1,0 +1,213 @@
+on: 
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+name: Rust Server Test & Publish
+
+env:
+  RUST_TOOLCHAIN: nightly-2021-01-25
+
+jobs:
+  test-rust:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        check-args:
+          - ''
+          - --target wasm32-unknown-unknown
+          - --features save
+          - --target wasm32-unknown-unknown --features save
+          - --no-default-features
+          - --target wasm32-unknown-unknown --no-default-features
+          - --no-default-features --features save
+          - --target wasm32-unknown-unknown --no-default-features --features save
+
+    env:
+      RUST_BACKTRACE: full
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: $RUST_TOOLCHAIN
+          target: wasm32-unknown-unknown
+          override: true
+          components: rustfmt, clippy
+
+      - name: Setup Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+
+      - name: Check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: ${{ matrix.check-args }}
+
+      - name: Fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: -- --check
+
+      - name: Clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -- -D warnings
+
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all-features
+
+  test-node:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: $RUST_TOOLCHAIN
+          target: wasm32-unknown-unknown
+          override: true
+
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: 'latest'
+
+      - name: Test
+        run: yarn test
+
+  check-publish:
+    needs: [test-rust, test-node]
+    if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+
+    outputs:
+      npm-version-exists: ${{ $steps.check-version.outputs.npm-version-exists }}
+      crate-version-exists: ${{ $steps.check-version.outputs.crate-version-exists }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: $RUST_TOOLCHAIN
+          target: wasm32-unknown-unknown
+          override: true
+          components: rustfmt, clippy
+
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: 'latest'
+
+      - name: Check NPM and crates.io version
+        id: check-version
+        run: |
+          cargo install cargo-whatfeatures --no-default-features --features "rustls"
+          export LIB_VERSION=$(cat Cargo.toml | grep version | head -1 | sed 's/[",(version = )]//g')
+          echo LIB_VERSION=$LIB_VERSION
+          export NPM_VERSION_EXISTS=$(./npm_version_exists.sh $LIB_VERSION)
+          echo "::set-output name=npm-version-exists::$NPM_VERSION_EXISTS"
+          export CRATE_VERSION_EXISTS=$(NO_COLOR=1 ./crate_version_exists.sh $LIB_VERSION)
+          echo "::set-output name=crate-version-exists::$CRATE_VERSION_EXISTS"
+
+  publish-crate:
+    needs: check-publish
+    if: ${{ !needs.check-publish.outputs.crate-version-exists }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: $RUST_TOOLCHAIN
+          override: true
+
+      - name: Deploy to crates.io
+        env:
+          CARGO_CREDENTIALS: ${{ secrets.CARGO_CREDENTIALS }}
+        run: |
+          # Crates.io login
+          echo "[registry]" >> ~/.cargo/credentials
+          echo "token = \"$CARGO_CREDENTIALS\"" >> ~/.cargo/credentials
+
+          # Crates.io publish
+          cargo publish --no-verify
+
+  publish-npm:
+    needs: check-publish
+    if: ${{ !needs.check-publish.outputs.npm-version-exists }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: $RUST_TOOLCHAIN
+          target: wasm32-unknown-unknown
+          override: true
+
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: 'latest'
+
+      - name: Deploy to NPM
+        env:
+          CARGO_CREDENTIALS: ${{ secrets.CARGO_CREDENTIALS }}
+        run: |
+          # Set package.json version
+          search='("version":[[:space:]]*").+(")'
+          replace="\1${LIB_VERSION}\2"
+          sed -E "s/${search}/${replace}/g" package.json > package.tmp.json
+          mv package.tmp.json package.json
+
+          # NPM login
+          touch ~/.npmrc
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+
+          # NPM build and publish
+          wasm-pack build --release --target=browser --out-name=smmdb
+          wasm-pack build --release --target=nodejs --out-name=smmdb-node
+          wasm-pack pack
+          wasm-pack publish

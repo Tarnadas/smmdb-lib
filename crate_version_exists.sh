@@ -6,12 +6,12 @@
 
     VERSIONS=$(cargo whatfeatures -l smmdb)
 
-    VERION_EXISTS=0
+    VERION_EXISTS=false
 
     while IFS='\n' read -ra VERSION; do
         for V in "${VERSION[@]}"; do
             if [ "$(echo smmdb = ${LIB_VERSION})" = "$V" ]; then
-                VERION_EXISTS=1
+                VERION_EXISTS=true
                 break
             fi
         done
