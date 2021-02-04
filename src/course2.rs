@@ -35,7 +35,8 @@ use wasm_bindgen::prelude::*;
 use zip::ZipArchive;
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[cfg_attr(feature = "with-serde", derive(Serialize))]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Course2 {
     course: SMM2Course,
     data: Vec<u8>,
