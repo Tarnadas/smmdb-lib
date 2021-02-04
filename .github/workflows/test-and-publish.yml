@@ -107,8 +107,8 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      npm-version-exists: ${{ $steps.check-version.outputs.npm-version-exists }}
-      crate-version-exists: ${{ $steps.check-version.outputs.crate-version-exists }}
+      npm-version-exists: ${{ steps.check-version.outputs.npm-version-exists }}
+      crate-version-exists: ${{ steps.check-version.outputs.crate-version-exists }}
 
     steps:
       - name: Checkout
