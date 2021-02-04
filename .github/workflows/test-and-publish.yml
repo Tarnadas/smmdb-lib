@@ -37,7 +37,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: $RUST_TOOLCHAIN
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
           target: wasm32-unknown-unknown
           override: true
           components: rustfmt, clippy
@@ -84,7 +84,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: $RUST_TOOLCHAIN
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
           target: wasm32-unknown-unknown
           override: true
 
@@ -118,7 +118,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: $RUST_TOOLCHAIN
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
           target: wasm32-unknown-unknown
           override: true
           components: rustfmt, clippy
@@ -154,7 +154,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: $RUST_TOOLCHAIN
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
           override: true
 
       - name: Deploy to crates.io
@@ -178,7 +178,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: $RUST_TOOLCHAIN
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
           target: wasm32-unknown-unknown
           override: true
 
