@@ -223,7 +223,7 @@ impl Course2 {
     #[cfg(target_arch = "wasm32")]
     #[wasm_bindgen(js_name = fromProto)]
     pub fn from_proto(buffer: &[u8], thumb: Option<Box<[u8]>>) -> Course2 {
-        let course: SMM2Course = parse_from_bytes(buffer).unwrap();
+        let course: SMM2Course = Message::parse_from_bytes(buffer).unwrap();
         Course2 {
             course,
             data: vec![], // TODO
