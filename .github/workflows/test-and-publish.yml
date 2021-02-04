@@ -48,7 +48,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ matrix.check-args }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Check
         uses: actions-rs/cargo@v1
