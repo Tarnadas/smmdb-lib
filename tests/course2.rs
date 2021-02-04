@@ -73,7 +73,7 @@ fn course2_encryption() {
                     expected_decrypted[..]
                 );
 
-                let mut encrypted = decrypted.clone();
+                let mut encrypted = decrypted;
                 Course2::encrypt(&mut encrypted);
 
                 assert_eq!(encrypted.len(), expected.len());
@@ -121,13 +121,13 @@ fn _course2_from_packed() -> Result<(), Error> {
     let course_121 = include_bytes!("assets/saves/smm2/save1/course_data_121.bcd");
     let course_thumb_121 = include_bytes!("assets/saves/smm2/save1/course_thumb_121.btl");
 
-    zip.start_file("course_data_120.bcd", options.clone())?;
+    zip.start_file("course_data_120.bcd", options)?;
     zip.write_all(course_120)?;
-    zip.start_file("course_thumb_120.btl", options.clone())?;
+    zip.start_file("course_thumb_120.btl", options)?;
     zip.write_all(course_thumb_120)?;
-    zip.start_file("course_data_121.bcd", options.clone())?;
+    zip.start_file("course_data_121.bcd", options)?;
     zip.write_all(course_121)?;
-    zip.start_file("course_thumb_121.btl", options.clone())?;
+    zip.start_file("course_thumb_121.btl", options)?;
     zip.write_all(course_thumb_121)?;
 
     let zip_file = zip.finish()?.into_inner();
@@ -135,7 +135,7 @@ fn _course2_from_packed() -> Result<(), Error> {
     let res = Course2::from_packed(&zip_file[..])?;
 
     let mut course = course_120.to_vec();
-    &Course2::decrypt(&mut course);
+    Course2::decrypt(&mut course);
     assert_eq!(res.get(0).unwrap().get_course_data(), &course);
     assert_eq!(
         &res.get(0)
@@ -148,7 +148,7 @@ fn _course2_from_packed() -> Result<(), Error> {
     );
 
     let mut course = course_121.to_vec();
-    &Course2::decrypt(&mut course);
+    Course2::decrypt(&mut course);
     assert_eq!(res.get(1).unwrap().get_course_data(), &course);
     assert_eq!(
         &res.get(1)
@@ -209,10 +209,12 @@ fn course2_from_packed_tar() {
 }
 
 #[test]
+#[cfg(not(target_arch = "wasm32"))]
 fn course2_bad_modified() {
     let mut course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
     Course2::decrypt(&mut course_data);
     course_data[DAY_OFFSET] = 69;
+
     Course2::encrypt(&mut course_data);
 
     let course = Course2::from_switch_files(&mut course_data, None, true);
@@ -275,7 +277,7 @@ fn course2_set_smmdb_id_no_hex() {
     let mut course = Course2::from_switch_files(&mut course_data, None, true).unwrap();
 
     let smmdb_id = "xf6850b100284286006b7c68".to_string();
-    let res = course.set_smmdb_id(smmdb_id.clone());
+    let res = course.set_smmdb_id(smmdb_id);
 
     assert!(res.is_err());
 }

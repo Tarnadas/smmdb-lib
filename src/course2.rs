@@ -169,23 +169,25 @@ impl Course2 {
             course.extend_from_slice(&aes_info);
         }
     }
+
     #[cfg(not(target_arch = "wasm32"))]
     pub fn from_proto(buffer: &[u8], thumb: Option<Vec<u8>>) -> Course2 {
         let course: SMM2Course = Message::parse_from_bytes(buffer).unwrap();
         Course2 {
             course,
             data: vec![], // TODO
-            thumb: thumb.map(|thumb| Thumbnail2::new(thumb)),
+            thumb: thumb.map(Thumbnail2::new),
         }
     }
 
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(target_arch = "wasm32")]
+    #[allow(clippy::boxed_local)]
     pub fn from_boxed_proto(buffer: Box<[u8]>, thumb: Option<Box<[u8]>>) -> Course2 {
         let course: SMM2Course = Message::parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
         Course2 {
             course,
             data: vec![], // TODO
-            thumb: thumb.map(|thumb| Thumbnail2::new(thumb.to_vec())),
+            thumb: thumb.map(|thumb| Thumbnail2::new(&thumb.to_vec())),
         }
     }
 
@@ -199,7 +201,7 @@ impl Course2 {
                 Course2::decompress_zip(&mut res, buffer)?;
             }
             "application/x-tar" => {
-                Course2::decompress_x_tar(&mut res, buffer)?;
+                Course2::decompress_x_tar(&mut res, buffer);
             }
             mime => {
                 return Err(Error::MimeTypeUnsupported(mime.to_string()));
@@ -363,7 +365,7 @@ impl Course2 {
         Ok(zip_file_data)
     }
 
-    fn decompress_x_tar(res: &mut Vec<Course2>, buffer: &[u8]) -> Result<()> {
+    fn decompress_x_tar(res: &mut Vec<Course2>, buffer: &[u8]) {
         let reader = Cursor::new(buffer);
         let tar = tar::Archive::new(reader);
 
@@ -374,8 +376,6 @@ impl Course2 {
                 res.push(course);
             };
         }
-
-        Ok(())
     }
 
     fn get_course_files_from_tar_archive(
@@ -740,24 +740,24 @@ impl Course2 {
         let hour = course_data[HOUR_OFFSET];
         let minute = course_data[MINUTE_OFFSET];
         let time = NaiveDateTime::new(
-            NaiveDate::from_ymd_opt(year as i32, month as u32, day as u32).ok_or_else(|| {
+            NaiveDate::from_ymd_opt(year as i32, month as u32, day as u32).ok_or(
                 Course2Error::InvalidDate {
                     year,
                     month,
                     day,
                     hour,
                     minute,
-                }
-            })?,
-            NaiveTime::from_hms_opt(hour as u32, minute as u32, 0).ok_or_else(|| {
+                },
+            )?,
+            NaiveTime::from_hms_opt(hour as u32, minute as u32, 0).ok_or(
                 Course2Error::InvalidDate {
                     year,
                     month,
                     day,
                     hour,
                     minute,
-                }
-            })?,
+                },
+            )?,
         );
         Ok(time.timestamp() as u64)
     }
@@ -780,7 +780,7 @@ impl Course2 {
             "MW" => Ok(SMM2CourseHeader_GameStyle::MW),
             "WU" => Ok(SMM2CourseHeader_GameStyle::WU),
             "3W" => Ok(SMM2CourseHeader_GameStyle::W3),
-            _ => Err(Course2Error::GameStyleParse.into()),
+            _ => Err(Course2Error::GameStyleParse),
         }
     }
 }
@@ -791,6 +791,6 @@ impl TryFrom<Vec<u8>> for Course2 {
     fn try_from(data: Vec<u8>) -> Result<Course2> {
         Course2::from_packed(&data[..])?
             .pop()
-            .ok_or_else(|| Error::Course2Error(Course2Error::ConvertFromBuffer))
+            .ok_or(Error::Course2Error(Course2Error::ConvertFromBuffer))
     }
 }

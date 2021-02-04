@@ -45,6 +45,7 @@ impl Course {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    #[allow(clippy::boxed_local)]
     pub fn from_boxed_proto(buffer: Box<[u8]>) -> Course {
         let course: SMMCourse = Message::parse_from_bytes(buffer.to_vec().as_slice()).unwrap();
         Course { course }
@@ -70,6 +71,7 @@ impl Course {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    #[allow(clippy::wrong_self_convention)]
     pub fn into_proto(&self) -> Box<[u8]> {
         let mut out: Vec<u8> = vec![];
         self.course
@@ -81,6 +83,7 @@ impl Course {
     #[cfg(target_arch = "wasm32")]
     #[cfg(feature = "with-serde")]
     #[wasm_bindgen]
+    #[allow(clippy::wrong_self_convention)]
     pub fn into_js(&self) -> JsValue {
         JsValue::from_serde(&self.course).unwrap()
     }
@@ -175,8 +178,8 @@ impl Course {
         ]) as u32;
         let tiles = Course::get_tiles(&course_data);
         let tiles_sub = Course::get_tiles(&course_data_sub);
-        let sounds = Course::get_sounds(&course_data)?;
-        let sounds_sub = Course::get_sounds(&course_data_sub)?;
+        let sounds = Course::get_sounds(&course_data);
+        let sounds_sub = Course::get_sounds(&course_data_sub);
         let thumbnail = Course::get_thumbnail(&thumbnail);
         let thumbnail_preview = Course::get_thumbnail(&thumbnail_preview);
         Ok(Course {
@@ -218,7 +221,7 @@ impl Course {
 
     fn get_utf16_string_from_slice(bytes: &[u8]) -> String {
         let res: Vec<u16> = bytes
-            .into_iter()
+            .iter()
             .cloned()
             .tuples()
             .map(|(hi, lo)| u16::from_le_bytes([hi, lo]))
@@ -250,7 +253,7 @@ impl Course {
         RepeatedField::from_vec(tiles)
     }
 
-    fn get_sounds(slice: &[u8]) -> Result<RepeatedField<Sound>> {
+    fn get_sounds(slice: &[u8]) -> RepeatedField<Sound> {
         let mut sounds: Vec<Sound> = vec![];
         for offset in (SOUND_OFFSET..SOUND_OFFSET_END).step_by(SOUND_SIZE) {
             let sound_data = &slice[offset..offset + SOUND_SIZE];
@@ -270,7 +273,7 @@ impl Course {
             };
             sounds.push(sound);
         }
-        Ok(RepeatedField::from_vec(sounds))
+        RepeatedField::from_vec(sounds)
     }
 
     fn get_thumbnail(slice: &[u8]) -> Bytes {

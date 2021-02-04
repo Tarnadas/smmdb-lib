@@ -134,7 +134,7 @@ impl Thumbnail2 {
     pub fn from_decrypted(bytes: &[u8]) -> Thumbnail2 {
         let mut encrypted = bytes.to_vec();
         encrypted.resize(0x1c000 - 0x30, 0);
-        Thumbnail2::encrypt(&mut encrypted);
+        encrypted = Thumbnail2::encrypt(&encrypted);
         Thumbnail2 {
             encrypted,
             jpeg: bytes.to_vec(),
@@ -160,7 +160,7 @@ impl Thumbnail2 {
     #[cfg(target_arch = "wasm32")]
     #[wasm_bindgen(js_name = getEncrypted)]
     pub fn get_encrypted(self) -> Vec<u8> {
-        self.encrypted.clone()
+        self.encrypted
     }
 
     #[cfg(target_arch = "wasm32")]

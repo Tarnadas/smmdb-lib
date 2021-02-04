@@ -117,7 +117,7 @@ fn get_test_assets() -> Vec<(PathBuf, Vec<u8>, Vec<u8>)> {
                 let out_path: Vec<&str> = path.to_str().unwrap().split('.').collect();
                 let out_path = out_path[0].to_owned() + ".decrypted";
                 let out_data = read(out_path).unwrap();
-                if out_data.len() == 0 {
+                if out_data.is_empty() {
                     // FIXME flaky test workaround
                     continue;
                 };

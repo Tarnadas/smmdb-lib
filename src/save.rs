@@ -65,15 +65,15 @@ impl Save {
             let courses: &mut Courses;
             match index {
                 i if i < 60 => courses = &mut own_courses,
-                i if i >= 60 && i < 120 => courses = &mut unknown_courses,
-                i if i >= 120 && i < 180 => courses = &mut downloaded_courses,
+                i if (60..120).contains(&i) => courses = &mut unknown_courses,
+                i if (120..180).contains(&i) => courses = &mut downloaded_courses,
                 _ => panic!(),
             }
             let course = Course2::from_switch_files(&mut course_data, Some(thumb_data), true);
             match course {
                 Ok(course) => {
                     courses[index % 60] = Some(Box::new(CourseEntry::SavedCourse(
-                        SavedCourse::new(array_ref!(&save_file[..], offset, 8).clone(), course),
+                        SavedCourse::new(*array_ref!(&save_file[..], offset, 8), course),
                     )));
                 }
                 Err(err) => {
@@ -97,18 +97,17 @@ impl Save {
     pub fn add_course(&mut self, mut index: u8, course: Course2) -> Result<()> {
         let courses = match index {
             i if i < 60 => &mut self.own_courses,
-            i if i >= 60 && i < 120 => &mut self.unknown_courses,
-            i if i >= 120 && i < 180 => &mut self.downloaded_courses,
+            i if (60..120).contains(&i) => &mut self.unknown_courses,
+            i if (120..180).contains(&i) => &mut self.downloaded_courses,
             _ => return Err(SaveError::CourseIndexOutOfBounds(index).into()),
         };
         let offset = SAVE_COURSE_OFFSET as usize + 0x10 + index as usize * 8;
         self.save_file[offset + 1] = 1;
-        let course = SavedCourse::new(array_ref!(&self.save_file[..], offset, 8).clone(), course);
+        let course = SavedCourse::new(*array_ref!(&self.save_file[..], offset, 8), course);
 
-        self.pending_fs_operations[index as usize] =
-            Some(PendingFsOperation::AddOrReplaceCourse(index));
+        self.pending_fs_operations[index as usize] = Some(PendingFsOperation::AddOrReplace(index));
 
-        index = index % 60;
+        index %= 60;
         courses[index as usize] = Some(Box::new(CourseEntry::SavedCourse(course)));
 
         Ok(())
@@ -136,19 +135,19 @@ impl Save {
         match (self.save_file[first_offset], self.save_file[second_offset]) {
             (1, 0) => {
                 self.pending_fs_operations[first as usize] =
-                    Some(PendingFsOperation::MoveCourse(first, second));
+                    Some(PendingFsOperation::Move(first, second));
                 self.save_file[first_offset] = 0;
                 self.save_file[second_offset] = 1;
             }
             (0, 1) => {
                 self.pending_fs_operations[first as usize] =
-                    Some(PendingFsOperation::MoveCourse(second, first));
+                    Some(PendingFsOperation::Move(second, first));
                 self.save_file[first_offset] = 1;
                 self.save_file[second_offset] = 0;
             }
             (1, 1) => {
                 self.pending_fs_operations[first as usize] =
-                    Some(PendingFsOperation::SwapCourse(first, second))
+                    Some(PendingFsOperation::Swap(first, second))
             }
             (_, _) => return Err(SaveError::CourseNotFound(first).into()),
         }
@@ -161,16 +160,16 @@ impl Save {
     pub fn remove_course(&mut self, mut index: u8) -> Result<()> {
         let courses = match index {
             i if i < 60 => &mut self.own_courses,
-            i if i >= 60 && i < 120 => &mut self.unknown_courses,
-            i if i >= 120 && i < 180 => &mut self.downloaded_courses,
+            i if (60..120).contains(&i) => &mut self.unknown_courses,
+            i if (120..180).contains(&i) => &mut self.downloaded_courses,
             _ => return Err(SaveError::CourseIndexOutOfBounds(index).into()),
         };
         let offset = SAVE_COURSE_OFFSET as usize + 0x10 + index as usize * 8;
         self.save_file[offset + 1] = 0;
 
-        self.pending_fs_operations[index as usize] = Some(PendingFsOperation::RemoveCourse(index));
+        self.pending_fs_operations[index as usize] = Some(PendingFsOperation::Remove(index));
 
-        index = index % 60;
+        index %= 60;
         courses[index as usize] = None;
 
         Ok(())
@@ -249,10 +248,10 @@ impl SavedCourse {
 
 #[derive(Clone, Debug)]
 enum PendingFsOperation {
-    AddOrReplaceCourse(u8),
-    SwapCourse(u8, u8),
-    MoveCourse(u8, u8),
-    RemoveCourse(u8),
+    AddOrReplace(u8),
+    Swap(u8, u8),
+    Move(u8, u8),
+    Remove(u8),
 }
 
 impl PendingFsOperation {
@@ -264,11 +263,13 @@ impl PendingFsOperation {
         downloaded_courses: &Courses,
     ) -> Result<()> {
         match self {
-            Self::AddOrReplaceCourse(index) => {
+            Self::AddOrReplace(index) => {
                 let course = match index {
                     i if i < 60 => own_courses[index as usize].as_ref().unwrap(),
-                    i if i >= 60 && i < 120 => unknown_courses[index as usize].as_ref().unwrap(),
-                    i if i >= 120 && i < 180 => {
+                    i if (60..120).contains(&i) => {
+                        unknown_courses[index as usize].as_ref().unwrap()
+                    }
+                    i if (120..180).contains(&i) => {
                         downloaded_courses[index as usize].as_ref().unwrap()
                     }
                     _ => return Err(SaveError::CourseIndexOutOfBounds(index).into()),
@@ -300,7 +301,7 @@ impl PendingFsOperation {
                     }
                 }
             }
-            Self::SwapCourse(first, second) => {
+            Self::Swap(first, second) => {
                 // TODO only works for immediate swap
                 let mut first_course_path = path.clone();
                 let mut swap_course_path = first_course_path.clone();
@@ -325,7 +326,7 @@ impl PendingFsOperation {
                 rename(swap_course_path, second_course_path).await?;
                 rename(swap_thumb_path, second_thumb_path).await?;
             }
-            Self::MoveCourse(start, end) => {
+            Self::Move(start, end) => {
                 let mut start_course_path = path.clone();
                 let mut end_course_path = start_course_path.clone();
                 start_course_path.push(format!("course_data_{:0>3}.bcd", start));
@@ -338,7 +339,7 @@ impl PendingFsOperation {
                 end_thumb_path.push(format!("course_thumb_{:0>3}.btl", end));
                 rename(start_thumb_path, end_thumb_path).await?;
             }
-            Self::RemoveCourse(index) => {
+            Self::Remove(index) => {
                 let mut course_path = path.clone();
                 course_path.push(format!("course_data_{:0>3}.bcd", index));
                 remove_file(course_path).await?;
@@ -368,43 +369,40 @@ mod test {
     };
 
     pub fn test_save() -> Pin<Box<dyn Future<Output = Result<()>>>> {
-        let res = task::block_on(async {
-            let f = async || -> Result<()> {
-                let mut options = CopyOptions::new();
-                options.copy_inside = true;
-                options.overwrite = true;
-                copy(
-                    "./tests/assets/saves/smm2/save1",
-                    "tests/assets/saves/smm2/tmp",
-                    &options,
-                )
-                .unwrap();
-                let mut save = Save::new("./tests/assets/saves/smm2/tmp").await?;
+        let f = async || -> Result<()> {
+            let mut options = CopyOptions::new();
+            options.copy_inside = true;
+            options.overwrite = true;
+            copy(
+                "./tests/assets/saves/smm2/save1",
+                "tests/assets/saves/smm2/tmp",
+                &options,
+            )
+            .unwrap();
+            let mut save = Save::new("./tests/assets/saves/smm2/tmp").await?;
 
-                let file = include_bytes!("../tests/assets/saves/smm2/save1.zip");
-                let courses = Course2::from_packed(file).unwrap();
-                save.add_course(0, courses[0].clone()).unwrap();
-                save.add_course(1, courses[1].clone()).unwrap();
-                save.add_course(2, courses[2].clone()).unwrap();
-                save.add_course(5, courses[3].clone()).unwrap();
-                save.add_course(6, courses[4].clone()).unwrap();
-                save.add_course(9, courses[5].clone()).unwrap();
-                save.add_course(12, courses[6].clone()).unwrap();
-                save.remove_course(122)?;
-                save.remove_course(126)?;
-                save.save().await?;
+            let file = include_bytes!("../tests/assets/saves/smm2/save1.zip");
+            let courses = Course2::from_packed(file).unwrap();
+            save.add_course(0, courses[0].clone()).unwrap();
+            save.add_course(1, courses[1].clone()).unwrap();
+            save.add_course(2, courses[2].clone()).unwrap();
+            save.add_course(5, courses[3].clone()).unwrap();
+            save.add_course(6, courses[4].clone()).unwrap();
+            save.add_course(9, courses[5].clone()).unwrap();
+            save.add_course(12, courses[6].clone()).unwrap();
+            save.remove_course(122)?;
+            save.remove_course(126)?;
+            save.save().await?;
 
-                let offset = SAVE_COURSE_OFFSET as usize;
-                let checksum = crc::crc32::checksum_ieee(&save.save_file[offset + 0x10..]);
-                let bytes: [u8; 4] = unsafe { std::mem::transmute(checksum.to_le()) };
-                assert_eq!(save.save_file[offset + 0x8], bytes[0]);
-                assert_eq!(save.save_file[offset + 0x9], bytes[1]);
-                assert_eq!(save.save_file[offset + 0xA], bytes[2]);
-                assert_eq!(save.save_file[offset + 0xB], bytes[3]);
-                Ok(())
-            };
-            f()
-        });
-        Box::pin(res)
+            let offset = SAVE_COURSE_OFFSET as usize;
+            let checksum = crc::crc32::checksum_ieee(&save.save_file[offset + 0x10..]);
+            let bytes: [u8; 4] = unsafe { std::mem::transmute(checksum.to_le()) };
+            assert_eq!(save.save_file[offset + 0x8], bytes[0]);
+            assert_eq!(save.save_file[offset + 0x9], bytes[1]);
+            assert_eq!(save.save_file[offset + 0xA], bytes[2]);
+            assert_eq!(save.save_file[offset + 0xB], bytes[3]);
+            Ok(())
+        };
+        Box::pin(f())
     }
 }
