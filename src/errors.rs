@@ -9,8 +9,6 @@ use zip::result::ZipError;
 
 pub type SmmdbResult<T> = Result<T, SmmdbError>;
 pub(crate) type Course2Result<T> = Result<T, Course2Error>;
-#[cfg(all(feature = "save", not(target_arch = "wasm32")))]
-pub(crate) type Course2ResultRef<'a, T> = Result<&'a T, &'a Course2Error>;
 
 #[derive(Debug, Error)]
 pub enum SmmdbError {

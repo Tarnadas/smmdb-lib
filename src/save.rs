@@ -1,7 +1,7 @@
 use crate::{
     constants2::*,
     encryption::{decrypt, encrypt},
-    errors::{Course2Error, Course2Result, Course2ResultRef, SaveError},
+    errors::{Course2Error, SaveError},
     fix_crc32,
     key_tables::*,
     Course2, Error, Result,
@@ -180,7 +180,7 @@ impl Save {
         for i in 0..180 {
             if let Some(op) = self.pending_fs_operations[i].take() {
                 op.run(
-                    &self.path,
+                    self.path.clone(),
                     &self.own_courses,
                     &self.unknown_courses,
                     &self.downloaded_courses,
@@ -228,7 +228,7 @@ pub struct SavedCourse {
     index: u8,
     exists: u8,
     buf: [u8; 8],
-    course: Course2Result<Course2>,
+    course: Course2,
 }
 
 impl SavedCourse {
@@ -237,12 +237,12 @@ impl SavedCourse {
             index: buf[0],
             exists: buf[1],
             buf,
-            course: Ok(course),
+            course,
         }
     }
 
-    pub fn get_course(&self) -> Course2ResultRef<Course2> {
-        self.course.as_ref()
+    pub fn get_course(&self) -> &Course2 {
+        &self.course
     }
 }
 
@@ -257,7 +257,7 @@ enum PendingFsOperation {
 impl PendingFsOperation {
     async fn run(
         self,
-        path: &PathBuf,
+        path: PathBuf,
         own_courses: &Courses,
         unknown_courses: &Courses,
         downloaded_courses: &Courses,
@@ -280,7 +280,7 @@ impl PendingFsOperation {
                 let mut course_file = File::create(course_path).await?;
                 match &**course {
                     CourseEntry::SavedCourse(course) => {
-                        let course = course.course.as_ref().map_err(|err| err.clone())?;
+                        let course = &course.course;
                         let mut course_data = course.get_course_data().clone();
                         Course2::encrypt(&mut course_data);
                         course_file.write_all(&course_data).await?;
@@ -358,7 +358,6 @@ impl PendingFsOperation {
 mod test {
     use super::*;
 
-    use async_std::task;
     use fs_extra::dir::{copy, CopyOptions};
     use std::{future::Future, pin::Pin};
 
