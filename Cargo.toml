@@ -36,7 +36,7 @@ cmac = "0.5"
 crc = "1"
 hex = "0.4"
 image = "0.23"
-infer = "0.3"
+infer = "0.4"
 itertools = "0.10"
 protobuf = { version = "2", features = ["with-bytes", "with-serde"] }
 rand = "0.8"
