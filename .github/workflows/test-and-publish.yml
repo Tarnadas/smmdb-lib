@@ -7,7 +7,7 @@ on:
 name: Rust Server Test & Publish
 
 env:
-  RUST_TOOLCHAIN: nightly-2021-01-25
+  RUST_TOOLCHAIN: nightly-2021-03-25
 
 jobs:
   test-rust:
