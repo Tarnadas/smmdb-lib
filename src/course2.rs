@@ -7,7 +7,7 @@ use crate::JsResult;
 use crate::{
     constants2::*,
     decrypt, encrypt,
-    errors::{Course2Error, Course2Result},
+    errors::{Smm2Error, Smm2Result},
     fix_crc32,
     key_tables::*,
     proto::SMM2Course::{
@@ -28,11 +28,11 @@ use protobuf::{Message, ProtobufEnum, SingularPtrField};
 use regex::Regex;
 use std::{
     convert::TryFrom,
-    io::{Cursor, Read},
+    io::{Cursor, Read, Write},
 };
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
-use zip::ZipArchive;
+use zip::{ZipArchive, ZipWriter};
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 #[cfg_attr(feature = "with-serde", derive(Serialize))]
@@ -77,12 +77,32 @@ impl Course2 {
         self.thumb.as_mut()
     }
 
+    pub fn as_zip(&self) -> Result<Vec<u8>> {
+        if let Some(thumb) = &self.thumb {
+            let buffer = Cursor::new(vec![]);
+
+            let mut zip = ZipWriter::new(buffer);
+
+            let mut data = self.data.clone();
+            Course2::encrypt(&mut data);
+            zip.start_file("course_data_000.bcd", Default::default())?;
+            zip.write_all(&data)?;
+
+            zip.start_file("course_thumb_000.btl", Default::default())?;
+            zip.write_all(thumb.get_encrypted())?;
+
+            Ok(zip.finish()?.into_inner())
+        } else {
+            Err(Smm2Error::ThumbnailRequired.into())
+        }
+    }
+
     /// Set the description of this course.
     ///
     /// This might fail, if the given description is longer than 75 characters.
     pub fn set_description(&mut self, description: String) -> Result<()> {
         if description.len() > 75 {
-            return Err(Error::Course2Error(Course2Error::StringTooLong(
+            return Err(Error::Smm2Error(Smm2Error::StringTooLong(
                 description.len(),
             )));
         }
@@ -171,13 +191,18 @@ impl Course2 {
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn from_proto(buffer: &[u8], thumb: Option<Vec<u8>>) -> Course2 {
+    pub fn from_proto(buffer: &[u8], thumb: Option<Vec<u8>>) -> Result<Course2> {
         let course: SMM2Course = Message::parse_from_bytes(buffer).unwrap();
-        Course2 {
+        let thumb = if let Some(thumb) = thumb {
+            Some(Thumbnail2::from_encrypted(thumb)?)
+        } else {
+            None
+        };
+        Ok(Course2 {
             course,
             data: vec![], // TODO
-            thumb: thumb.map(Thumbnail2::new),
-        }
+            thumb,
+        })
     }
 
     #[cfg(target_arch = "wasm32")]
@@ -216,7 +241,7 @@ impl Course2 {
         data: &mut [u8],
         thumb: Option<Vec<u8>>,
         is_encrypted: bool,
-    ) -> Course2Result<Course2> {
+    ) -> Smm2Result<Course2> {
         Self::_from_switch_files(data, thumb, is_encrypted)
     }
 }
@@ -273,9 +298,14 @@ impl Course2 {
         JsValue::from_serde(&self).unwrap()
     }
 
-    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn decrypt(course: &mut [u8]) {
-        decrypt(&mut course[0x10..], &COURSE_KEY_TABLE);
+    pub fn decrypt(course: &mut [u8]) -> Smm2Result<()> {
+        decrypt(&mut course[0x10..], &COURSE_KEY_TABLE)
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    #[wasm_bindgen]
+    pub fn decrypt(course: &mut [u8]) -> JsResult<()> {
+        decrypt(&mut course[0x10..], &COURSE_KEY_TABLE).map_err(|err| err.into())
     }
 
     #[cfg(target_arch = "wasm32")]
@@ -451,14 +481,35 @@ impl Course2 {
         data: &mut [u8],
         thumb: Option<Vec<u8>>,
         is_encrypted: bool,
-    ) -> Course2Result<Course2> {
+    ) -> Smm2Result<Course2> {
         if is_encrypted {
-            Course2::decrypt(data)
+            Course2::decrypt(data)?;
         };
 
         let header = Course2::get_course_header(&data)?;
         let course_area = Course2::get_course_area(&data, 0)?;
         let course_sub_area = Course2::get_course_area(&data, 1)?;
+
+        #[cfg(target_arch = "wasm32")]
+        let thumb = if let Some(thumb) = thumb.as_deref() {
+            Some(if is_encrypted {
+                Thumbnail2::from_encrypted(thumb)?
+            } else {
+                Thumbnail2::from_decrypted(thumb)
+            })
+        } else {
+            None
+        };
+        #[cfg(not(target_arch = "wasm32"))]
+        let thumb = if let Some(thumb) = thumb {
+            Some(if is_encrypted {
+                Thumbnail2::from_encrypted(thumb)?
+            } else {
+                Thumbnail2::from_decrypted(thumb)
+            })
+        } else {
+            None
+        };
 
         Ok(Course2 {
             course: SMM2Course {
@@ -469,22 +520,11 @@ impl Course2 {
                 ..SMM2Course::default()
             },
             data: data.to_vec(),
-            #[cfg(target_arch = "wasm32")]
-            thumb: thumb.as_deref().map(if is_encrypted {
-                Thumbnail2::new
-            } else {
-                Thumbnail2::from_decrypted
-            }),
-            #[cfg(not(target_arch = "wasm32"))]
-            thumb: thumb.map(if is_encrypted {
-                Thumbnail2::new
-            } else {
-                Thumbnail2::from_decrypted
-            }),
+            thumb,
         })
     }
 
-    fn get_course_header(course_data: &[u8]) -> Course2Result<SingularPtrField<SMM2CourseHeader>> {
+    fn get_course_header(course_data: &[u8]) -> Smm2Result<SingularPtrField<SMM2CourseHeader>> {
         let modified = Course2::get_modified(course_data)?;
         let title =
             Course2::get_utf16_string_from_slice(&course_data[TITLE_OFFSET..TITLE_OFFSET_END]);
@@ -493,7 +533,7 @@ impl Course2 {
         );
         let game_style = Course2::get_game_style_from_str(
             String::from_utf8(course_data[GAME_STYLE_OFFSET..GAME_STYLE_OFFSET_END].to_vec())
-                .map_err(|_| Course2Error::GameStyleParse)?,
+                .map_err(|_| Smm2Error::GameStyleParse)?,
         )?;
         let start_y = course_data[START_Y_OFFSET] as u32;
         let finish_y = course_data[FINISH_Y_OFFSET] as u32;
@@ -506,7 +546,7 @@ impl Course2 {
         let clear_condition_type = SMM2CourseHeader_ClearConditionType::from_i32(
             course_data[CLEAR_CONDITION_TYPE_OFFSET] as i32,
         )
-        .ok_or(Course2Error::ClearConditionTypeParse)?;
+        .ok_or(Smm2Error::ClearConditionTypeParse)?;
         let clear_condition = u32::from_le_bytes([
             course_data[CLEAR_CONDITION_OFFSET],
             course_data[CLEAR_CONDITION_OFFSET + 1],
@@ -590,32 +630,32 @@ impl Course2 {
     fn get_course_area(
         course_data: &[u8],
         const_index: usize,
-    ) -> Course2Result<SingularPtrField<SMM2CourseArea>> {
+    ) -> Smm2Result<SingularPtrField<SMM2CourseArea>> {
         let course_theme = SMM2CourseArea_CourseTheme::from_i32(
             course_data[COURSE_THEME_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2Error::CourseThemeParse)?;
+        .ok_or(Smm2Error::CourseThemeParse)?;
         let auto_scroll = SMM2CourseArea_AutoScroll::from_i32(
             course_data[AUTO_SCROLL_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2Error::AutoScrollParse)?;
+        .ok_or(Smm2Error::AutoScrollParse)?;
         let screen_boundary = SMM2CourseArea_ScreenBoundary::from_i32(
             course_data[SCREEN_BOUNDARY_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2Error::ScreenBoundaryParse)?;
+        .ok_or(Smm2Error::ScreenBoundaryParse)?;
         let orientation = SMM2CourseArea_Orientation::from_i32(
             course_data[ORIENTATION_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2Error::OrientationParse)?;
+        .ok_or(Smm2Error::OrientationParse)?;
         let liquid_max = course_data[LIQUID_MAX_OFFSET[const_index]] as u32;
         let liquid_mode = SMM2CourseArea_LiquidMode::from_i32(
             course_data[LIQUID_MODE_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2Error::WaterModeParse)?;
+        .ok_or(Smm2Error::WaterModeParse)?;
         let liquid_speed = SMM2CourseArea_LiquidSpeed::from_i32(
             course_data[LIQUID_SPEED_OFFSET[const_index]] as i32,
         )
-        .ok_or(Course2Error::WaterSpeedParse)?;
+        .ok_or(Smm2Error::WaterSpeedParse)?;
         let liquid_min = course_data[LIQUID_MIN_OFFSET[const_index]] as u32;
         let right_boundary = u32::from_le_bytes([
             course_data[RIGHT_BOUNDARY_OFFSET[const_index]],
@@ -643,7 +683,7 @@ impl Course2 {
         ]);
         let day_time =
             SMM2CourseArea_DayTime::from_i32(course_data[DAY_TIME_OFFSET[const_index]] as i32)
-                .ok_or(Course2Error::DayTimeParse)?;
+                .ok_or(Smm2Error::DayTimeParse)?;
         let object_count = u32::from_le_bytes([
             course_data[OBJECT_COUNT_OFFSET[const_index]],
             course_data[OBJECT_COUNT_OFFSET[const_index] + 1],
@@ -733,7 +773,7 @@ impl Course2 {
         }))
     }
 
-    fn get_modified(course_data: &[u8]) -> Course2Result<u64> {
+    fn get_modified(course_data: &[u8]) -> Smm2Result<u64> {
         let year = u16::from_le_bytes([course_data[YEAR_OFFSET], course_data[YEAR_OFFSET + 1]]);
         let month = course_data[MONTH_OFFSET];
         let day = course_data[DAY_OFFSET];
@@ -741,7 +781,7 @@ impl Course2 {
         let minute = course_data[MINUTE_OFFSET];
         let time = NaiveDateTime::new(
             NaiveDate::from_ymd_opt(year as i32, month as u32, day as u32).ok_or(
-                Course2Error::InvalidDate {
+                Smm2Error::InvalidDate {
                     year,
                     month,
                     day,
@@ -750,7 +790,7 @@ impl Course2 {
                 },
             )?,
             NaiveTime::from_hms_opt(hour as u32, minute as u32, 0).ok_or(
-                Course2Error::InvalidDate {
+                Smm2Error::InvalidDate {
                     year,
                     month,
                     day,
@@ -773,14 +813,14 @@ impl Course2 {
         String::from_utf16(&res).expect("[Course::get_utf16_string_from_slice] from_utf16 failed")
     }
 
-    fn get_game_style_from_str(s: String) -> Course2Result<SMM2CourseHeader_GameStyle> {
+    fn get_game_style_from_str(s: String) -> Smm2Result<SMM2CourseHeader_GameStyle> {
         match s.as_ref() {
             "M1" => Ok(SMM2CourseHeader_GameStyle::M1),
             "M3" => Ok(SMM2CourseHeader_GameStyle::M3),
             "MW" => Ok(SMM2CourseHeader_GameStyle::MW),
             "WU" => Ok(SMM2CourseHeader_GameStyle::WU),
             "3W" => Ok(SMM2CourseHeader_GameStyle::W3),
-            _ => Err(Course2Error::GameStyleParse),
+            _ => Err(Smm2Error::GameStyleParse),
         }
     }
 }
@@ -791,6 +831,6 @@ impl TryFrom<Vec<u8>> for Course2 {
     fn try_from(data: Vec<u8>) -> Result<Course2> {
         Course2::from_packed(&data[..])?
             .pop()
-            .ok_or(Error::Course2Error(Course2Error::ConvertFromBuffer))
+            .ok_or(Error::Smm2Error(Smm2Error::ConvertFromBuffer))
     }
 }

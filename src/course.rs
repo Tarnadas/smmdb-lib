@@ -6,7 +6,7 @@
 use crate::JsResult;
 use crate::{
     constants::*,
-    errors::CourseError,
+    errors::SmmError,
     proto::{
         SMMCourse::{SMMCourse, SMMCourse_AutoScroll, SMMCourse_CourseTheme, SMMCourse_GameStyle},
         Sound::Sound,
@@ -156,20 +156,20 @@ impl Course {
             Course::get_utf16_string_from_slice(&course_data[MAKER_OFFSET..MAKER_OFFSET_END]);
         let game_style = Course::get_game_style_from_str(
             String::from_utf8(course_data[GAME_STYLE_OFFSET..GAME_STYLE_OFFSET_END].to_vec())
-                .map_err(|_| CourseError::GameStyleParse)?,
+                .map_err(|_| SmmError::GameStyleParse)?,
         )?;
         let course_theme = SMMCourse_CourseTheme::from_i32(course_data[COURSE_THEME_OFFSET] as i32)
-            .ok_or(CourseError::CourseThemeParse)?;
+            .ok_or(SmmError::CourseThemeParse)?;
         let course_theme_sub =
             SMMCourse_CourseTheme::from_i32(course_data_sub[COURSE_THEME_OFFSET] as i32)
-                .ok_or(CourseError::CourseThemeParse)?;
+                .ok_or(SmmError::CourseThemeParse)?;
         let time =
             u16::from_be_bytes([course_data[TIME_OFFSET], course_data[TIME_OFFSET + 1]]) as u32;
         let auto_scroll = SMMCourse_AutoScroll::from_i32(course_data[AUTO_SCROLL_OFFSET] as i32)
-            .ok_or(CourseError::AutoScrollParse)?;
+            .ok_or(SmmError::AutoScrollParse)?;
         let auto_scroll_sub =
             SMMCourse_AutoScroll::from_i32(course_data_sub[AUTO_SCROLL_OFFSET] as i32)
-                .ok_or(CourseError::AutoScrollParse)?;
+                .ok_or(SmmError::AutoScrollParse)?;
         let width =
             u16::from_be_bytes([course_data[WIDTH_OFFSET], course_data[WIDTH_OFFSET + 1]]) as u32;
         let width_sub = u16::from_be_bytes([
@@ -236,7 +236,7 @@ impl Course {
             "M3" => Ok(SMMCourse_GameStyle::M3),
             "MW" => Ok(SMMCourse_GameStyle::MW),
             "WU" => Ok(SMMCourse_GameStyle::WU),
-            _ => Err(CourseError::GameStyleParse.into()),
+            _ => Err(SmmError::GameStyleParse.into()),
         }
     }
 

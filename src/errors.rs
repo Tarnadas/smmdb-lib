@@ -8,7 +8,7 @@ use wasm_bindgen::JsValue;
 use zip::result::ZipError;
 
 pub type SmmdbResult<T> = Result<T, SmmdbError>;
-pub(crate) type Course2Result<T> = Result<T, Course2Error>;
+pub(crate) type Smm2Result<T> = Result<T, Smm2Error>;
 
 #[derive(Debug, Error)]
 pub enum SmmdbError {
@@ -20,9 +20,9 @@ pub enum SmmdbError {
     #[error(transparent)]
     IoError(#[from] io::Error),
     #[error(transparent)]
-    CourseError(#[from] CourseError),
+    SmmError(#[from] SmmError),
     #[error(transparent)]
-    Course2Error(#[from] Course2Error),
+    Smm2Error(#[from] Smm2Error),
     #[error(transparent)]
     ImageError(#[from] ImageError),
     #[cfg(feature = "save")]
@@ -40,7 +40,7 @@ impl From<SmmdbError> for String {
 
 /// Error which can occur during Super Mario Maker course file serialization.
 #[derive(Clone, Debug, Error)]
-pub enum CourseError {
+pub enum SmmError {
     #[error("CourseConvertError::GameStyleParse")]
     GameStyleParse,
     #[error("CourseConvertError::CourseThemeParse")]
@@ -53,7 +53,14 @@ pub enum CourseError {
 
 /// Error which can occur during Super Mario Maker 2 course file serialization.
 #[derive(Clone, Debug, Error)]
-pub enum Course2Error {
+pub enum Smm2Error {
+    #[error("Thumbnail required")]
+    ThumbnailRequired,
+    #[error("CMAC wrong.\nExpected: {expected:?}\nReceived: {received:?}")]
+    CmacWrong {
+        expected: Vec<u8>,
+        received: Vec<u8>,
+    },
     #[error("Course2ConvertError::InvalidDate")]
     InvalidDate {
         year: u16,
@@ -98,7 +105,7 @@ pub enum SaveError {
     #[error("thumbnail is missing for course {0}")]
     ThumbnailRequired(String),
     #[error("cannot add corrupted course {0}")]
-    CorruptedCourse(Course2Error),
+    CorruptedCourse(Smm2Error),
 }
 
 #[cfg(target_arch = "wasm32")]

@@ -2,7 +2,7 @@
 
 #[cfg(target_arch = "wasm32")]
 use crate::JsResult;
-use crate::{decrypt, encrypt, key_tables::*, Error};
+use crate::{decrypt, encrypt, errors::Smm2Result, key_tables::*, Error, Result};
 
 use image::{jpeg::JpegEncoder, load_from_memory, DynamicImage, ImageError};
 #[cfg(target_arch = "wasm32")]
@@ -19,15 +19,15 @@ pub struct Thumbnail2 {
 
 impl Thumbnail2 {
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn new(bytes: Vec<u8>) -> Thumbnail2 {
+    pub fn from_encrypted(bytes: Vec<u8>) -> Smm2Result<Thumbnail2> {
         let mut encrypted = bytes.clone();
-        decrypt(&mut encrypted, &THUMBNAIL_KEY_TABLE);
+        decrypt(&mut encrypted, &THUMBNAIL_KEY_TABLE)?;
         let jpeg = encrypted[..encrypted.len() - 0x30].to_vec();
-        Thumbnail2 {
+        Ok(Thumbnail2 {
             encrypted: bytes,
             jpeg,
             jpeg_opt: None,
-        }
+        })
     }
 
     #[cfg(not(target_arch = "wasm32"))]
@@ -49,8 +49,8 @@ impl Thumbnail2 {
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn decrypt(bytes: &mut [u8]) {
-        decrypt(bytes, &THUMBNAIL_KEY_TABLE);
+    pub fn decrypt(bytes: &mut [u8]) -> Result<()> {
+        decrypt(bytes, &THUMBNAIL_KEY_TABLE).map_err(|err| err.into())
     }
 
     #[cfg(not(target_arch = "wasm32"))]
@@ -83,11 +83,11 @@ impl Thumbnail2 {
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn optimize_jpeg(&mut self) -> Result<(), Error> {
+    pub fn optimize_jpeg(&mut self) -> Result<()> {
         Self::_optimize_jpeg(self)
     }
 
-    fn _optimize_jpeg(&mut self) -> Result<(), Error> {
+    fn _optimize_jpeg(&mut self) -> Result<()> {
         let jpeg = self.get_jpeg();
 
         let image = load_from_memory(&jpeg)?;

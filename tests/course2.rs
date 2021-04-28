@@ -1,6 +1,6 @@
 extern crate smmdb;
 
-use smmdb::{constants2::*, course2::*, errors::Course2Error, Error};
+use smmdb::{constants2::*, course2::*, errors::Smm2Error, Error};
 use std::{
     collections::HashSet,
     fs::{read, read_dir},
@@ -67,7 +67,7 @@ fn course2_encryption() {
                 let expected_decrypted = read(out_path).unwrap();
 
                 let mut decrypted = read(path).unwrap();
-                Course2::decrypt(&mut decrypted);
+                Course2::decrypt(&mut decrypted).unwrap();
                 assert_eq!(
                     decrypted[0x10..decrypted.len() - 0x30],
                     expected_decrypted[..]
@@ -135,7 +135,7 @@ fn _course2_from_packed() -> Result<(), Error> {
     let res = Course2::from_packed(&zip_file[..])?;
 
     let mut course = course_120.to_vec();
-    Course2::decrypt(&mut course);
+    Course2::decrypt(&mut course)?;
     assert_eq!(res.get(0).unwrap().get_course_data(), &course);
     assert_eq!(
         &res.get(0)
@@ -148,7 +148,7 @@ fn _course2_from_packed() -> Result<(), Error> {
     );
 
     let mut course = course_121.to_vec();
-    Course2::decrypt(&mut course);
+    Course2::decrypt(&mut course)?;
     assert_eq!(res.get(1).unwrap().get_course_data(), &course);
     assert_eq!(
         &res.get(1)
@@ -212,7 +212,7 @@ fn course2_from_packed_tar() {
 #[cfg(not(target_arch = "wasm32"))]
 fn course2_bad_modified() {
     let mut course_data = read("tests/assets/saves/smm2/save1/course_data_120.bcd").unwrap();
-    Course2::decrypt(&mut course_data);
+    Course2::decrypt(&mut course_data).unwrap();
     course_data[DAY_OFFSET] = 69;
 
     Course2::encrypt(&mut course_data);
@@ -253,7 +253,7 @@ fn course2_set_description_fail() {
         ),
         format!(
             "{}",
-            Error::Course2Error(Course2Error::StringTooLong(description.len()))
+            Error::Smm2Error(Smm2Error::StringTooLong(description.len()))
         )
     );
 }

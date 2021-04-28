@@ -1,7 +1,7 @@
 use crate::{
     constants2::*,
     encryption::{decrypt, encrypt},
-    errors::{Course2Error, SaveError},
+    errors::{SaveError, Smm2Error},
     fix_crc32,
     key_tables::*,
     Course2, Error, Result,
@@ -35,7 +35,7 @@ impl Save {
         let mut file = File::open(save_path).await?;
         let mut save_file = vec![];
         file.read_to_end(&mut save_file).await?;
-        decrypt(&mut save_file[0x10..], &SAVE_KEY_TABLE);
+        decrypt(&mut save_file[0x10..], &SAVE_KEY_TABLE)?;
         save_file = save_file[..save_file.len() - 0x30].to_vec();
 
         let mut own_courses = arr![None; 60];
@@ -220,7 +220,7 @@ impl Save {
 #[derive(Clone, Debug)]
 pub enum CourseEntry {
     SavedCourse(SavedCourse),
-    CorruptedCourse(Course2Error),
+    CorruptedCourse(Smm2Error),
 }
 
 #[derive(Clone, Debug)]

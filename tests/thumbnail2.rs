@@ -36,7 +36,7 @@ fn decrypt_test_assets() -> io::Result<()> {
 #[test]
 fn thumbnail_decrypt() {
     for (_, mut thumbnail, decrypted) in get_test_assets().into_iter() {
-        Thumbnail2::decrypt(&mut thumbnail);
+        Thumbnail2::decrypt(&mut thumbnail).unwrap();
 
         assert_eq!(thumbnail.len() - 0x30, decrypted.len());
         assert_eq!(&thumbnail[..100], &decrypted[..100]);
@@ -51,9 +51,9 @@ fn thumbnail_encrypt() {
         assert_eq!(encrypted_ext.len(), encrypted.len());
 
         #[cfg(target_arch = "wasm32")]
-        let thumbnail = Thumbnail2::new(&encrypted);
+        let thumbnail = Thumbnail2::from_encrypted(&encrypted).unwrap();
         #[cfg(not(target_arch = "wasm32"))]
-        let thumbnail = Thumbnail2::new(encrypted);
+        let thumbnail = Thumbnail2::from_encrypted(encrypted).unwrap();
 
         assert_eq!(decrypted.len(), thumbnail.get_jpeg_no_opt().len());
         #[cfg(target_arch = "wasm32")]
@@ -67,9 +67,9 @@ fn thumbnail_encrypt() {
 fn thumbnail_get_jpeg() {
     for (_, thumbnail, expected) in get_test_assets().into_iter() {
         #[cfg(target_arch = "wasm32")]
-        let thumbnail = Thumbnail2::new(&thumbnail);
+        let thumbnail = Thumbnail2::from_encrypted(&thumbnail).unwrap();
         #[cfg(not(target_arch = "wasm32"))]
-        let thumbnail = Thumbnail2::new(thumbnail);
+        let thumbnail = Thumbnail2::from_encrypted(thumbnail).unwrap();
 
         #[cfg(target_arch = "wasm32")]
         assert_eq!(&thumbnail.get_jpeg_no_opt()[..], &expected[..]);
@@ -82,9 +82,9 @@ fn thumbnail_get_jpeg() {
 fn thumbnail_optimize_jpeg() {
     for (path, thumbnail, decrypted) in get_test_assets().into_iter() {
         #[cfg(target_arch = "wasm32")]
-        let mut thumbnail = Thumbnail2::new(&thumbnail);
+        let mut thumbnail = Thumbnail2::from_encrypted(&thumbnail).unwrap();
         #[cfg(not(target_arch = "wasm32"))]
-        let mut thumbnail = Thumbnail2::new(thumbnail);
+        let mut thumbnail = Thumbnail2::from_encrypted(thumbnail).unwrap();
 
         thumbnail.optimize_jpeg().unwrap();
 
