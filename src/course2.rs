@@ -241,7 +241,7 @@ impl Course2 {
         data: &mut [u8],
         thumb: Option<Vec<u8>>,
         is_encrypted: bool,
-    ) -> Smm2Result<Course2> {
+    ) -> Result<Course2> {
         Self::_from_switch_files(data, thumb, is_encrypted)
     }
 }
@@ -298,14 +298,14 @@ impl Course2 {
         JsValue::from_serde(&self).unwrap()
     }
 
-    pub fn decrypt(course: &mut [u8]) -> Smm2Result<()> {
+    pub fn decrypt(course: &mut [u8]) -> Result<()> {
         decrypt(&mut course[0x10..], &COURSE_KEY_TABLE)
     }
 
     #[cfg(target_arch = "wasm32")]
     #[wasm_bindgen]
     pub fn decrypt(course: &mut [u8]) -> JsResult<()> {
-        decrypt(&mut course[0x10..], &COURSE_KEY_TABLE).map_err(|err| err.into())
+        Ok(decrypt(&mut course[0x10..], &COURSE_KEY_TABLE)?)
     }
 
     #[cfg(target_arch = "wasm32")]
@@ -481,7 +481,7 @@ impl Course2 {
         data: &mut [u8],
         thumb: Option<Vec<u8>>,
         is_encrypted: bool,
-    ) -> Smm2Result<Course2> {
+    ) -> Result<Course2> {
         if is_encrypted {
             Course2::decrypt(data)?;
         };

@@ -76,9 +76,10 @@ impl Save {
                         SavedCourse::new(*array_ref!(&save_file[..], offset, 8), course),
                     )));
                 }
-                Err(err) => {
+                Err(Error::Smm2Error(err)) => {
                     courses[index % 60] = Some(Box::new(CourseEntry::CorruptedCourse(err)));
                 }
+                Err(err) => return Err(err),
             }
 
             index += 1;

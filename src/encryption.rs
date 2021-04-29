@@ -1,4 +1,4 @@
-use crate::errors::Smm2Error;
+use crate::{errors::Smm2Error, Result};
 
 use aes::{cipher::generic_array::GenericArray, Aes128};
 use block_modes::{block_padding::ZeroPadding, BlockMode, Cbc};
@@ -8,7 +8,7 @@ use rand::Rng;
 use std::convert::TryInto;
 use typenum::*;
 
-pub fn decrypt(bytes: &mut [u8], key_table: &[u32]) -> Result<(), Smm2Error> {
+pub fn decrypt(bytes: &mut [u8], key_table: &[u32]) -> Result<()> {
     let end_index = bytes.len() - 0x30;
     let aes_info = &bytes[end_index..];
     let iv = GenericArray::from_slice(&aes_info[0..16]);
@@ -32,7 +32,8 @@ pub fn decrypt(bytes: &mut [u8], key_table: &[u32]) -> Result<(), Smm2Error> {
         Err(Smm2Error::CmacWrong {
             expected: cmac.to_vec(),
             received: cmac_calculated.as_slice().to_vec(),
-        })
+        }
+        .into())
     } else {
         Ok(())
     }

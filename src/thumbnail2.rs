@@ -2,7 +2,7 @@
 
 #[cfg(target_arch = "wasm32")]
 use crate::JsResult;
-use crate::{decrypt, encrypt, errors::Smm2Result, key_tables::*, Error, Result};
+use crate::{decrypt, encrypt, key_tables::*, Error, Result};
 
 use image::{jpeg::JpegEncoder, load_from_memory, DynamicImage, ImageError};
 #[cfg(target_arch = "wasm32")]
@@ -19,7 +19,7 @@ pub struct Thumbnail2 {
 
 impl Thumbnail2 {
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn from_encrypted(bytes: Vec<u8>) -> Smm2Result<Thumbnail2> {
+    pub fn from_encrypted(bytes: Vec<u8>) -> Result<Thumbnail2> {
         let mut encrypted = bytes.clone();
         decrypt(&mut encrypted, &THUMBNAIL_KEY_TABLE)?;
         let jpeg = encrypted[..encrypted.len() - 0x30].to_vec();
@@ -50,7 +50,7 @@ impl Thumbnail2 {
 
     #[cfg(not(target_arch = "wasm32"))]
     pub fn decrypt(bytes: &mut [u8]) -> Result<()> {
-        decrypt(bytes, &THUMBNAIL_KEY_TABLE).map_err(|err| err.into())
+        decrypt(bytes, &THUMBNAIL_KEY_TABLE)
     }
 
     #[cfg(not(target_arch = "wasm32"))]
