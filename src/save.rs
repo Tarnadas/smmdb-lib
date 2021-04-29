@@ -282,8 +282,8 @@ impl PendingFsOperation {
                 match &**course {
                     CourseEntry::SavedCourse(course) => {
                         let course = &course.course;
-                        let mut course_data = course.get_course_data().clone();
-                        Course2::encrypt(&mut course_data);
+                        let mut course_data = course.get_course_data().to_vec();
+                        Course2::encrypt(&mut course_data[..]);
                         course_file.write_all(&course_data).await?;
 
                         let thumb_data = course.get_course_thumb().ok_or_else(|| -> Error {

@@ -60,13 +60,13 @@ impl Course2 {
     }
 
     /// Returns decrypted course data.
-    pub fn get_course_data(&self) -> &Vec<u8> {
-        &self.data
+    pub fn get_course_data(&self) -> &[u8] {
+        &self.data[..0x5bfd0]
     }
 
     /// Returns mutable decrypted course data.
-    pub fn get_course_data_mut(&mut self) -> &mut Vec<u8> {
-        &mut self.data
+    pub fn get_course_data_mut(&mut self) -> &mut [u8] {
+        &mut self.data[..0x5bfd0]
     }
 
     pub fn get_course_thumb(&self) -> Option<&Thumbnail2> {
@@ -172,8 +172,8 @@ impl Course2 {
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn encrypt(course: &mut Vec<u8>) {
-        Course2::encrypt_vec(course);
+    pub fn encrypt(course: &mut [u8]) {
+        Course2::encrypt_vec(&mut course.to_vec());
     }
 
     fn encrypt_vec(course: &mut Vec<u8>) {
