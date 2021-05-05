@@ -11,8 +11,6 @@
 #![feature(fn_traits)]
 #![test_runner(test_runner)]
 
-extern crate aes_soft as aes;
-
 #[macro_use]
 extern crate arrayref;
 

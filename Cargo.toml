@@ -23,16 +23,16 @@ include = [
 protobuf-codegen-pure = "2"
 
 [dependencies]
-aes-soft= "0.6"
+aes = "0.7"
 arr_macro = { version = "0.1", optional = true }
 arrayref = "0.3"
 async-std = { version = "1", optional = true }
-block-modes = "0.7"
+block-modes = "0.8"
 byteorder = "1"
 bytes = { version = "1", features = ["serde"] }
 cfg-if = "1"
 chrono = "0.4"
-cmac = "0.5"
+cmac = "0.6"
 crc = "1"
 hex = "0.4"
 image = "0.23"
