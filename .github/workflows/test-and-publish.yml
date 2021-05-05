@@ -93,6 +93,7 @@ jobs:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           target: wasm32-unknown-unknown
           override: true
+          components: rustfmt, clippy
 
       - name: Install Node
         uses: actions/setup-node@v2
