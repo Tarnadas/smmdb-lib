@@ -56,7 +56,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: ${{ matrix.check-args }} -- --check
+          args: -- --check
 
       - name: Clippy
         uses: actions-rs/cargo@v1
@@ -117,12 +117,6 @@ jobs:
         with:
           command: check
           args: ${{ matrix.check-args }}
-
-      - name: Fmt
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: ${{ matrix.check-args }} -- --check
 
       - name: Clippy
         uses: actions-rs/cargo@v1
