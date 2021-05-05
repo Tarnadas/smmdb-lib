@@ -137,7 +137,7 @@ jobs:
           args: ${{ matrix.check-args }}
 
   check-publish:
-    needs: [test-rust, test-node]
+    needs: [test-rust, test-wasm]
     if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }}
     runs-on: ubuntu-latest
 
