@@ -18,13 +18,9 @@ jobs:
       matrix:
         check-args:
           - ''
-          - --target wasm32-unknown-unknown
           - --features save
-          - --target wasm32-unknown-unknown --features save
           - --no-default-features
-          - --target wasm32-unknown-unknown --no-default-features
           - --no-default-features --features save
-          - --target wasm32-unknown-unknown --no-default-features --features save
 
     env:
       RUST_BACKTRACE: full
@@ -60,22 +56,31 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: -- --check
+          args: ${{ matrix.check-args }} -- --check
 
       - name: Clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: -- -D warnings
+          args: ${{ matrix.check-args }} -- -D warnings
 
       - name: Test
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-features
+          args: ${{ matrix.check-args }}
 
-  test-node:
+  test-wasm:
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        check-args:
+          - --target wasm32-unknown-unknown
+          - --target wasm32-unknown-unknown --features save
+          - --target wasm32-unknown-unknown --no-default-features
+          - --target wasm32-unknown-unknown --no-default-features --features save
 
     steps:
       - name: Checkout
@@ -99,8 +104,37 @@ jobs:
         with:
           version: 'latest'
 
+      - name: Setup Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-wasm-${{ matrix.check-args }}-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: ${{ matrix.check-args }}
+
+      - name: Fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: ${{ matrix.check-args }} -- --check
+
+      - name: Clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: ${{ matrix.check-args }} -- -D warnings
+
       - name: Test
-        run: yarn test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: ${{ matrix.check-args }}
 
   check-publish:
     needs: [test-rust, test-node]

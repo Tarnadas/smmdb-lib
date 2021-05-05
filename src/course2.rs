@@ -83,12 +83,21 @@ impl Course2 {
 
             let mut zip = ZipWriter::new(buffer);
 
+            #[cfg(target_arch = "wasm32")]
+            let data = self.data.clone();
+            #[cfg(not(target_arch = "wasm32"))]
             let mut data = self.data.clone();
+            #[cfg(target_arch = "wasm32")]
+            let data = Course2::encrypt(&data);
+            #[cfg(not(target_arch = "wasm32"))]
             Course2::encrypt(&mut data);
             zip.start_file("course_data_000.bcd", Default::default())?;
             zip.write_all(&data)?;
 
             zip.start_file("course_thumb_000.btl", Default::default())?;
+            #[cfg(target_arch = "wasm32")]
+            zip.write_all(&thumb.clone().get_encrypted()[..])?;
+            #[cfg(not(target_arch = "wasm32"))]
             zip.write_all(thumb.get_encrypted())?;
 
             Ok(zip.finish()?.into_inner())
@@ -172,8 +181,8 @@ impl Course2 {
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn encrypt(course: &mut [u8]) {
-        Course2::encrypt_vec(&mut course.to_vec());
+    pub fn encrypt(course: &mut Vec<u8>) {
+        Course2::encrypt_vec(course);
     }
 
     fn encrypt_vec(course: &mut Vec<u8>) {
@@ -188,6 +197,11 @@ impl Course2 {
         } else {
             course.extend_from_slice(&aes_info);
         }
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn decrypt(course: &mut [u8]) -> Result<()> {
+        decrypt(&mut course[0x10..], &COURSE_KEY_TABLE)
     }
 
     #[cfg(not(target_arch = "wasm32"))]
@@ -212,7 +226,9 @@ impl Course2 {
         Course2 {
             course,
             data: vec![], // TODO
-            thumb: thumb.map(|thumb| Thumbnail2::new(&thumb.to_vec())),
+            thumb: thumb
+                .map(|thumb| Thumbnail2::from_encrypted(&thumb.to_vec()).ok())
+                .flatten(),
         }
     }
 
@@ -255,7 +271,9 @@ impl Course2 {
         Course2 {
             course,
             data: vec![], // TODO
-            thumb: thumb.map(|thumb| Thumbnail2::new(&thumb)),
+            thumb: thumb
+                .map(|thumb| Thumbnail2::from_encrypted(&thumb).ok())
+                .flatten(),
         }
     }
 
@@ -267,7 +285,9 @@ impl Course2 {
         Course2 {
             course,
             data: vec![], // TODO
-            thumb: thumb.map(|thumb| Thumbnail2::new(&thumb)),
+            thumb: thumb
+                .map(|thumb| Thumbnail2::from_encrypted(&thumb).ok())
+                .flatten(),
         }
     }
 
@@ -298,14 +318,15 @@ impl Course2 {
         JsValue::from_serde(&self).unwrap()
     }
 
-    pub fn decrypt(course: &mut [u8]) -> Result<()> {
-        decrypt(&mut course[0x10..], &COURSE_KEY_TABLE)
-    }
-
     #[cfg(target_arch = "wasm32")]
     #[wasm_bindgen]
     pub fn decrypt(course: &mut [u8]) -> JsResult<()> {
-        Ok(decrypt(&mut course[0x10..], &COURSE_KEY_TABLE)?)
+        Ok(Course2::decrypt_wasm(course)?)
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    fn decrypt_wasm(course: &mut [u8]) -> Result<()> {
+        decrypt(&mut course[0x10..], &COURSE_KEY_TABLE)
     }
 
     #[cfg(target_arch = "wasm32")]
@@ -483,6 +504,9 @@ impl Course2 {
         is_encrypted: bool,
     ) -> Result<Course2> {
         if is_encrypted {
+            #[cfg(target_arch = "wasm32")]
+            Course2::decrypt_wasm(data)?;
+            #[cfg(not(target_arch = "wasm32"))]
             Course2::decrypt(data)?;
         };
 
@@ -493,7 +517,7 @@ impl Course2 {
         #[cfg(target_arch = "wasm32")]
         let thumb = if let Some(thumb) = thumb.as_deref() {
             Some(if is_encrypted {
-                Thumbnail2::from_encrypted(thumb)?
+                Thumbnail2::_from_encrypted(thumb)?
             } else {
                 Thumbnail2::from_decrypted(thumb)
             })

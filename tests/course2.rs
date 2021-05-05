@@ -1,6 +1,8 @@
 extern crate smmdb;
 
-use smmdb::{constants2::*, course2::*, errors::Smm2Error, Error};
+#[cfg(not(target_arch = "wasm32"))]
+use smmdb::constants2::*;
+use smmdb::{course2::*, errors::Smm2Error, Error};
 use std::{
     collections::HashSet,
     fs::{read, read_dir},
@@ -73,7 +75,13 @@ fn course2_encryption() {
                     expected_decrypted[..]
                 );
 
+                #[cfg(target_arch = "wasm32")]
+                let encrypted = decrypted;
+                #[cfg(not(target_arch = "wasm32"))]
                 let mut encrypted = decrypted;
+                #[cfg(target_arch = "wasm32")]
+                let mut encrypted = Course2::encrypt(&encrypted);
+                #[cfg(not(target_arch = "wasm32"))]
                 Course2::encrypt(&mut encrypted);
 
                 assert_eq!(encrypted.len(), expected.len());
@@ -135,8 +143,8 @@ fn _course2_from_packed() -> Result<(), Error> {
     let res = Course2::from_packed(&zip_file[..])?;
 
     let mut course = course_120.to_vec();
-    Course2::decrypt(&mut course)?;
-    assert_eq!(res.get(0).unwrap().get_course_data(), &course);
+    Course2::decrypt(&mut course).unwrap();
+    assert_eq!(res.get(0).unwrap().get_course_data(), &course[..0x5bfd0]);
     assert_eq!(
         &res.get(0)
             .unwrap()
@@ -148,8 +156,8 @@ fn _course2_from_packed() -> Result<(), Error> {
     );
 
     let mut course = course_121.to_vec();
-    Course2::decrypt(&mut course)?;
-    assert_eq!(res.get(1).unwrap().get_course_data(), &course);
+    Course2::decrypt(&mut course).unwrap();
+    assert_eq!(res.get(1).unwrap().get_course_data(), &course[..0x5bfd0]);
     assert_eq!(
         &res.get(1)
             .unwrap()

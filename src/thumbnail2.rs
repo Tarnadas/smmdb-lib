@@ -118,15 +118,20 @@ impl Thumbnail2 {
 impl Thumbnail2 {
     #[cfg(target_arch = "wasm32")]
     #[wasm_bindgen]
-    pub fn new(bytes: &[u8]) -> Thumbnail2 {
+    pub fn from_encrypted(bytes: &[u8]) -> JsResult<Thumbnail2> {
+        Ok(Thumbnail2::_from_encrypted(bytes)?)
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    pub(crate) fn _from_encrypted(bytes: &[u8]) -> Result<Thumbnail2> {
         let mut encrypted = bytes.to_vec();
-        decrypt(&mut encrypted, &THUMBNAIL_KEY_TABLE);
+        decrypt(&mut encrypted, &THUMBNAIL_KEY_TABLE)?;
         let jpeg = encrypted[..encrypted.len() - 0x30].to_vec();
-        Thumbnail2 {
+        Ok(Thumbnail2 {
             encrypted: bytes.to_vec(),
             jpeg,
             jpeg_opt: None,
-        }
+        })
     }
 
     #[cfg(target_arch = "wasm32")]
@@ -153,8 +158,8 @@ impl Thumbnail2 {
 
     #[cfg(target_arch = "wasm32")]
     #[wasm_bindgen]
-    pub fn decrypt(bytes: &mut [u8]) {
-        decrypt(bytes, &THUMBNAIL_KEY_TABLE);
+    pub fn decrypt(bytes: &mut [u8]) -> JsResult<()> {
+        Ok(decrypt(bytes, &THUMBNAIL_KEY_TABLE)?)
     }
 
     #[cfg(target_arch = "wasm32")]

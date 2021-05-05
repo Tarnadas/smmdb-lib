@@ -46,7 +46,13 @@ fn thumbnail_decrypt() {
 #[test]
 fn thumbnail_encrypt() {
     for (_, encrypted_ext, decrypted) in get_test_assets().into_iter() {
+        #[cfg(target_arch = "wasm32")]
+        let encrypted = decrypted.clone();
+        #[cfg(not(target_arch = "wasm32"))]
         let mut encrypted = decrypted.clone();
+        #[cfg(target_arch = "wasm32")]
+        let encrypted = Thumbnail2::encrypt(&encrypted);
+        #[cfg(not(target_arch = "wasm32"))]
         Thumbnail2::encrypt(&mut encrypted);
         assert_eq!(encrypted_ext.len(), encrypted.len());
 
