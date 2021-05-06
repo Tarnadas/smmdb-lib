@@ -77,10 +77,10 @@ jobs:
       fail-fast: false
       matrix:
         check-args:
-          - --target wasm32-unknown-unknown
-          - --target wasm32-unknown-unknown --features save
-          - --target wasm32-unknown-unknown --no-default-features
-          - --target wasm32-unknown-unknown --no-default-features --features save
+          - ''
+          - --features save
+          - --no-default-features
+          - --no-default-features --features save
 
     steps:
       - name: Checkout
@@ -126,10 +126,8 @@ jobs:
           args: ${{ matrix.check-args }} -- -D warnings
 
       - name: Test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: ${{ matrix.check-args }}
+        run: |
+          wasm-pack test --node -- ${{ matrix.check-args }}
 
   check-publish:
     needs: [test-rust, test-wasm]

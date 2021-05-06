@@ -184,6 +184,7 @@ fn course_from_proto_once(asset: &[u8], zip: &[u8]) {
 }
 
 #[cfg(target_arch = "wasm32")]
+#[cfg(feature = "with-serde")]
 #[wasm_bindgen_test]
 fn course_from_proto_wasm() {
     for course in COURSE_ASSETS.iter() {
@@ -192,6 +193,7 @@ fn course_from_proto_wasm() {
 }
 
 #[cfg(target_arch = "wasm32")]
+#[cfg(feature = "with-serde")]
 fn course_from_proto_wasm_once(asset: &[u8]) {
     let course = Course::from_proto(asset);
 
@@ -220,6 +222,7 @@ fn course_from_boxed_proto_once(asset: Box<[u8]>, zip: &[u8]) {
 }
 
 #[cfg(target_arch = "wasm32")]
+#[cfg(feature = "with-serde")]
 #[wasm_bindgen_test]
 fn course_from_boxed_proto_wasm() {
     for course in COURSE_ASSETS.iter() {
@@ -228,6 +231,7 @@ fn course_from_boxed_proto_wasm() {
 }
 
 #[cfg(target_arch = "wasm32")]
+#[cfg(feature = "with-serde")]
 fn course_from_boxed_proto_wasm_once(asset: Box<[u8]>) {
     let course = Course::from_boxed_proto(asset);
 
