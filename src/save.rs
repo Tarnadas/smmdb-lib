@@ -224,7 +224,7 @@ pub enum CourseEntry {
     CorruptedCourse(Smm2Error),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct SavedCourse {
     index: u8,
     exists: u8,
@@ -240,6 +240,10 @@ impl SavedCourse {
             buf,
             course,
         }
+    }
+
+    pub fn get_index(&self) -> u8 {
+        self.index
     }
 
     pub fn get_course(&self) -> &Course2 {
