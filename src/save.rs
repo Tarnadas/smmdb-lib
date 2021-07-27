@@ -363,6 +363,7 @@ impl PendingFsOperation {
 mod test {
     use super::*;
 
+    use crc::{Crc, CRC_32_ISO_HDLC};
     use fs_extra::dir::{copy, CopyOptions};
     use std::{future::Future, pin::Pin};
 
@@ -399,7 +400,8 @@ mod test {
             save.save().await?;
 
             let offset = SAVE_COURSE_OFFSET as usize;
-            let checksum = crc::crc32::checksum_ieee(&save.save_file[offset + 0x10..]);
+            let crc = Crc::<u32>::new(&CRC_32_ISO_HDLC);
+            let checksum = crc.checksum(&save.save_file[offset + 0x10..]);
             let bytes: [u8; 4] = unsafe { std::mem::transmute(checksum.to_le()) };
             assert_eq!(save.save_file[offset + 0x8], bytes[0]);
             assert_eq!(save.save_file[offset + 0x9], bytes[1]);

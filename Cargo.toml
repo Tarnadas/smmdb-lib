@@ -33,10 +33,10 @@ bytes = { version = "1", features = ["serde"] }
 cfg-if = "1"
 chrono = "0.4"
 cmac = "0.6"
-crc = "1"
+crc = "2"
 hex = "0.4"
 image = "0.23"
-infer = "0.4"
+infer = "0.5"
 itertools = "0.10"
 protobuf = { version = "2", features = ["with-bytes", "with-serde"] }
 rand = "0.8"

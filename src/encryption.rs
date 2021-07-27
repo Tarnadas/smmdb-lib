@@ -3,7 +3,7 @@ use crate::{errors::Smm2Error, Result};
 use aes::{cipher::generic_array::GenericArray, Aes128};
 use block_modes::{block_padding::ZeroPadding, BlockMode, Cbc};
 use cmac::{Cmac, Mac, NewMac};
-use crc::crc32;
+use crc::{Crc, CRC_32_ISO_HDLC};
 use rand::Rng;
 use std::convert::TryInto;
 use typenum::*;
@@ -70,7 +70,8 @@ pub fn encrypt(bytes: &mut [u8], key_table: &[u32]) -> Vec<u8> {
 pub fn fix_crc32(data: &mut [u8]) {
     use std::mem::transmute;
 
-    let checksum = crc32::checksum_ieee(&data[0x10..]);
+    let crc = Crc::<u32>::new(&CRC_32_ISO_HDLC);
+    let checksum = crc.checksum(&data[0x10..]);
     let bytes: [u8; 4] = unsafe { transmute(checksum.to_le()) };
     data[0x8] = bytes[0];
     data[0x9] = bytes[1];
