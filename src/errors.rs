@@ -93,6 +93,8 @@ pub enum Smm2Error {
     ConvertFromBuffer,
     #[error("String too long. Expected max length <= 75. Receiced: {0}")]
     StringTooLong(usize),
+    #[error("Header data seems to be empty")]
+    HeaderDataEmpty,
 }
 
 #[cfg(feature = "save")]

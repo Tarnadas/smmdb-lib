@@ -511,6 +511,11 @@ impl Course2 {
         };
 
         let header = Course2::get_course_header(&data)?;
+        if let Some(header) = &header.as_ref() {
+            if header.title.is_empty() {
+                return Err(Error::Smm2Error(Smm2Error::HeaderDataEmpty));
+            }
+        }
         let course_area = Course2::get_course_area(&data, 0)?;
         let course_sub_area = Course2::get_course_area(&data, 1)?;
 
