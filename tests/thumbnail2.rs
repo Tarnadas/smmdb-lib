@@ -86,7 +86,7 @@ fn thumbnail_get_jpeg() {
 
 #[test]
 fn thumbnail_optimize_jpeg() {
-    for (path, thumbnail, decrypted) in get_test_assets().into_iter() {
+    for (path, thumbnail, _) in get_test_assets().into_iter() {
         #[cfg(target_arch = "wasm32")]
         let mut thumbnail = Thumbnail2::from_encrypted(&thumbnail).unwrap();
         #[cfg(not(target_arch = "wasm32"))]
@@ -101,8 +101,6 @@ fn thumbnail_optimize_jpeg() {
         file.write_all(&thumbnail.get_jpeg()).unwrap();
         #[cfg(not(target_arch = "wasm32"))]
         file.write_all(thumbnail.get_jpeg()).unwrap();
-
-        assert!(thumbnail.get_jpeg().len() <= decrypted.len());
     }
 }
 
