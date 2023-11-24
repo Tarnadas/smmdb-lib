@@ -62,13 +62,12 @@ impl Save {
             let mut thumb_data = vec![];
             thumb_file.read_to_end(&mut thumb_data).await?;
 
-            let courses: &mut Courses;
-            match index {
-                i if i < 60 => courses = &mut own_courses,
-                i if (60..120).contains(&i) => courses = &mut unknown_courses,
-                i if (120..180).contains(&i) => courses = &mut downloaded_courses,
+            let courses = match index {
+                i if i < 60 => &mut own_courses,
+                i if (60..120).contains(&i) => &mut unknown_courses,
+                i if (120..180).contains(&i) => &mut downloaded_courses,
                 _ => panic!(),
-            }
+            };
             let course = Course2::from_switch_files(&mut course_data, Some(thumb_data), true);
             match course {
                 Ok(course) => {
@@ -364,51 +363,42 @@ mod test {
     use super::*;
 
     use crc::{Crc, CRC_32_ISO_HDLC};
-    use fs_extra::dir::{copy, CopyOptions};
-    use std::{future::Future, pin::Pin};
+    use fs_extra::dir::{copy, remove, CopyOptions};
 
-    #[test_case]
-    const test: crate::Test = crate::Test {
-        name: "test_save",
-        test: &test_save,
-    };
+    #[async_std::test]
+    pub async fn test_save() -> anyhow::Result<()> {
+        remove("./tests/assets/saves/smm2/tmp")?;
+        let mut options = CopyOptions::new();
+        options.copy_inside = true;
+        options.overwrite = true;
+        copy(
+            "./tests/assets/saves/smm2/save1",
+            "tests/assets/saves/smm2/tmp",
+            &options,
+        )?;
+        let mut save = Save::new("./tests/assets/saves/smm2/tmp").await?;
 
-    pub fn test_save() -> Pin<Box<dyn Future<Output = Result<()>>>> {
-        let f = async || -> Result<()> {
-            let mut options = CopyOptions::new();
-            options.copy_inside = true;
-            options.overwrite = true;
-            copy(
-                "./tests/assets/saves/smm2/save1",
-                "tests/assets/saves/smm2/tmp",
-                &options,
-            )
-            .unwrap();
-            let mut save = Save::new("./tests/assets/saves/smm2/tmp").await?;
+        let file = include_bytes!("../tests/assets/saves/smm2/save1.zip");
+        let courses = Course2::from_packed(file)?;
+        save.add_course(0, courses[0].clone())?;
+        save.add_course(1, courses[1].clone())?;
+        save.add_course(2, courses[2].clone())?;
+        save.add_course(5, courses[3].clone())?;
+        save.add_course(6, courses[4].clone())?;
+        save.add_course(9, courses[5].clone())?;
+        save.add_course(12, courses[6].clone())?;
+        save.remove_course(122)?;
+        save.remove_course(126)?;
+        save.save().await?;
 
-            let file = include_bytes!("../tests/assets/saves/smm2/save1.zip");
-            let courses = Course2::from_packed(file).unwrap();
-            save.add_course(0, courses[0].clone()).unwrap();
-            save.add_course(1, courses[1].clone()).unwrap();
-            save.add_course(2, courses[2].clone()).unwrap();
-            save.add_course(5, courses[3].clone()).unwrap();
-            save.add_course(6, courses[4].clone()).unwrap();
-            save.add_course(9, courses[5].clone()).unwrap();
-            save.add_course(12, courses[6].clone()).unwrap();
-            save.remove_course(122)?;
-            save.remove_course(126)?;
-            save.save().await?;
-
-            let offset = SAVE_COURSE_OFFSET as usize;
-            let crc = Crc::<u32>::new(&CRC_32_ISO_HDLC);
-            let checksum = crc.checksum(&save.save_file[offset + 0x10..]);
-            let bytes: [u8; 4] = unsafe { std::mem::transmute(checksum.to_le()) };
-            assert_eq!(save.save_file[offset + 0x8], bytes[0]);
-            assert_eq!(save.save_file[offset + 0x9], bytes[1]);
-            assert_eq!(save.save_file[offset + 0xA], bytes[2]);
-            assert_eq!(save.save_file[offset + 0xB], bytes[3]);
-            Ok(())
-        };
-        Box::pin(f())
+        let offset = SAVE_COURSE_OFFSET as usize;
+        let crc = Crc::<u32>::new(&CRC_32_ISO_HDLC);
+        let checksum = crc.checksum(&save.save_file[offset + 0x10..]);
+        let bytes: [u8; 4] = checksum.to_le().to_ne_bytes();
+        assert_eq!(save.save_file[offset + 0x8], bytes[0]);
+        assert_eq!(save.save_file[offset + 0x9], bytes[1]);
+        assert_eq!(save.save_file[offset + 0xA], bytes[2]);
+        assert_eq!(save.save_file[offset + 0xB], bytes[3]);
+        Ok(())
     }
 }

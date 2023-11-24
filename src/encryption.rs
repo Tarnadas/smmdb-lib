@@ -16,12 +16,12 @@ pub fn decrypt(bytes: &mut [u8], key_table: &[u32]) -> Result<()> {
     let rand_seed = array_ref!(aes_info, 0x10, 0x10);
 
     let mut rand_state = [0; 4];
-    rand_init(&mut rand_state, &rand_seed);
+    rand_init(&mut rand_state, rand_seed);
     let key = gen_key(&mut rand_state, key_table);
     let cmac_key = gen_key(&mut rand_state, key_table);
 
     type Aes128Cbc = Cbc<Aes128, ZeroPadding>;
-    let cipher = Aes128Cbc::new_fix(&key, &iv);
+    let cipher = Aes128Cbc::new_fix(&key, iv);
     cipher.decrypt(&mut bytes[..end_index]).unwrap();
 
     let mut cmac = Cmac::<Aes128>::new(&cmac_key);
@@ -68,11 +68,9 @@ pub fn encrypt(bytes: &mut [u8], key_table: &[u32]) -> Vec<u8> {
 }
 
 pub fn fix_crc32(data: &mut [u8]) {
-    use std::mem::transmute;
-
     let crc = Crc::<u32>::new(&CRC_32_ISO_HDLC);
     let checksum = crc.checksum(&data[0x10..]);
-    let bytes: [u8; 4] = unsafe { transmute(checksum.to_le()) };
+    let bytes: [u8; 4] = checksum.to_le().to_ne_bytes();
     data[0x8] = bytes[0];
     data[0x9] = bytes[1];
     data[0xA] = bytes[2];

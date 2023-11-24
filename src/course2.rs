@@ -145,7 +145,7 @@ impl Course2 {
     /// Get SMMDB ID of this course.
     /// If ID could not be found, this returns a `None`
     pub fn get_smmdb_id(&self) -> Option<String> {
-        let smmdb_id = hex::encode(self.data[SMMDB_OFFSET..SMMDB_OFFSET_END].to_vec());
+        let smmdb_id = hex::encode(&self.data[SMMDB_OFFSET..SMMDB_OFFSET_END]);
         if smmdb_id == "000000000000000000000000" {
             None
         } else {
@@ -226,9 +226,7 @@ impl Course2 {
         Course2 {
             course,
             data: vec![], // TODO
-            thumb: thumb
-                .map(|thumb| Thumbnail2::from_encrypted(&thumb.to_vec()).ok())
-                .flatten(),
+            thumb: thumb.and_then(|thumb| Thumbnail2::from_encrypted(&thumb).ok()),
         }
     }
 
@@ -271,9 +269,7 @@ impl Course2 {
         Course2 {
             course,
             data: vec![], // TODO
-            thumb: thumb
-                .map(|thumb| Thumbnail2::from_encrypted(&thumb).ok())
-                .flatten(),
+            thumb: thumb.and_then(|thumb| Thumbnail2::from_encrypted(&thumb).ok()),
         }
     }
 
@@ -281,13 +277,12 @@ impl Course2 {
     #[cfg(feature = "with-serde")]
     #[wasm_bindgen(js_name = fromObject)]
     pub fn from_js_object(course: JsValue, thumb: Option<Box<[u8]>>) -> Course2 {
-        let course: SMM2Course = course.into_serde().expect("Course serialization failed");
+        let course: SMM2Course =
+            serde_wasm_bindgen::from_value(course).expect("Course serialization failed");
         Course2 {
             course,
             data: vec![], // TODO
-            thumb: thumb
-                .map(|thumb| Thumbnail2::from_encrypted(&thumb).ok())
-                .flatten(),
+            thumb: thumb.and_then(|thumb| Thumbnail2::from_encrypted(&thumb).ok()),
         }
     }
 
@@ -315,7 +310,7 @@ impl Course2 {
     #[cfg(target_arch = "wasm32")]
     #[cfg(feature = "with-serde")]
     fn get_js_object(&self) -> JsValue {
-        JsValue::from_serde(&self).unwrap()
+        serde_wasm_bindgen::to_value(&self).unwrap()
     }
 
     #[cfg(target_arch = "wasm32")]
@@ -510,14 +505,14 @@ impl Course2 {
             Course2::decrypt(data)?;
         };
 
-        let header = Course2::get_course_header(&data)?;
+        let header = Course2::get_course_header(data)?;
         if let Some(header) = &header.as_ref() {
             if header.title.is_empty() {
                 return Err(Error::Smm2Error(Smm2Error::HeaderDataEmpty));
             }
         }
-        let course_area = Course2::get_course_area(&data, 0)?;
-        let course_sub_area = Course2::get_course_area(&data, 1)?;
+        let course_area = Course2::get_course_area(data, 0)?;
+        let course_sub_area = Course2::get_course_area(data, 1)?;
 
         #[cfg(target_arch = "wasm32")]
         let thumb = if let Some(thumb) = thumb.as_deref() {

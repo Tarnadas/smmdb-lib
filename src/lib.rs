@@ -6,11 +6,6 @@
 //! This is particularly useful for emulation and the 3DS, which is unable to download specific course files from the Nintendo servers.
 //! Courses are serialized via Protocol Buffer.
 
-#![feature(async_closure)]
-#![feature(custom_test_frameworks)]
-#![feature(fn_traits)]
-#![test_runner(test_runner)]
-
 #[macro_use]
 extern crate arrayref;
 
@@ -54,53 +49,5 @@ cfg_if! {
         pub fn setup_panic_hook() {
             console_error_panic_hook::set_once();
         }
-
-        #[global_allocator]
-        static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
     }
 }
-
-#[cfg(all(feature = "save", not(target_arch = "wasm32")))]
-#[cfg(test)]
-pub struct Test {
-    name: &'static str,
-    test: &'static dyn Fn() -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<()>>>>,
-}
-
-#[cfg(all(feature = "save", not(target_arch = "wasm32")))]
-#[cfg(test)]
-impl Test {
-    fn name(&self) -> &str {
-        self.name
-    }
-
-    fn run(&self) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<()>>>> {
-        self.test.call(())
-    }
-}
-
-#[cfg(all(feature = "save", not(target_arch = "wasm32")))]
-#[cfg(test)]
-fn test_runner(test_cases: &[&Test]) {
-    use async_std::task;
-    use colored::*;
-    use fs_extra::dir::remove;
-
-    task::block_on(async {
-        println!("Custom Test Framework running {} tests", test_cases.len());
-        for test_case in test_cases {
-            print!("test {} ... ", test_case.name());
-            if let Err(err) = test_case.run().await {
-                remove("./tests/assets/saves/smm2/tmp").unwrap();
-                panic!("{:?}", err);
-                // TODO collect errors
-            }
-            println!("{}", "ok".green());
-        }
-        remove("./tests/assets/saves/smm2/tmp").unwrap();
-    });
-}
-
-#[cfg(any(not(feature = "save"), target_arch = "wasm32"))]
-#[cfg(test)]
-fn test_runner(_: &[&dyn Fn()]) {}

@@ -1,10 +1,8 @@
-cargo-features = ["strip"]
-
 [package]
 authors = ["Mario Reder <mreder1289@gmail.com>"]
 categories = ["wasm", "emulators"]
 description = "A utility library for Super Mario Maker and Super Mario Maker 2 to read and manipulate game files."
-edition = "2018"
+edition = "2021"
 license = "MIT"
 name = "smmdb"
 readme = "./README.md"
@@ -16,7 +14,7 @@ include = [
     "/build.rs",
     "/Cargo.toml",
     "/README.md",
-    "/LICENSE"
+    "/LICENSE",
 ]
 
 [build-dependencies]
@@ -24,7 +22,7 @@ protobuf-codegen-pure = "2"
 
 [dependencies]
 aes = "0.7"
-arr_macro = { version = "0.1", optional = true }
+arr_macro = { version = "0.2", optional = true }
 arrayref = "0.3"
 async-std = { version = "1", optional = true }
 block-modes = "0.8"
@@ -33,11 +31,11 @@ bytes = { version = "1", features = ["serde"] }
 cfg-if = "1"
 chrono = "0.4"
 cmac = "0.6"
-crc = "2"
+crc = "3"
 hex = "0.4"
-image = "0.23"
-infer = "0.5"
-itertools = "0.10"
+image = "0.24"
+infer = "0.15"
+itertools = "0.12"
 protobuf = { version = "2", features = ["with-bytes", "with-serde"] }
 rand = "0.8"
 regex = "1"
@@ -46,7 +44,7 @@ serde_derive = "1"
 tar = "0.4"
 thiserror = "1"
 typenum = "1"
-zip = { version = "0.5", default-features = false, features = ["deflate"] }
+zip = { version = "0.6", default-features = false, features = ["deflate"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 brotli2 = "0.3"
@@ -55,10 +53,11 @@ brotli2 = "0.3"
 console_error_panic_hook = "0.1"
 getrandom = { version = "0.2", features = ["js"] }
 js-sys = "0.3"
-wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
-wee_alloc = "0.4"
+serde-wasm-bindgen = "0.6"
+wasm-bindgen = "0.2"
 
 [dev-dependencies]
+anyhow = "1"
 colored = "2"
 fs_extra = "1"
 rayon = "1"
@@ -67,7 +66,7 @@ wasm-bindgen-test = "0.3"
 [features]
 default = ["with-serde"]
 with-serde = []
-save = ["arr_macro", "async-std"]
+save = ["arr_macro", "async-std", "async-std/attributes"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]

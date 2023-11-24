@@ -55,7 +55,8 @@ impl Course {
     #[cfg(feature = "with-serde")]
     #[wasm_bindgen]
     pub fn from_js(course: JsValue) -> Course {
-        let course: SMMCourse = course.into_serde().expect("Course serialization failed");
+        let course: SMMCourse =
+            serde_wasm_bindgen::from_value(course).expect("Course serialization failed");
         Course { course }
     }
 
@@ -85,7 +86,7 @@ impl Course {
     #[wasm_bindgen]
     #[allow(clippy::wrong_self_convention)]
     pub fn into_js(&self) -> JsValue {
-        JsValue::from_serde(&self.course).unwrap()
+        serde_wasm_bindgen::to_value(&self.course).unwrap()
     }
 }
 
@@ -176,12 +177,12 @@ impl Course {
             course_data_sub[WIDTH_OFFSET],
             course_data_sub[WIDTH_OFFSET + 1],
         ]) as u32;
-        let tiles = Course::get_tiles(&course_data);
-        let tiles_sub = Course::get_tiles(&course_data_sub);
-        let sounds = Course::get_sounds(&course_data);
-        let sounds_sub = Course::get_sounds(&course_data_sub);
-        let thumbnail = Course::get_thumbnail(&thumbnail);
-        let thumbnail_preview = Course::get_thumbnail(&thumbnail_preview);
+        let tiles = Course::get_tiles(course_data);
+        let tiles_sub = Course::get_tiles(course_data_sub);
+        let sounds = Course::get_sounds(course_data);
+        let sounds_sub = Course::get_sounds(course_data_sub);
+        let thumbnail = Course::get_thumbnail(thumbnail);
+        let thumbnail_preview = Course::get_thumbnail(thumbnail_preview);
         Ok(Course {
             course: SMMCourse {
                 modified,
@@ -213,8 +214,8 @@ impl Course {
         let hour = course_data[HOUR_OFFSET];
         let minute = course_data[MINUTE_OFFSET];
         let time = NaiveDateTime::new(
-            NaiveDate::from_ymd(year as i32, month as u32, day as u32),
-            NaiveTime::from_hms(hour as u32, minute as u32, 0),
+            NaiveDate::from_ymd_opt(year as i32, month as u32, day as u32).unwrap(),
+            NaiveTime::from_hms_opt(hour as u32, minute as u32, 0).unwrap(),
         );
         time.timestamp() as u64
     }

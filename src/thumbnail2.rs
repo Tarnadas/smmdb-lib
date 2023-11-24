@@ -4,7 +4,7 @@
 use crate::JsResult;
 use crate::{decrypt, encrypt, key_tables::*, Error, Result};
 
-use image::{jpeg::JpegEncoder, load_from_memory, DynamicImage, ImageError};
+use image::{codecs::jpeg::JpegEncoder, load_from_memory, DynamicImage, ImageError};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
@@ -90,7 +90,10 @@ impl Thumbnail2 {
     fn _optimize_jpeg(&mut self) -> Result<()> {
         let jpeg = self.get_jpeg();
 
+        #[cfg(target_arch = "wasm32")]
         let image = load_from_memory(&jpeg)?;
+        #[cfg(not(target_arch = "wasm32"))]
+        let image = load_from_memory(jpeg)?;
         let color = image.color();
 
         match image {

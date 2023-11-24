@@ -49,7 +49,6 @@ fn course2_encryption() {
     for folder in save_folders {
         let entries: Vec<_> = read_dir(folder)
             .unwrap()
-            .into_iter()
             .par_bridge()
             .map(|entry| {
                 let entry = entry.unwrap();
@@ -60,7 +59,7 @@ fn course2_encryption() {
         entries.par_iter().for_each(|(file_name, path)| {
             let file_name = file_name.to_str().unwrap();
             if file_name.starts_with("course_data_") && file_name.ends_with(".bcd") {
-                let mut expected = read(&path).unwrap();
+                let mut expected = read(path).unwrap();
                 let expected_course =
                     Course2::from_switch_files(&mut expected, None, true).unwrap();
 

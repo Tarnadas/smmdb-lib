@@ -1,4 +1,4 @@
-on: 
+on:
   push:
     branches: [master]
   pull_request:
@@ -7,7 +7,7 @@ on:
 name: Rust Server Test & Publish
 
 env:
-  RUST_TOOLCHAIN: nightly-2021-04-25
+  RUST_TOOLCHAIN: 1.73
 
 jobs:
   test-rust:
@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         check-args:
-          - ''
+          - ""
           - --features save
           - --no-default-features
           - --no-default-features --features save
@@ -77,7 +77,7 @@ jobs:
       fail-fast: false
       matrix:
         check-args:
-          - ''
+          - ""
           - --features save
           - --no-default-features
           - --no-default-features --features save
@@ -98,12 +98,12 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: "14"
 
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.3.0
         with:
-          version: 'latest'
+          version: "latest"
 
       - name: Setup Cache
         uses: actions/cache@v2
@@ -154,12 +154,12 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: "14"
 
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.3.0
         with:
-          version: 'latest'
+          version: "latest"
 
       - name: Check NPM and crates.io version
         id: check-version
@@ -213,12 +213,12 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: "18"
 
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.3.0
         with:
-          version: 'latest'
+          version: "latest"
 
       - name: Deploy to NPM
         env:

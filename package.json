@@ -1,5 +1,5 @@
 {
-  "author": "Mario Reder <mreder1289@gmail.com>",
+  "author": "Mario Reder <mario.reder@pm.me>",
   "name": "smmdb",
   "version": "auto",
   "description": "A utility library for Super Mario Maker and Super Mario Maker 2 to read and manipulate game files.",
@@ -17,6 +17,6 @@
     "watch": "cargo watch -w src -i src/proto -s 'wasm-pack build --dev --target=browser --out-name=smmdb'"
   },
   "devDependencies": {
-    "rimraf": "^3"
+    "rimraf": "^5.0.5"
   }
 }

@@ -9,3 +9,4 @@ smmdb-*.tgz
 Cargo.lock
 *.opt
 .cache
+tests/assets/saves/smm2/tmp

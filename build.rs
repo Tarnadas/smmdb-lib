@@ -12,7 +12,7 @@ fn main() {
     }
     Codegen::new()
         .out_dir(OUT_DIR)
-        .inputs(&[
+        .inputs([
             "proto/SMMCourse.proto",
             "proto/SMM2Course.proto",
             "proto/Sound.proto",
