@@ -168,9 +168,9 @@ jobs:
           export LIB_VERSION=$(cat Cargo.toml | grep version | head -1 | sed 's/[",(version = )]//g')
           echo LIB_VERSION=$LIB_VERSION
           export NPM_VERSION_EXISTS=$(./npm_version_exists.sh $LIB_VERSION)
-          echo "::set-output name=npm-version-exists::$NPM_VERSION_EXISTS"
+          echo "npm-version-exists=$NPM_VERSION_EXISTS" >> $GITHUB_OUTPUT
           export CRATE_VERSION_EXISTS=$(NO_COLOR=1 ./crate_version_exists.sh $LIB_VERSION)
-          echo "::set-output name=crate-version-exists::$CRATE_VERSION_EXISTS"
+          echo "crate-version-exists=$CRATE_VERSION_EXISTS" >> $GITHUB_OUTPUT
 
   publish-crate:
     needs: check-publish
